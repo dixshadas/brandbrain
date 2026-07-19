@@ -109,9 +109,9 @@ const BRAND = { name: "YI Combo", tag: "Glaucoma · latanoprost + timolol FDC", 
                 owner: "Dr. Ananya Rao", role: "Brand Director" };
 
 const BRANDS = [
-  { id:"yic", name:"YI Combo", tag:"Glaucoma · latanoprost + timolol", initial:"Y", active:true },
-  { id:"win", name:"WinYou",   tag:"No research available", initial:"W", active:false },
-  { id:"cos", name:"Cosopt",   tag:"No research available", initial:"C", active:false },
+  { id:"yic", name:"YI Combo Brand", tag:"Glaucoma · latanoprost + timolol", initial:"Y", active:true },
+  { id:"win", name:"WinYou Brand",   tag:"Glaucoma franchise", initial:"W", active:false },
+  { id:"cos", name:"Cosopt Brand",   tag:"Glaucoma franchise", initial:"C", active:false },
 ];
 
 // The question that drives the whole demo.
@@ -414,10 +414,21 @@ const PULSE = {
   ]
 };
 
+// YI Combo's competitive set — from the IQVIA brand table + Brand Plan 2025.
+const COMPETITORS = [
+  { rank:1, brand:"YI Combo", company:"NovaVision Pharma", share:42.3, value:"₹10.8 Cr", growth:"+56.5%", trend:"up", self:true, note:"Segment leader within 3 years of launch — once-daily FDC, guideline-backed escalation story.", cite:"c1" },
+  { rank:2, brand:"Xalacom", company:"Pfizer", share:19.1, value:"₹4.9 Cr", growth:"+2.7%", trend:"flat", note:"Originator brand; growth stalling as YI Combo takes share. Legacy trust, premium price.", cite:"c1" },
+  { rank:3, brand:"Latocom", company:"Sun Pharma", share:16.6, value:"₹4.2 Cr", growth:"+3.2%", trend:"flat", note:"Established generic FDC; broad distribution, competes on price.", cite:"c1" },
+  { rank:4, brand:"Latocom-CF", company:"Sun Pharma", share:12.4, value:"₹3.2 Cr", growth:"+15.9%", trend:"up", note:"Preservative-free variant — fastest-growing incumbent, tolerability positioning.", cite:"c1" },
+  { rank:5, brand:"Lacoma-T", company:"Ajanta Pharma", share:7.5, value:"₹1.9 Cr", growth:"+8.7%", trend:"up", note:"Value challenger; steady regional gains.", cite:"c1" },
+];
+// The real threat is class-level, not brand-level.
+const CLASS_THREAT = { name:"Rho-kinase inhibitor class", cagr:"68.7% CAGR", value:"₹55.1 Cr", note:"Now larger than the entire Latanoprost+Timolol FDC segment — the structural threat to watch, per the Brand Plan.", cite:"c9" };
+
 /* ------------------------------------------------------------------ HCP PERSONA STUDIO */
 // Synthetic ophthalmologist personas built from the segmentation framework (5 cohorts).
 const PERSONAS = [
-  { id:"p1", name:"Dr. Meera Krishnan", city:"Chennai", years:"18 yrs · senior consultant, cataract & glaucoma",
+  { id:"p1", name:"Prostaglandin-Sparing Advocate", avatar:"PS", city:"Archetype · solo-practice adopter", years:"~18 yrs experience · senior consultant, cataract & glaucoma",
     cohort:"Prostaglandin-Sparing Advocate", code:"B", priority:true,
     pctHcp:"17% of HCPs (29,131)", pctTrx:"36% of TRx", practice:"Solo practice institutions",
     mbti:"ENTJ", mbtiName:"The Commander", tone:"fuchsia",
@@ -427,7 +438,7 @@ const PERSONAS = [
     messaging:"Guideline-led efficacy: first-line PGA consensus (EGS · AAO · NICE · ICO) plus the escalation story when monotherapy is inadequate.",
     comms:"Direct and data-first. Short, high-density visits; prefers evidence summaries by email she can verify herself.",
     treatment:"Initiates PGA first-line, escalates early to a PGA+timolol FDC on inadequate control; monitors IOP aggressively." },
-  { id:"p2", name:"Dr. Rajesh Malhotra", city:"Delhi NCR", years:"12 yrs · corporate hospital network",
+  { id:"p2", name:"Network-Controlled Provider", avatar:"NC", city:"Archetype · IDN network prescriber", years:"~12 yrs experience · corporate hospital network",
     cohort:"Network-Controlled Provider", code:"B", priority:true,
     pctHcp:"16% of HCPs (27,017)", pctTrx:"22% of TRx", practice:"Nearly all IDN institutions",
     mbti:"ISTJ", mbtiName:"The Logistician", tone:"violet",
@@ -437,7 +448,7 @@ const PERSONAS = [
     messaging:"Health-economics and formulary dossiers; network-level outcome evidence rather than individual-brand claims.",
     comms:"Formal and institutional. Prefers structured meetings, approved email, and material he can table with the P&T committee.",
     treatment:"Follows network protocol precisely; switches patients the day the formulary allows — and not before." },
-  { id:"p3", name:"Dr. Kavita Deshmukh", city:"Pune", years:"24 yrs · independent clinic owner",
+  { id:"p3", name:"Independent Habitualist", avatar:"IH", city:"Archetype · non-IDN clinic owner", years:"~24 yrs experience · independent clinic owner",
     cohort:"Independent Habitualist", code:"E", priority:true,
     pctHcp:"10% of HCPs (17,347)", pctTrx:"25% of TRx", practice:"Nearly all non-IDN institutions",
     mbti:"ISFJ", mbtiName:"The Defender", tone:"purple",
@@ -447,7 +458,7 @@ const PERSONAS = [
     messaging:"Long-term safety first (five-year molecule data, Ali 2011), then peer testimony — belief-shift over feature lists.",
     comms:"Relationship-led. Values rep continuity and unhurried in-person conversations; distrusts flashy digital.",
     treatment:"Loyal to established molecules; switches slowly — but once converted, becomes a durable, high-volume prescriber." },
-  { id:"p4", name:"Dr. Arjun Nair", city:"Kochi", years:"6 yrs · general ophthalmology",
+  { id:"p4", name:"Low-volume Enthusiast", avatar:"LE", city:"Archetype · digitally-engaged generalist", years:"~6 yrs experience · general ophthalmology",
     cohort:"Low-volume Enthusiast", code:"D", priority:false,
     pctHcp:"28% of HCPs (48,349)", pctTrx:"11% of TRx", practice:"Majority non-IDN · some solo/IDN mix",
     mbti:"ENFP", mbtiName:"The Campaigner", tone:"pink",
@@ -457,7 +468,7 @@ const PERSONAS = [
     messaging:"Digital-first: webinars, quick-reference dosing cards, case-based micro-content he can consume between patients.",
     comms:"WhatsApp and email; watches short videos, replies fast, and amplifies content to peers.",
     treatment:"Prescribes confidently for straightforward OAG; refers advanced and surgical cases to sub-specialists." },
-  { id:"p5", name:"Dr. Sunita Patel", city:"Ahmedabad", years:"30 yrs · trust hospital department head",
+  { id:"p5", name:"Delayed Digitalist", avatar:"DD", city:"Archetype · formulary-bound academic", years:"~30 yrs experience · trust hospital department head",
     cohort:"Delayed Digitalist", code:"A", priority:false,
     pctHcp:"29% of HCPs (49,984)", pctTrx:"6% of TRx", practice:"Nearly all IDN institutions",
     mbti:"INTP", mbtiName:"The Logician", tone:"slate",
@@ -467,6 +478,29 @@ const PERSONAS = [
     messaging:"Nurture-only: guideline updates and institutional education through the network — no active field effort.",
     comms:"Rarely sees reps. Reachable through hospital academic programmes, if at all.",
     treatment:"Prescribes the formulary default; escalation decisions defer to network protocol and junior consultants." },
+];
+
+// Sample assets a brand manager can test against the synthetic personas.
+// band: green = strong fit · yellow = needs improvement · red = misaligned.
+const TEST_ASSETS = [
+  { id:"t1", name:"Banner — Long-Term Tolerability (OAG)", code:"PP-YIC-GLB-0258", type:"HCP banner · safety-led",
+    hero:"“YI Combo is generally well tolerated for long-term treatment in OAG”",
+    scores:{
+      p1:{ pct:71, band:"yellow", emotion:"Interested but wants proof", note:"Safety reassures, but an efficacy/guideline lead would convert this data-first adopter faster." },
+      p2:{ pct:54, band:"red",    emotion:"Unmoved",                    note:"No formulary or health-economics angle — this prescriber needs a dossier, not a tolerability claim." },
+      p3:{ pct:93, band:"green",  emotion:"Reassured & trusting",       note:"Five-year safety is exactly the belief-shift lever this habit-driven persona responds to." },
+      p4:{ pct:76, band:"yellow", emotion:"Curious",                    note:"On-message, but static; a short video or case card would land far better with this digital persona." },
+      p5:{ pct:39, band:"red",    emotion:"Indifferent",                note:"Promotionally unreachable and formulary-bound — a banner will not move this cohort." },
+    } },
+  { id:"t2", name:"Banner — First-Line PGA Guidelines", code:"PP-YIC-GLB-0125", type:"HCP banner · guideline-led",
+    hero:"“Prostaglandins are first-line IOP-lowering agents (EGS · AAO · NICE · ICO)”",
+    scores:{
+      p1:{ pct:94, band:"green",  emotion:"Convinced",                  note:"Guideline-led efficacy is precisely this advocate's decision trigger — a near-perfect fit." },
+      p2:{ pct:79, band:"green",  emotion:"Reassured",                  note:"Guideline backing supports the protocol case, though a formulary hook would strengthen it further." },
+      p3:{ pct:63, band:"yellow", emotion:"Cautious",                   note:"Guidelines help, but this persona shifts on long-term safety and peer proof more than consensus statements." },
+      p4:{ pct:81, band:"green",  emotion:"Engaged",                    note:"Clear, current and shareable — fits the digitally-engaged learner well." },
+      p5:{ pct:46, band:"red",    emotion:"Detached",                   note:"Academically agreeable but behaviourally inert — formulary constraints dominate." },
+    } },
 ];
 
 /* ------------------------------------------------------------------ MLR REVIEW */
@@ -1116,10 +1150,22 @@ function WelcomeScreen({onEnter}) {
           Every insight your brand<br/>has ever learned. <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-emerald-300">One brain.</span>
         </h1>
         <p className="mt-5 text-[16.5px] leading-relaxed text-slate-300 max-w-xl mx-auto">
-          BrandBrain is the institutional memory of your pharmaceutical brand. It reads every study,
+          BrandBrain is the institutional memory of your brand. It reads every study,
           remembers every decision, and answers strategic questions with evidence you can verify —
-          so Brand Managers decide with confidence, not recollection.
+          so your team decides with confidence, not recollection.
         </p>
+        {/* who it's for */}
+        <div className="mt-5 flex items-center justify-center gap-2 flex-wrap text-[11.5px] font-semibold text-slate-300">
+          {["Brand Directors","CMOs","Medical Affairs","Brand Agencies","Brand Managers"].map(r=>
+            <span key={r} className="rounded-full border border-white/10 bg-white/5 px-3 py-1">{r}</span>)}
+        </div>
+        {/* the loop */}
+        <div className="mt-7 flex items-center justify-center gap-2 text-[12px] font-semibold text-slate-400 flex-wrap">
+          {["Evidence in","Cited answers","Human approval","Living memory"].map((s,i)=><React.Fragment key={s}>
+            {i>0 && <span className="text-indigo-400"><Icon.arrow size={13}/></span>}
+            <span className={cx("rounded-full px-3 py-1 border", i===3?"border-emerald-400/40 text-emerald-300 bg-emerald-400/10":"border-white/10 bg-white/5")}>{s}</span>
+          </React.Fragment>)}
+        </div>
         {/* four pillars — scannable in seconds */}
         <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-3 text-left">
           {pillars.map((p,i)=>{ const PIc=Icon[p.icon]; return <div key={i} className="rounded-2xl bg-white/[.06] border border-white/10 backdrop-blur-sm p-4 hover:bg-white/[.09] transition">
@@ -1127,13 +1173,6 @@ function WelcomeScreen({onEnter}) {
             <div className="mt-3 font-bold text-[14px] text-white">{p.title}</div>
             <div className="mt-1 text-[12.5px] leading-relaxed text-slate-400">{p.body}</div>
           </div>;})}
-        </div>
-        {/* the loop */}
-        <div className="mt-8 flex items-center justify-center gap-2 text-[12px] font-semibold text-slate-400 flex-wrap">
-          {["Evidence in","Cited answers","Human approval","Living memory"].map((s,i)=><React.Fragment key={s}>
-            {i>0 && <span className="text-indigo-400"><Icon.arrow size={13}/></span>}
-            <span className={cx("rounded-full px-3 py-1 border", i===3?"border-emerald-400/40 text-emerald-300 bg-emerald-400/10":"border-white/10 bg-white/5")}>{s}</span>
-          </React.Fragment>)}
         </div>
         {/* enter */}
         <div className="mt-10 flex flex-col items-center gap-3">
@@ -1143,10 +1182,9 @@ function WelcomeScreen({onEnter}) {
             Enter with YI Combo
             <span className="text-ink-mute group-hover:translate-x-1 transition-transform"><Icon.arrow size={17}/></span>
           </button>
-          <div className="text-[11.5px] text-slate-500 font-medium">Glaucoma · Ophthalmology · latanoprost 50 µg/ml + timolol 5 mg/ml · once daily</div>
         </div>
         <div className="mt-8 flex items-center justify-center gap-2 text-[11px] text-slate-500">
-          <Icon.shield size={13} cls="text-emerald-400"/> Built for pharmaceutical brand teams · MLR-governed · nothing published without human approval
+          <Icon.shield size={13} cls="text-emerald-400"/> Built for brand teams · MLR-governed · nothing published without human approval
         </div>
       </div>
     </div>
@@ -1312,6 +1350,16 @@ function LibraryScreen({app}) {
       <p className="text-[12.5px] text-ink-mute mb-3.5">Enterprise systems feeding the estate automatically — every import passes the same metadata gate.</p>
       <div className="grid sm:grid-cols-2 gap-3">
         {CONNECTORS.map(c=><ConnectorCard key={c.id} c={c}/>)}
+        {/* add / discover more connectors */}
+        <button onClick={()=>app.toast("Connector gallery — Teams, Slack, Box, Salesforce, Google Drive & more available to connect")}
+          className="rounded-2xl border-2 border-dashed border-line hover:border-indigo-300 hover:bg-indigo-50/30 transition p-4 flex items-center gap-3 text-left group">
+          <span className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 grid place-items-center group-hover:scale-105 transition shrink-0"><Icon.plus size={20}/></span>
+          <div className="flex-1">
+            <div className="font-bold text-[14px] text-ink">Add connector</div>
+            <div className="text-[11.5px] text-ink-mute">Teams · Slack · Box · Salesforce · Google Drive &amp; more</div>
+          </div>
+          <span className="text-ink-faint group-hover:text-indigo-600 transition"><Icon.arrow size={16}/></span>
+        </button>
       </div>
     </div>
   </div>;
@@ -1368,9 +1416,59 @@ function PulseScreen({app}) {
       </div>
       <div className="mt-5 pt-4 border-t border-line flex items-center gap-3">
         <span className="text-[12px] text-ink-mute flex-1">The full picture is one question away.</span>
-        <Button size="sm" onClick={()=>app.go("ask")} iconRight={<Icon.arrow size={14}/>}>Ask about switching</Button>
+        <Button size="sm" onClick={()=>app.go("ask")} iconRight={<Icon.arrow size={14}/>}>Ask a question</Button>
       </div>
     </Card>
+
+    {/* Competitor landscape — from the IQVIA brand table + Brand Plan */}
+    <div className="mt-6">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-ink-soft"><Icon.trend size={16}/></span>
+        <div className="font-bold text-[15px]">Competitor landscape</div>
+        <span className="ml-auto text-[11px] text-ink-faint">Latanoprost+Timolol FDC · MAT 2026 value share</span>
+      </div>
+      <Card pad="p-4">
+        <div className="space-y-2.5">
+          {COMPETITORS.map((c)=><div key={c.rank}
+            className={cx("rounded-xl border p-3.5", c.self?"border-fuchsia-200 bg-gradient-to-r from-fuchsia-50/60 to-indigo-50/40":"border-line bg-white")}>
+            <div className="flex items-center gap-3">
+              <span className={cx("w-7 h-7 rounded-lg grid place-items-center font-extrabold text-[12px] shrink-0",
+                c.self?"bg-gradient-to-br from-fuchsia-600 to-indigo-600 text-white":"bg-slate-100 text-ink-soft")}>#{c.rank}</span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className={cx("font-bold text-[14px]", c.self?"text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-600 to-indigo-600":"text-ink")}>{c.brand}</span>
+                  {c.self && <span className="text-[9px] font-bold text-white bg-gradient-to-r from-fuchsia-600 to-indigo-600 rounded px-1.5 py-0.5">OUR BRAND</span>}
+                  <span className="text-[11.5px] text-ink-mute">· {c.company}</span>
+                </div>
+                <div className="text-[12px] text-ink-soft leading-snug mt-0.5">{c.note}</div>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="font-extrabold text-[15px] text-ink">{c.share}%</div>
+                <div className={cx("text-[11px] font-bold inline-flex items-center gap-0.5",
+                  c.trend==="up"?"text-emerald-700":"text-ink-mute")}>
+                  {c.trend==="up"&&<Icon.trend size={10}/>}{c.growth}</div>
+              </div>
+            </div>
+            {/* share bar */}
+            <div className="mt-2.5 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+              <div className={cx("h-full rounded-full barfill", c.self?"bg-gradient-to-r from-fuchsia-500 to-indigo-500":"bg-slate-300")} style={{width:c.share+"%"}}/>
+            </div>
+          </div>)}
+        </div>
+        {/* class-level threat */}
+        <div className="mt-3 rounded-xl border border-rose-200 bg-rose-50/50 p-3.5 flex items-start gap-3">
+          <span className="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 grid place-items-center shrink-0"><Icon.bolt size={16}/></span>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-bold text-[13.5px] text-ink">{CLASS_THREAT.name}</span>
+              <span className="text-[10.5px] font-bold text-rose-600 bg-white border border-rose-200 rounded px-1.5 py-0.5">{CLASS_THREAT.cagr}</span>
+              <span className="text-[11px] text-ink-mute">{CLASS_THREAT.value}</span>
+            </div>
+            <div className="text-[12.5px] text-ink-soft leading-relaxed mt-1">{CLASS_THREAT.note} <CitationChip id={CLASS_THREAT.cite}/></div>
+          </div>
+        </div>
+      </Card>
+    </div>
   </div>;
 }
 
@@ -1825,15 +1923,15 @@ function PersonaCard({p, onOpen}) {
     className="group text-left rounded-2xl border border-line bg-white shadow-card hover:shadow-lift hover:border-indigo-200 transition p-5 flex flex-col">
     <div className="flex items-start gap-3">
       <span className="w-11 h-11 rounded-xl grid place-items-center text-white font-extrabold text-[15px] shrink-0"
-        style={{background:`linear-gradient(135deg, ${col}, ${col}CC)`}}>{p.name.split(" ").slice(1).map(w=>w[0]).join("").slice(0,2)}</span>
+        style={{background:`linear-gradient(135deg, ${col}, ${col}CC)`}}>{p.avatar}</span>
       <div className="flex-1 min-w-0">
         <div className="font-bold text-[15px] text-ink leading-tight">{p.name}</div>
-        <div className="text-[11.5px] text-ink-mute mt-0.5">{p.city} · {p.years}</div>
+        <div className="text-[11.5px] text-ink-mute mt-0.5">{p.city}</div>
       </div>
       {p.priority && <span className="text-[9.5px] font-bold text-indigo-700 bg-indigo-50 rounded px-1.5 py-0.5 shrink-0">PRIORITY</span>}
     </div>
     <div className="mt-3 flex items-center gap-1.5 flex-wrap">
-      <span className="text-[10.5px] font-bold rounded-md px-2 py-0.5 text-white" style={{background:col}}>{p.cohort} ({p.code})</span>
+      <span className="text-[10.5px] font-bold rounded-md px-2 py-0.5 text-white" style={{background:col}}>Segment {p.code}</span>
       <span className="text-[10.5px] font-bold rounded-md px-2 py-0.5 bg-slate-100 text-ink-soft">{p.mbti} · {p.mbtiName}</span>
     </div>
     <p className="mt-3 text-[12.5px] leading-relaxed text-ink-soft line-clamp-3 flex-1">{p.behaviour}</p>
@@ -1856,12 +1954,12 @@ function PersonaPanel({p, onClose}) {
     <div className="absolute right-0 top-0 h-full w-full max-w-lg bg-white shadow-pop animate-slidein flex flex-col">
       <div className="px-6 py-5 border-b border-line flex items-start gap-3.5">
         <span className="w-12 h-12 rounded-xl grid place-items-center text-white font-extrabold text-[16px] shrink-0"
-          style={{background:`linear-gradient(135deg, ${col}, ${col}CC)`}}>{p.name.split(" ").slice(1).map(w=>w[0]).join("").slice(0,2)}</span>
+          style={{background:`linear-gradient(135deg, ${col}, ${col}CC)`}}>{p.avatar}</span>
         <div className="flex-1 min-w-0">
           <div className="font-bold text-[17px] leading-tight">{p.name}</div>
-          <div className="text-[12px] text-ink-mute mt-0.5">{p.city} · {p.years}</div>
+          <div className="text-[12px] text-ink-mute mt-0.5">{p.city}</div>
           <div className="mt-2 flex items-center gap-1.5 flex-wrap">
-            <span className="text-[10.5px] font-bold rounded-md px-2 py-0.5 text-white" style={{background:col}}>{p.cohort} ({p.code})</span>
+            <span className="text-[10.5px] font-bold rounded-md px-2 py-0.5 text-white" style={{background:col}}>Segment {p.code}</span>
             {p.priority && <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 rounded px-1.5 py-0.5">PRIORITY COHORT</span>}
           </div>
         </div>
@@ -1893,20 +1991,144 @@ function PersonaPanel({p, onClose}) {
   </div>;
 }
 
+const BAND={ green:{fg:"text-emerald-700",bg:"bg-emerald-50",bar:"bg-emerald-500",ring:"border-emerald-200",dot:"bg-emerald-500",label:"Strong fit"},
+             yellow:{fg:"text-amber-700",bg:"bg-amber-50",bar:"bg-amber-500",ring:"border-amber-200",dot:"bg-amber-500",label:"Needs improvement"},
+             red:{fg:"text-rose-600",bg:"bg-rose-50",bar:"bg-rose-500",ring:"border-rose-200",dot:"bg-rose-500",label:"Misaligned"} };
+
+// Upload an approved asset → see how each synthetic persona reacts (heat-map + % relevance).
+function AssetTestPanel({onClose}) {
+  const [phase,setPhase]=useState("pick");  // pick | analyzing | result
+  const [asset,setAsset]=useState(null);
+  const [astep,setAstep]=useState(0);
+  const ASTEPS=["Reading the asset — claims, tone, visual","Scoring against each persona's beliefs & barriers","Mapping emotional response","Building the relevance heat-map"];
+
+  const run=(a)=>{ setAsset(a); setPhase("analyzing"); setAstep(0);
+    let i=0; const t=setInterval(()=>{ i++; setAstep(i); if(i>=ASTEPS.length){ clearInterval(t); setTimeout(()=>setPhase("result"),450);} },720); };
+
+  const order = asset ? [...PERSONAS].sort((a,b)=>asset.scores[b.id].pct-asset.scores[a.id].pct) : PERSONAS;
+  const best = order[0], worst = order[order.length-1];
+
+  return <div className="fixed inset-0 z-50 grid place-items-center px-4 py-8">
+    <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px] animate-fadein" onClick={onClose}/>
+    <div className="relative w-full max-w-2xl max-h-full overflow-y-auto bg-white rounded-2xl shadow-pop animate-fadeup">
+      <div className="px-6 pt-5 pb-4 border-b border-line flex items-start gap-3 sticky top-0 bg-white z-10">
+        <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-fuchsia-600 to-indigo-600 text-white grid place-items-center shrink-0"><Icon.eye size={19}/></span>
+        <div className="flex-1">
+          <div className="font-bold text-[16px] text-ink">Test an asset against the personas</div>
+          <div className="text-[12.5px] text-ink-mute mt-0.5">Upload an approved banner, emailer, image or video — see how each synthetic HCP reacts before it goes live.</div>
+        </div>
+        <button onClick={onClose} className="text-ink-mute hover:text-ink hover:bg-slate-100 rounded-lg p-1.5"><Icon.x size={18}/></button>
+      </div>
+
+      {phase==="pick" && <div className="p-6 animate-fadein">
+        <div className="rounded-2xl border-2 border-dashed border-line hover:border-indigo-300 transition p-7 flex flex-col items-center gap-2 text-center">
+          <span className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 grid place-items-center"><Icon.upload size={22}/></span>
+          <div className="font-bold text-[14.5px] text-ink mt-1">Drop an asset to test</div>
+          <div className="text-[12.5px] text-ink-mute">Banner · emailer · image · video · concept copy — PNG, JPG, MP4, PDF, HTML</div>
+        </div>
+        <div className="mt-5 text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-2">Or test a sample from your Veeva library</div>
+        <div className="space-y-2.5">
+          {TEST_ASSETS.map(a=><button key={a.id} onClick={()=>run(a)}
+            className="w-full flex items-center gap-3 rounded-xl border border-line bg-white p-3.5 hover:border-indigo-200 hover:bg-indigo-50/40 transition text-left">
+            <div className="w-16 h-11 rounded-lg bg-gradient-to-br from-emerald-50 to-indigo-50 border border-line grid place-items-center text-[8px] font-bold text-ink-faint text-center leading-tight shrink-0">ONCE DAILY<br/>YI COMBO</div>
+            <div className="flex-1 min-w-0"><div className="font-semibold text-[13.5px] text-ink truncate">{a.name}</div>
+              <div className="text-[11.5px] text-ink-mute">{a.code} · {a.type}</div></div>
+            <span className="text-ink-faint shrink-0"><Icon.arrow size={15}/></span>
+          </button>)}
+        </div>
+      </div>}
+
+      {phase==="analyzing" && <div className="p-6 animate-fadein">
+        <div className="rounded-xl border border-line bg-slate-50/50 p-3.5 flex items-center gap-3 mb-4">
+          <div className="w-14 h-10 rounded-lg bg-gradient-to-br from-emerald-50 to-indigo-50 border border-line grid place-items-center text-[7.5px] font-bold text-ink-faint text-center leading-tight shrink-0">ONCE DAILY<br/>YI COMBO</div>
+          <div className="min-w-0"><div className="font-semibold text-[13px] text-ink truncate">{asset.name}</div><div className="text-[11px] text-ink-mute">{asset.code}</div></div>
+        </div>
+        <div className="space-y-2.5">
+          {ASTEPS.map((s,i)=><div key={i} className={cx("flex items-center gap-3 text-[13.5px] transition", i<=astep?"text-ink":"text-ink-faint")}>
+            <span className="w-4 h-4 shrink-0">{i<astep?<span className="text-emerald-600"><Icon.check size={16}/></span>
+              :i===astep?<span className="block w-3.5 h-3.5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"/>
+              :<span className="block w-1.5 h-1.5 rounded-full bg-slate-300 ml-1"/>}</span>
+            <span className={cx(i===astep&&"caret")}>{s}</span></div>)}
+        </div>
+      </div>}
+
+      {phase==="result" && <div className="p-6 animate-fadein">
+        {/* asset header */}
+        <div className="rounded-xl border border-line bg-slate-50/50 p-3.5 flex items-center gap-3 mb-4">
+          <div className="w-16 h-11 rounded-lg bg-gradient-to-br from-emerald-50 to-indigo-50 border border-line grid place-items-center text-[8px] font-bold text-ink-faint text-center leading-tight shrink-0">ONCE DAILY<br/>YI COMBO</div>
+          <div className="min-w-0 flex-1"><div className="font-semibold text-[13.5px] text-ink">{asset.name}</div>
+            <div className="text-[11.5px] text-ink-mute italic">{asset.hero}</div></div>
+        </div>
+
+        {/* summary */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Best fit</div>
+            <div className="font-bold text-[13.5px] text-ink">{best.name}</div>
+            <div className="text-[18px] font-extrabold text-emerald-700 mt-0.5">{asset.scores[best.id].pct}% relevant</div>
+          </div>
+          <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-3">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-rose-600 mb-1">Weakest fit</div>
+            <div className="font-bold text-[13.5px] text-ink">{worst.name}</div>
+            <div className="text-[18px] font-extrabold text-rose-600 mt-0.5">{asset.scores[worst.id].pct}% relevant</div>
+          </div>
+        </div>
+
+        {/* heat-map */}
+        <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-2 flex items-center justify-between">
+          <span>Relevance heat-map · by persona</span>
+          <span className="flex items-center gap-2.5 normal-case tracking-normal font-medium">
+            {["green","yellow","red"].map(b=><span key={b} className="flex items-center gap-1"><span className={cx("w-2 h-2 rounded-full", BAND[b].dot)}/>{BAND[b].label}</span>)}
+          </span>
+        </div>
+        <div className="space-y-2.5">
+          {order.map(p=>{ const s=asset.scores[p.id]; const B=BAND[s.band];
+            return <div key={p.id} className={cx("rounded-xl border p-3.5", B.ring, B.bg)}>
+              <div className="flex items-center gap-3">
+                <span className="w-8 h-8 rounded-lg grid place-items-center text-white font-extrabold text-[11px] shrink-0"
+                  style={{background:`linear-gradient(135deg, ${PTONE[p.tone]}, ${PTONE[p.tone]}CC)`}}>{p.avatar}</span>
+                <div className="min-w-0 flex-1">
+                  <div className="font-bold text-[13px] text-ink truncate">{p.name}</div>
+                  <div className={cx("text-[11px] font-semibold", B.fg)}>{s.emotion}</div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className={cx("text-[16px] font-extrabold", B.fg)}>{s.pct}%</div>
+                  <div className="text-[9px] font-bold uppercase tracking-wide text-ink-faint">relevant</div>
+                </div>
+              </div>
+              <div className="mt-2 h-1.5 rounded-full bg-white/70 overflow-hidden">
+                <div className={cx("h-full rounded-full barfill", B.bar)} style={{width:s.pct+"%"}}/>
+              </div>
+              <div className="mt-2 text-[12px] text-ink-soft leading-snug">{s.note}</div>
+            </div>;})}
+        </div>
+
+        <div className="mt-4 flex items-center gap-2">
+          <span className="text-[11.5px] text-ink-mute flex-1 flex items-center gap-1.5"><Icon.shield size={13} cls="text-emerald-600"/>Scored against the segmentation framework — directional, for concept testing.</span>
+          <Button variant="outline" size="sm" onClick={()=>setPhase("pick")}>Test another</Button>
+        </div>
+      </div>}
+    </div>
+  </div>;
+}
+
 function PersonasScreen() {
   const [open,setOpen]=useState(null);
+  const [test,setTest]=useState(false);
   const p = PERSONAS.find(x=>x.id===open);
   return <div className="max-w-5xl mx-auto pb-24">
-    <ScreenHeader title="HCP Persona Studio" sub="Five synthetic ophthalmologists — one for each segmentation cohort. Test messaging against how each actually decides."
-      right={<div className="text-[12px] text-ink-mute flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>Built from 172,828-HCP segmentation</div>}/>
+    <ScreenHeader title="HCP Persona Studio" sub="Five synthetic ophthalmologists — one for each segmentation cohort. Test messaging and assets against how each actually decides."
+      right={<Button size="sm" onClick={()=>setTest(true)} icon={<Icon.eye size={15}/>}>Test an asset</Button>}/>
     <div className="mb-5 rounded-xl border border-line bg-white shadow-card px-4 py-3 flex items-center gap-3 text-[12.5px] text-ink-soft">
       <span className="text-indigo-600"><Icon.users size={17}/></span>
       Grounded in the segmentation study — IQVIA HCP universe analysis, ATU, and qualitative interviews (n=25). <CitationChip id="c3"/>
+      <span className="ml-auto text-[11px] text-ink-faint hidden sm:flex items-center gap-1.5 shrink-0"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>172,828-HCP universe</span>
     </div>
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
       {PERSONAS.map(x=><PersonaCard key={x.id} p={x} onOpen={setOpen}/>)}
     </div>
     {p && <PersonaPanel p={p} onClose={()=>setOpen(null)}/>}
+    {test && <AssetTestPanel onClose={()=>setTest(false)}/>}
   </div>;
 }
 
@@ -2074,7 +2296,7 @@ const NAV=[
   { id:"mlr", label:"MLR Review", icon:"stamp" },
   { id:"audit", label:"Audit Trail", icon:"list" },
 ];
-const ROADMAP=["Recommendations","Field Copilot","Settings"];
+const ROADMAP=["Recommendations","Field Copilot"];
 
 function BrandSwitcher({app}) {
   const [open,setOpen]=useState(false);
@@ -2085,8 +2307,8 @@ function BrandSwitcher({app}) {
     <button onClick={()=>setOpen(o=>!o)}
       className={cx("w-full rounded-xl bg-slate-50 border px-3 py-2.5 flex items-center gap-2.5 transition text-left",
         open?"border-indigo-300 ring-4 ring-indigo-50":"border-line hover:border-slate-300")}>
-      <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white grid place-items-center font-extrabold text-[12px] shrink-0">Y</div>
-      <div className="min-w-0 flex-1"><div className="font-bold text-[13px] truncate">{BRAND.name}</div><div className="text-[10.5px] text-ink-mute truncate">{BRAND.tag}</div></div>
+      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-fuchsia-600 to-indigo-600 text-white grid place-items-center font-extrabold text-[12px] shrink-0">Y</div>
+      <div className="min-w-0 flex-1"><div className="font-bold text-[13px] truncate text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-600 to-indigo-600">{BRAND.name} Brand</div><div className="text-[10.5px] text-ink-mute truncate">{BRAND.tag}</div></div>
       <span className={cx("text-ink-faint transition-transform", open&&"rotate-180")}><Icon.chevdown size={14}/></span>
     </button>
     {open && <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white rounded-xl border border-line shadow-pop overflow-hidden animate-fadein">
@@ -2094,16 +2316,15 @@ function BrandSwitcher({app}) {
       {BRANDS.map(b=><button key={b.id} disabled={!b.active}
         onClick={()=>{ if(b.active){ setOpen(false); app.toast("YI Combo loaded · 9 sources · Brand Brain v"+(app.published?12:11)); } }}
         className={cx("w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition",
-          b.active?"hover:bg-indigo-50/60 cursor-pointer":"opacity-55 cursor-not-allowed")}>
+          b.active?"bg-gradient-to-r from-fuchsia-50/70 to-indigo-50/50 hover:from-fuchsia-50 hover:to-indigo-50 cursor-pointer":"opacity-70 cursor-not-allowed")}>
         <div className={cx("w-7 h-7 rounded-lg grid place-items-center font-extrabold text-[12px] shrink-0",
-          b.active?"bg-indigo-600 text-white":"bg-slate-200 text-ink-mute")}>{b.initial}</div>
+          b.active?"bg-gradient-to-br from-fuchsia-600 to-indigo-600 text-white":"bg-slate-200 text-ink-mute")}>{b.initial}</div>
         <div className="min-w-0 flex-1">
-          <div className="font-bold text-[13px] text-ink flex items-center gap-1.5">{b.name}
+          <div className={cx("font-bold text-[13px] flex items-center gap-1.5", b.active?"text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-600 to-indigo-600":"text-ink")}>{b.name}
             {b.active && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>}</div>
-          <div className={cx("text-[10.5px] truncate", b.active?"text-ink-mute":"text-ink-faint italic")}>{b.tag}</div>
+          <div className="text-[10.5px] truncate text-ink-mute">{b.tag}</div>
         </div>
-        {b.active ? <span className="text-[9.5px] font-bold text-indigo-700 bg-indigo-50 rounded px-1.5 py-0.5 shrink-0">ACTIVE</span>
-          : <span className="text-ink-faint shrink-0"><Icon.lock size={13}/></span>}
+        {b.active && <span className="text-[9.5px] font-bold text-white bg-gradient-to-r from-fuchsia-600 to-indigo-600 rounded px-1.5 py-0.5 shrink-0">ACTIVE</span>}
       </button>)}
       <div className="px-3 py-2 border-t border-line bg-slate-50/60 text-[10.5px] text-ink-faint">
         Each brand's memory is isolated — evidence never crosses brands.
@@ -2156,9 +2377,82 @@ function Toast({message}) {
   </div>;
 }
 
+const NAV_TITLES={ ask:"Ask", pulse:"Brand Pulse", library:"Library", brand:"Brand Brain", personas:"HCP Personas", mlr:"MLR Review", audit:"Audit Trail" };
+
+// Slim top bar with browser-style back / forward arrows — present on every screen.
+function TopBar({app}) {
+  return <div className="sticky top-0 z-20 bg-canvas/85 backdrop-blur border-b border-line px-8 py-2.5 flex items-center gap-2">
+    <button onClick={app.back} disabled={!app.canBack}
+      className={cx("w-8 h-8 rounded-lg grid place-items-center transition", app.canBack?"text-ink-soft hover:bg-slate-100 hover:text-ink":"text-ink-faint opacity-40 cursor-not-allowed")}
+      title="Back"><Icon.chevron size={17} cls="rotate-180"/></button>
+    <button onClick={app.forward} disabled={!app.canForward}
+      className={cx("w-8 h-8 rounded-lg grid place-items-center transition", app.canForward?"text-ink-soft hover:bg-slate-100 hover:text-ink":"text-ink-faint opacity-40 cursor-not-allowed")}
+      title="Forward"><Icon.chevron size={17}/></button>
+    <div className="ml-1 flex items-center gap-1.5 text-[12.5px] text-ink-mute">
+      <span className="font-semibold text-ink-soft">{BRAND.name}</span>
+      <Icon.chevron size={12} cls="text-ink-faint"/>
+      <span className="font-semibold text-ink">{NAV_TITLES[app.nav]}</span>
+    </div>
+  </div>;
+}
+
+// A small always-available assistant, docked bottom-right on every screen.
+function ChatDock({app}) {
+  const [open,setOpen]=useState(false);
+  const [msgs,setMsgs]=useState([{ from:"bot", text:"Hi — I'm your BrandBrain copilot. Ask me anything about YI Combo, or tell me where to go." }]);
+  const [val,setVal]=useState("");
+  const endRef=useRef(null);
+  useEffect(()=>{ if(endRef.current) endRef.current.scrollIntoView({behavior:"smooth"}); },[msgs,open]);
+  const reply=(q)=>{
+    const t=q.toLowerCase(); let text, action=null;
+    if(/graph|knowledge/.test(t)){ text="Opening the Semantic Knowledge Graph — YI Combo sits at the centre with every study, segment and claim wired around it."; action=()=>{app.setBrainTab("graph");app.go("brand");}; }
+    else if(/persona|hcp/.test(t)){ text="Taking you to the HCP Persona Studio — five synthetic ophthalmologists you can test assets against."; action=()=>app.go("personas"); }
+    else if(/mlr|review|approv/.test(t)){ text="Here's the live MLR review queue — automated checks plus a named reviewer."; action=()=>app.go("mlr"); }
+    else if(/pulse|competitor|market|share/.test(t)){ text="Opening Brand Pulse — KPIs, competitor moves and the weekly briefing from the IQVIA workbook."; action=()=>app.go("pulse"); }
+    else if(/switch|driver|adherence|objection/.test(t)){ text="Best answered in Ask, where the synthesis cites the IQVIA data, segmentation and interviews — routing you there."; action=()=>app.go("ask"); }
+    else if(/library|document|connector|upload/.test(t)){ text="Opening the Library — 9 governed sources plus your SharePoint, Outlook, CRM and Veeva connectors."; action=()=>app.go("library"); }
+    else if(/audit|trail|log/.test(t)){ text="Here's the Audit Trail — every action timestamped, named and cited."; action=()=>app.go("audit"); }
+    else { text="I can point you to the Brand Brain graph, HCP personas, MLR review, Brand Pulse, the Library, or a cited answer in Ask. What are you after?"; }
+    setMsgs(m=>[...m,{from:"bot",text}]); if(action) setTimeout(action,600);
+  };
+  const send=()=>{ const q=val.trim(); if(!q) return; setMsgs(m=>[...m,{from:"me",text:q}]); setVal(""); setTimeout(()=>reply(q),350); };
+  return <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-3">
+    {open && <div className="w-[340px] rounded-2xl bg-white border border-line shadow-pop overflow-hidden animate-fadeup flex flex-col" style={{height:"440px"}}>
+      <div className="px-4 py-3 border-b border-line flex items-center gap-2.5 bg-gradient-to-r from-fuchsia-50/60 to-indigo-50/60">
+        <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-fuchsia-600 to-indigo-600 text-white grid place-items-center"><Icon.sparkles size={16}/></span>
+        <div className="flex-1"><div className="font-bold text-[13.5px] text-ink">BrandBrain Copilot</div>
+          <div className="text-[10.5px] text-ink-mute flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>Grounded in your estate</div></div>
+        <button onClick={()=>setOpen(false)} className="text-ink-mute hover:text-ink hover:bg-white/60 rounded-lg p-1"><Icon.x size={16}/></button>
+      </div>
+      <div className="flex-1 overflow-y-auto p-3.5 space-y-2.5">
+        {msgs.map((m,i)=><div key={i} className={cx("flex", m.from==="me"?"justify-end":"justify-start")}>
+          <div className={cx("max-w-[80%] rounded-2xl px-3.5 py-2 text-[12.5px] leading-relaxed",
+            m.from==="me"?"bg-indigo-600 text-white rounded-br-sm":"bg-slate-100 text-ink rounded-bl-sm")}>{m.text}</div>
+        </div>)}
+        <div ref={endRef}/>
+      </div>
+      <div className="px-3 pb-2 flex flex-wrap gap-1.5">
+        {["Show the graph","Open personas","Competitors?"].map(s=><button key={s} onClick={()=>{setMsgs(m=>[...m,{from:"me",text:s}]);setTimeout(()=>reply(s),350);}}
+          className="text-[11px] font-medium text-ink-soft border border-line rounded-full px-2.5 py-1 hover:border-indigo-200 hover:text-indigo-700 transition">{s}</button>)}
+      </div>
+      <div className="p-3 border-t border-line flex items-center gap-2">
+        <input value={val} onChange={e=>setVal(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")send();}}
+          placeholder="Ask the copilot…" className="flex-1 bg-slate-50 border border-line rounded-xl px-3 py-2 text-[13px] outline-none focus:border-indigo-300"/>
+        <button onClick={send} className="w-9 h-9 rounded-xl bg-indigo-600 text-white grid place-items-center hover:bg-indigo-700 transition shrink-0"><Icon.send size={15}/></button>
+      </div>
+    </div>}
+    <button onClick={()=>setOpen(o=>!o)}
+      className="w-13 h-13 rounded-2xl bg-gradient-to-br from-fuchsia-600 to-indigo-600 text-white shadow-pop grid place-items-center hover:scale-105 transition-transform"
+      style={{width:"52px",height:"52px"}} title="BrandBrain Copilot">
+      {open? <Icon.chevdown size={22}/> : <Icon.sparkles size={22}/>}
+    </button>
+  </div>;
+}
+
 function App() {
   const [entered,setEntered]=useState(false);
-  const [nav,setNav]=useState("ask");
+  const [histState,setHistState]=useState({stack:["ask"], i:0});
+  const nav=histState.stack[histState.i];
   const [uploaded,setUploaded]=useState(false);
   const [synthDone,setSynthDone]=useState(false);
   const [published,setPublished]=useState(false);
@@ -2172,11 +2466,19 @@ function App() {
 
   const toast=useCallback((msg)=>{ setToastMsg(msg); clearTimeout(toastTimer.current);
     toastTimer.current=setTimeout(()=>setToastMsg(null),3200); },[]);
-  const go=useCallback((id)=>{ setNav(id); const el=document.getElementById("scrollmain"); if(el) el.scrollTop=0; },[]);
+  const scrollTop=()=>{ const el=document.getElementById("scrollmain"); if(el) el.scrollTop=0; };
+  const go=useCallback((id)=>{ setHistState(({stack,i})=>{
+      if(stack[i]===id) return {stack,i};                    // already here — no-op
+      const base=stack.slice(0,i+1);                          // drop any forward history
+      return { stack:[...base,id], i:base.length };
+    }); scrollTop(); },[]);
+  const back=useCallback(()=>{ setHistState(({stack,i})=>({stack,i:Math.max(0,i-1)})); scrollTop(); },[]);
+  const forward=useCallback(()=>{ setHistState(({stack,i})=>({stack,i:Math.min(stack.length-1,i+1)})); scrollTop(); },[]);
   const log=useCallback((action, evidence, conf, status, tone, user, role)=>{
     setAudit(a=>[{ ts:"Just now", user:user||BRAND.owner, role:role||BRAND.role, action, evidence:evidence||[], conf, status, tone },...a]); },[]);
 
-  const app={ nav, go, uploaded, setUploaded, synthDone, setSynthDone, published,
+  const app={ nav, go, back, forward, canBack:histState.i>0, canForward:histState.i<histState.stack.length-1,
+              uploaded, setUploaded, synthDone, setSynthDone, published,
               mlrApproved, setMlrApproved, brainTab, setBrainTab, audit, log,
               openReview:()=>setReviewOpen(true), toast };
   const srcApi={ open:(id)=>setSource(id), close:()=>setSource(null) };
@@ -2197,11 +2499,13 @@ function App() {
     <div className="flex h-screen bg-canvas">
       <Sidebar app={app}/>
       <main id="scrollmain" className="flex-1 overflow-y-auto">
+        <TopBar app={app}/>
         <div className="px-8 py-8 min-h-full"><Screen app={app}/></div>
       </main>
     </div>
     {source && <SourcePanel cite={CITATIONS[source]} onClose={srcApi.close}/>}
     {reviewOpen && <ReviewModal onApprove={approve} onReject={reject} onClose={()=>setReviewOpen(false)}/>}
+    <ChatDock app={app}/>
     <Toast message={toastMsg}/>
   </SourceCtx.Provider>;
 }
