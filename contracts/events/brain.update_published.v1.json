@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://brandbrain.ai/contracts/events/brain.update_published.v1.json",
+  "title": "brain.update_published.v1",
+  "description": "A brain page update passed the human review gate and all machine checks, and was published.",
+  "type": "object",
+  "required": ["proposal_id","page_id","version","reviewer"],
+  "additionalProperties": false,
+  "properties": {
+    "proposal_id": {"type": "string"},
+    "page_id": {"type": "string"},
+    "version": {"type": "integer", "minimum": 1},
+    "reviewer": {"type": "string"}
+  }
+}

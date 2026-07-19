@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://brandbrain.ai/contracts/events/mlr.check_failed.v1.json",
+  "title": "mlr.check_failed.v1",
+  "description": "A governance machine check failed; publishing is blocked until resolved.",
+  "type": "object",
+  "required": ["proposal_id","check","detail"],
+  "additionalProperties": false,
+  "properties": {
+    "proposal_id": {"type": "string"},
+    "check": {"enum": ["locked_claim_guard","citation_preservation"]},
+    "detail": {"type": "string"}
+  }
+}

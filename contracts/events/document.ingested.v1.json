@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://brandbrain.ai/contracts/events/document.ingested.v1.json",
+  "title": "document.ingested.v1",
+  "description": "A document passed the metadata gate and was parsed into atomic evidence units.",
+  "type": "object",
+  "required": ["document_id", "study_type", "evidence_unit_count"],
+  "additionalProperties": false,
+  "properties": {
+    "document_id": {"type": "string"},
+    "study_type": {"enum": ["atu","qual","transcript","audio","data","syndicated","strategy","questionnaire"]},
+    "evidence_unit_count": {"type": "integer", "minimum": 0}
+  }
+}

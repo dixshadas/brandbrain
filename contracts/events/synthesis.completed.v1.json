@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://brandbrain.ai/contracts/events/synthesis.completed.v1.json",
+  "title": "synthesis.completed.v1",
+  "description": "A synthesis run finished. Consumers: brand_brain (auto-draft), recommendation, notification, audit.",
+  "type": "object",
+  "required": ["run_id","workflow","finding_count","contradiction_count","gap_count","overall_confidence"],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {"type": "string"},
+    "workflow": {"enum": ["brand_study_lens","brand_health","evidence_iq","market_pulse","brand_pulse"]},
+    "finding_count": {"type": "integer", "minimum": 0},
+    "contradiction_count": {"type": "integer", "minimum": 0},
+    "gap_count": {"type": "integer", "minimum": 0},
+    "overall_confidence": {"enum": ["low","moderate","high"]}
+  }
+}

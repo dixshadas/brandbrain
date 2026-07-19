@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://brandbrain.ai/contracts/events/_envelope.schema.json",
+  "title": "EventEnvelope",
+  "description": "Every event on the bus. Payload schema is selected by `type`.",
+  "type": "object",
+  "required": ["id", "type", "occurred_at", "brand_id", "actor", "payload"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^evt_[0-9A-Z]{26}$"},
+    "type": {"type": "string", "pattern": "^[a-z_]+\\.[a-z_]+\\.v[0-9]+$"},
+    "occurred_at": {"type": "string", "format": "date-time"},
+    "brand_id": {"type": "string"},
+    "actor": {
+      "type": "object",
+      "required": ["subject", "display_name", "kind"],
+      "properties": {
+        "subject": {"type": "string"},
+        "display_name": {"type": "string"},
+        "kind": {"enum": ["user", "service", "agent"]}
+      }
+    },
+    "trace_id": {"type": ["string", "null"]},
+    "idempotency_key": {"type": ["string", "null"]},
+    "payload": {"type": "object"}
+  }
+}
