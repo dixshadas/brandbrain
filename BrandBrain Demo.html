@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BrandBrain — Decision Intelligence</title>
+<title>BrandBrain by Brainlee — Ophthalmology Brand Intelligence</title>
 <!-- Zero-build React prototype: React 18 + Babel(TSX) + Tailwind. Opens in any browser.
      Trust is the product. Calm. Executive-cognition. -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
@@ -65,215 +65,324 @@
   .prose-tight p{margin:0}
   ::selection{background:#E0E7FF}
   [data-loading]{display:flex;align-items:center;justify-content:center;height:100vh;color:#64748B;font:500 14px Inter,sans-serif}
+
+  /* --- Semantic Knowledge Graph --- */
+  .gnode{transform-box:fill-box;transform-origin:center;cursor:pointer;transition:opacity .3s ease}
+  .gnode.dim{opacity:.13}
+  .gedge{transition:opacity .3s ease}
+  .gedge.dim{opacity:.06}
+  .edgeflow{stroke-dasharray:3 7;animation:dashmove 26s linear infinite}
+  @keyframes dashmove{to{stroke-dashoffset:-500}}
+  @keyframes halo{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:.16;transform:scale(1.16)}}
+  .ghalo{transform-box:fill-box;transform-origin:center;animation:halo 4.5s ease-in-out infinite}
+  @keyframes nodepop{0%{opacity:0;transform:scale(.3)}70%{transform:scale(1.12)}100%{opacity:1;transform:scale(1)}}
+  .nodepop{animation:nodepop .7s cubic-bezier(.16,1,.3,1) both}
+  @keyframes edgedraw{0%{opacity:0}100%{opacity:1}}
+  .edgedraw{animation:edgedraw 1s ease .35s both}
+
+  /* --- Welcome experience --- */
+  @keyframes wfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+  .wfloat{animation:wfloat 7s ease-in-out infinite}
+  @keyframes wpulse{0%,100%{opacity:.85}50%{opacity:.35}}
+  .wpulse{animation:wpulse 3.6s ease-in-out infinite}
+  .wstagger>*{animation:fadeup .8s cubic-bezier(.16,1,.3,1) both}
+  .wstagger>*:nth-child(1){animation-delay:.05s}.wstagger>*:nth-child(2){animation-delay:.18s}
+  .wstagger>*:nth-child(3){animation-delay:.32s}.wstagger>*:nth-child(4){animation-delay:.46s}
+  .wstagger>*:nth-child(5){animation-delay:.60s}.wstagger>*:nth-child(6){animation-delay:.74s}
 </style>
 </head>
 <body>
 <div id="root"><div data-loading>Preparing your brand's memory…</div></div>
 
 <script type="text/babel" data-presets="react,typescript">
-const { useState, useEffect, useRef, useCallback, createContext, useContext } = React;
+const { useState, useEffect, useRef, useCallback, useMemo, createContext, useContext } = React;
 
 /* ============================================================================
-   BrandBrain — Decision Intelligence (interactive prototype)
-   Fictional brand NUVEXA (HIV single-tablet regimen). All data illustrative.
+   BrandBrain by Brainlee — Ophthalmology Brand Intelligence (interactive prototype)
+   Brand: YI COMBO (latanoprost 50 µg/ml + timolol maleate 5 mg/ml, once-daily FDC).
+   Data derived from the uploaded evidence estate (IQVIA-style market sizing,
+   HCP segmentation, MLR assets). Synthetic & illustrative throughout.
    ========================================================================== */
 
-/* ------------------------------------------------------------------ DATA */
-const BRAND = { name: "NUVEXA", tag: "HIV · single-tablet regimen", owner: "Dr. Andrew Smith", role: "Brand Director" };
+/* ------------------------------------------------------------------ BRAND & PEOPLE */
+const BRAND = { name: "YI Combo", tag: "Glaucoma · latanoprost + timolol FDC", company:"NovaVision Pharma",
+                owner: "Dr. Ananya Rao", role: "Brand Director" };
+
+const BRANDS = [
+  { id:"yic", name:"YI Combo", tag:"Glaucoma · latanoprost + timolol", initial:"Y", active:true },
+  { id:"win", name:"WinYou",   tag:"No research available", initial:"W", active:false },
+  { id:"cos", name:"Cosopt",   tag:"No research available", initial:"C", active:false },
+];
 
 // The question that drives the whole demo.
-const HERO_QUESTION = "What are physicians saying about switching stable patients?";
+const HERO_QUESTION = "What are ophthalmologists saying about switching patients to YI Combo?";
 
-// Evidence estate (Library) — governed research.
+/* ------------------------------------------------------------------ LIBRARY (evidence estate) */
 const DOCUMENTS = [
-  { id:"w4", name:"ATU Wave 4 — Meridian", type:"ATU (quant)", meta:"n=212 US HIV treaters · Mar 2026", pages:48, status:"ready", color:"indigo" },
-  { id:"w3", name:"ATU Wave 3 — Meridian", type:"ATU (quant)", meta:"n=208 · Sep 2025", pages:44, status:"ready", color:"indigo" },
-  { id:"idi", name:"In-Depth Interviews — Northstar", type:"Qualitative", meta:"n=18 physicians · Jan 2026", pages:36, status:"ready", color:"emerald" },
-  { id:"t03", name:"HCP Interview Transcripts", type:"Transcripts", meta:"8 sessions · Jan 2026", pages:120, status:"ready", color:"emerald" },
-  { id:"cmp", name:"Competitive Landscape — Syndicated", type:"Syndicated", meta:"Q1 2026", pages:52, status:"ready", color:"slate" },
+  { id:"mkt", name:"Ophthal Market Sizing — IQVIA", file:"b843d184-01_Ophthal_Market_Sizing_IQVIA.xlsx",
+    type:"Market data (quant)", source:"SharePoint · Brand workspace", uploaded:"Jul 12, 2026",
+    meta:"6 sheets · MAT 2022–26 · India", ta:"Ophthalmology", brand:"YI Combo", status:"ready", color:"indigo",
+    tags:["Market sizing","IQVIA","Glaucoma","Latanoprost+Timolol"] },
+  { id:"seg", name:"HCP Segmentation — Final Report", file:"YI_Combo_HCP_Segmentation_IQVIA.pptx",
+    type:"Segmentation (quant + qual)", source:"Outlook · IQVIA delivery", uploaded:"Jul 13, 2026",
+    meta:"172,828 HCP universe · qual n=25 · ATU", ta:"Ophthalmology", brand:"YI Combo", status:"ready", color:"emerald",
+    tags:["Segmentation","5 cohorts","ATU","Qual n=25"] },
+  { id:"bp",  name:"YI Combo Brand Plan 2025", file:"YI_Combo_Brand_Plan_2025.pptx",
+    type:"Strategy deck", source:"SharePoint · Brand workspace", uploaded:"Jul 12, 2026",
+    meta:"Objectives · trajectory · investment", ta:"Ophthalmology", brand:"YI Combo", status:"ready", color:"indigo",
+    tags:["Brand plan","Strategy","FY2025"] },
+  { id:"qal", name:"Qualitative Interviews — Ophthalmologists", file:"YI_Combo_Qual_Interviews_n25.pdf",
+    type:"Qualitative", source:"Outlook · IQVIA delivery", uploaded:"Jul 13, 2026",
+    meta:"n=25 ophthalmologists · verbatims", ta:"Ophthalmology", brand:"YI Combo", status:"ready", color:"emerald",
+    tags:["Qualitative","Verbatims","Beliefs"] },
+  { id:"ali", name:"Ali et al. 2011 — Five-Year Safety Study", file:"Ali_2011_J_Glaucoma_20-4_215-222.pdf",
+    type:"Clinical evidence", source:"Medical Affairs library", uploaded:"Jul 10, 2026",
+    meta:"J Glaucoma 2011;20(4):215–222 · Xalacom", ta:"Ophthalmology", brand:"YI Combo", status:"ready", color:"slate",
+    tags:["Clinical","Safety","Long-term","OAG"] },
+  { id:"egs", name:"EGS Terminology & Guidelines, 5th Edition", file:"EGS_Guidelines_5th_Ed_2020.pdf",
+    type:"Guideline", source:"Medical Affairs library", uploaded:"Jul 10, 2026",
+    meta:"European Glaucoma Society · 2020", ta:"Ophthalmology", brand:"YI Combo", status:"ready", color:"slate",
+    tags:["Guideline","First-line PGA","POAG"] },
+  { id:"b125", name:"Banner — First-Line PGA Guidelines", file:"PP-YIC-GLB-0125.png",
+    type:"MLR asset · approved", source:"Veeva Vault PromoMats", uploaded:"Jul 02, 2026",
+    meta:"PP-YIC-GLB-0125 · HCP banner", ta:"Ophthalmology", brand:"YI Combo", status:"approved", color:"amber",
+    tags:["Promo","Approved","EGS · AAO · NICE · ICO"] },
+  { id:"b258", name:"Banner — Long-Term Tolerability (OAG)", file:"PP-YIC-GLB-0258.png",
+    type:"MLR asset · in review", source:"Veeva Vault PromoMats", uploaded:"Jul 18, 2026",
+    meta:"PP-YIC-GLB-0258 · HCP banner", ta:"Ophthalmology", brand:"YI Combo", status:"review", color:"amber",
+    tags:["Promo","MLR review","Ali 2011"] },
+  { id:"eml", name:"HCP Email — Once-Daily Glaucoma Control", file:"PP-YIC-GLB-0193.html",
+    type:"MLR asset · approved", source:"Veeva Vault PromoMats", uploaded:"Jun 24, 2026",
+    meta:"PP-YIC-GLB-0193 · rep-triggered email", ta:"Ophthalmology", brand:"YI Combo", status:"approved", color:"amber",
+    tags:["Email","Approved","97% persistence"] },
 ];
 
-// The newly-uploaded document for step 1 (parsing demo).
+// The newly-uploaded document for the ingestion demo.
 const UPLOAD_DOC = {
-  name:"ATU Wave 4 Topline Appendix — Meridian.pdf", sizeMB:1.8, pages:14,
-  detected:{ Brand:"NUVEXA", "Study type":"ATU · quantitative", Supplier:"Meridian Insights", Wave:"Wave 4 · Mar 2026", Market:"US" }
+  name:"YI Combo ATU Wave 2 Topline — IQVIA.pdf", sizeMB:1.6, pages:12,
+  detected:{ Brand:"YI Combo", "Study type":"ATU · quantitative", Supplier:"IQVIA",
+             "Therapeutic area":"Ophthalmology · Glaucoma", Market:"India" }
 };
 
-// Evidence search results (Library — Perplexity-style).
+// Evidence search results (Library — every hit citation-stamped).
 const SEARCH_RESULTS = [
-  { id:"s1", quote:"Top stated switch driver: non-daily / pill-fatigue preference — 54%.", src:"ATU Wave 4 — Meridian", loc:"Slide 12", type:"FACT", color:"indigo" },
-  { id:"s2", quote:"Willingness to switch a stable patient to a long-acting injectable: 18% → 27% → 34% across three waves.", src:"ATU Waves 2–4 — Meridian", loc:"Tracker · ATU_Topline", type:"FACT", color:"indigo" },
-  { id:"s3", quote:"“Weight-gain concern is the decisive real-world trigger — the injection is the ask, but weight is the reason.”", src:"In-Depth Interviews — Northstar", loc:"p.14", type:"FACT", color:"emerald" },
-  { id:"s4", quote:"“My worry with switching anyone stable to the injectable is missed-dose resistance — if they skip a visit we're in trouble.”", src:"HCP Transcript 02", loc:"00:22:15", type:"FACT", color:"emerald" },
+  { id:"s1", quote:"YI Combo is the #1 brand in the Latanoprost+Timolol FDC segment by MAT 2026 — 42.3% value share within three years of launch.", src:"Ophthal Market Sizing — IQVIA", loc:"Sheet 3", type:"FACT", color:"indigo", cite:"c1" },
+  { id:"s2", quote:"Prescriber base grew 410 → 690 → 950 across FY2024–26; value per prescriber now ₹11.4 lakh.", src:"Ophthal Market Sizing — IQVIA", loc:"Sheet 4", type:"FACT", color:"indigo", cite:"c2" },
+  { id:"s3", quote:"“Independent Habitualists are high value, ambitious wins over time — they require a greater shift in beliefs on need.”", src:"HCP Segmentation — Final Report", loc:"Slide 7", type:"FACT", color:"emerald", cite:"c4" },
+  { id:"s4", quote:"Fixed-combination latanoprost/timolol was well tolerated over five years of treatment in patients with open-angle glaucoma.", src:"Ali et al. 2011 — J Glaucoma", loc:"p. 219", type:"FACT", color:"slate", cite:"c6" },
 ];
 
-// Atomic citations used across the synthesis. Each opens a source snippet.
+/* ------------------------------------------------------------------ CONNECTORS */
+const CONNECTORS = [
+  { id:"sp", name:"SharePoint", desc:"Brand team document workspace", status:"Connected",
+    sync:"12 min ago", docs:"128 documents", icon:"grid" },
+  { id:"ol", name:"Outlook", desc:"Research delivery inbox — supplier attachments auto-captured", status:"Connected",
+    sync:"2 min ago", docs:"46 documents", icon:"mail" },
+  { id:"crm", name:"CRM — Field Force", desc:"Call notes, HCP interactions & sample activity", status:"Connected",
+    sync:"1 hr ago", docs:"8,412 interactions", icon:"users" },
+  { id:"vv", name:"Veeva Vault PromoMats", desc:"Approved claims library & MLR asset status", status:"Connected",
+    sync:"34 min ago", docs:"32 assets", icon:"vault" },
+];
+
+/* ------------------------------------------------------------------ CITATIONS */
 const CITATIONS = {
-  c1:{ id:"c1", label:"ATU W4 · slide 12", doc:"ATU Wave 4 — Meridian", loc:"Slide 12", kind:"quant",
-       snippet:"Top switch driver (stated), Wave 4 (n=212): Non-daily / pill-fatigue preference — 54%. Adherence concerns — 27%. Weight concern — 19%.", meta:"Meridian Insights · NUVEXA ATU Wave 4 · Mar 2026" },
-  c2:{ id:"c2", label:"ATU W2–W4 · tracker", doc:"ATU Waves 2–4 — Meridian", loc:"ATU_Topline table", kind:"quant",
-       snippet:"Would consider switching stable patients to a long-acting injectable within 12 months: W2 18% · W3 27% · W4 34%. Change +7pp W3→W4 (significant, 95%).", meta:"Read from source table — not a chart" },
-  c3:{ id:"c3", label:"In-Depth · p.14", doc:"In-Depth Interviews — Northstar", loc:"p.14", kind:"qual",
-       snippet:"“Weight-gain concern is the decisive real-world trigger — the injection is the ask, but weight is the reason.” — Infectious Disease physician, community practice.", meta:"Northstar Qual · n=18 in-depth interviews · Jan 2026" },
-  c4:{ id:"c4", label:"Transcript 02 · 00:22:15", doc:"HCP Interview Transcript 02", loc:"00:22:15", kind:"qual",
-       snippet:"“My worry with switching anyone stable to the injectable is missed-dose resistance — if they skip a visit we're in real trouble.”", meta:"Northstar Qual · verbatim, audio-aligned" },
-  c5:{ id:"c5", label:"In-Depth · p.18", doc:"In-Depth Interviews — Northstar", loc:"p.18", kind:"qual",
-       snippet:"Peer consensus repeatedly named as the strongest influence: “If two colleagues at clinic have switched patients, that changes the conversation for everyone.”", meta:"Northstar Qual · thematic analysis" },
-  c6:{ id:"c6", label:"ATU W4 · slide 21", doc:"ATU Wave 4 — Meridian", loc:"Slide 21", kind:"quant",
-       snippet:"LAI-switch openness by segment (W4): community practice 40% vs academic centers 27% (all 34%).", meta:"Meridian Insights · segment cut" },
+  c1:{ id:"c1", label:"IQVIA Sizing · Sheet 3", doc:"Ophthal Market Sizing — IQVIA", loc:"Sheet 3 · Brand-level table", kind:"quant",
+       snippet:"Latanoprost+Timolol FDC, India, MAT 2026: YI COMBO ₹10.8 Cr — value share 42.3%, rank #1. XALACOM (Pfizer) ₹4.9 Cr — 19.1%, rank #2. LATOCOM (Sun) ₹4.2 Cr — 16.6%, rank #3. Segment total ₹25.5 Cr, +22.5% vs 2025.",
+       meta:"IQVIA-style panel · MAT basis · read from the source table, not a chart" },
+  c2:{ id:"c2", label:"IQVIA Sizing · Sheet 4", doc:"Ophthal Market Sizing — IQVIA", loc:"Sheet 4 · YI Combo build", kind:"quant",
+       snippet:"YI Combo build FY2024–26: units 118.4k → 221.9k → 336.5k packs · value ₹3.6 → 6.9 → 10.8 Cr (+56.5% in 2026) · prescriber base 410 → 690 → 950 · net price/pack ₹304 → 311 → 321.",
+       meta:"Value reconciles Units × Net Price — cross-checked against Sheet 3" },
+  c3:{ id:"c3", label:"Segmentation · Slide 7", doc:"HCP Segmentation — Final Report", loc:"Slide 7 · Cohort table", kind:"quant",
+       snippet:"Five cohorts, 172,828 HCP universe: Prostaglandin-Sparing Advocates 17% of HCPs / 36% of TRx · Network-Controlled Providers 16% / 22% · Independent Habitualists 10% / 25% · Low-volume Enthusiasts 28% / 11% · Delayed Digitalists 29% / 6%.",
+       meta:"IQVIA HCP universe analysis + ATU + qual n=25 · working cohort names" },
+  c4:{ id:"c4", label:"Qual n=25 · Habitualists", doc:"Qualitative Interviews — Ophthalmologists", loc:"Cohort profile · E", kind:"qual",
+       snippet:"“Independent Habitualists are high value, ambitious wins over time — they require a greater shift in beliefs on need. Familiar monotherapy feels safe; switching is a belief decision before it is a clinical one.”",
+       meta:"IQVIA qualitative · n=25 ophthalmologists · thematic analysis" },
+  c5:{ id:"c5", label:"ATU · switch drivers", doc:"YI Combo ATU Analysis", loc:"Topline · driver ranking", kind:"quant",
+       snippet:"Top stated reason to switch a patient to a PGA fixed combination: once-daily dosing convenience — 58%. Better IOP control — 24%. Tolerability — 11%. Cost — 7%.",
+       meta:"YI Combo ATU analysis · stated-preference ranking" },
+  c6:{ id:"c6", label:"Ali 2011 · p.219", doc:"Ali et al. 2011 — Five-Year Safety Study", loc:"J Glaucoma 2011;20(4):215–222", kind:"qual",
+       snippet:"Five-year, multicenter safety study of fixed-combination latanoprost/timolol (Xalacom) for open-angle glaucoma and ocular hypertension: generally well tolerated for long-term treatment; no unexpected safety findings over 60 months.",
+       meta:"Peer-reviewed clinical evidence · legacy molecule data (Xalacom)" },
+  c7:{ id:"c7", label:"EGS 2020 · 5th Ed.", doc:"EGS Terminology & Guidelines, 5th Edition", loc:"Ch. 3 · Treatment principles", kind:"qual",
+       snippet:"The 2020 EGS guideline recommends prostaglandin analogues as first-choice therapy for primary open-angle glaucoma based on their efficacy, once-daily dosing and safety profile. AAO, NICE (NG81) and ICO guidance is directionally aligned.",
+       meta:"European Glaucoma Society · Terminology and Guidelines for Glaucoma, 5th Edition, 2020" },
+  c8:{ id:"c8", label:"Email · PP-YIC-GLB-0193", doc:"HCP Email — Once-Daily Glaucoma Control", loc:"Approved claims block", kind:"qual",
+       snippet:"Approved claims: powerful IOP control when monotherapy is inadequate · 97% of patients persisted with YI Combo over 6 months · well tolerated over 5 years (molecule data) · convenient once-daily dosing.",
+       meta:"Veeva Vault PromoMats · approved Jun 24, 2026 · claim refs CL-014, CL-022" },
+  c9:{ id:"c9", label:"IQVIA Sizing · Sheet 2", doc:"Ophthal Market Sizing — IQVIA", loc:"Sheet 2 · Molecule classes", kind:"quant",
+       snippet:"Antiglaucoma & Miotics India MAT 2026: ₹823 Cr (+12.4%). PGA monotherapy largest class at ₹215 Cr. Latanoprost+Timolol FDC ₹29.6 Cr (+9.1%). Rho-kinase inhibitors fastest-growing class — 68.7% CAGR 2022–26, now ₹55.1 Cr.",
+       meta:"IQVIA-style panel · molecule-class cut" },
+  c10:{ id:"c10", label:"IQVIA Sizing · Sheet 5", doc:"Ophthal Market Sizing — IQVIA", loc:"Sheet 5 · Regional split", kind:"quant",
+       snippet:"Top states by glaucoma market 2026: Maharashtra ₹156 Cr, Karnataka ₹115 Cr, Tamil Nadu ₹99 Cr. YI Combo's strongest share positions: Maharashtra 19%, Karnataka 16%, Tamil Nadu 14%, Kerala 13%.",
+       meta:"State indexing applied to national totals · 12 states" },
+  c11:{ id:"c11", label:"Segmentation · practice mix", doc:"HCP Segmentation — Final Report", loc:"Slide 7 · Practice type row", kind:"quant",
+       snippet:"Practice type by cohort: Prostaglandin-Sparing Advocates — solo practice. Network-Controlled Providers — nearly all IDN, priority formulary-restrained prescribers. Independent Habitualists — nearly all non-IDN. Delayed Digitalists — nearly all IDN.",
+       meta:"IQVIA HCP universe (172,828) · practice-type analysis" },
 };
 
 window.__CITE = CITATIONS;
 
-// The hero synthesis output. Layers: FACT | INSIGHT | INTERPRETATION | RECOMMENDATION.
+/* ------------------------------------------------------------------ SYNTHESIS (hero answer) */
+// Layers: FACT | INSIGHT | INTERPRETATION | RECOMMENDATION.
 const SYNTHESIS = {
   question: HERO_QUESTION,
-  readMs: 1400,            // "retrieval" phase
+  readMs: 1400,
   thinkSteps: [
-    "Reading 4 studies across quant and qualitative",
-    "Aligning switching metrics across Waves 2–4",
-    "Cross-referencing stated drivers with interview themes",
+    "Reading 5 sources across market data, segmentation and qualitative",
+    "Aligning YI Combo share trajectory across MAT 2024–26",
+    "Cross-referencing stated switch drivers with interview themes",
     "Detecting agreements, contradictions & evidence gaps",
     "Assembling a leadership-ready synthesis",
   ],
-  sourcesUsed: ["ATU Wave 4 — Meridian","ATU Wave 3 — Meridian","In-Depth Interviews — Northstar","HCP Interview Transcripts"],
+  sourcesUsed: ["Ophthal Market Sizing — IQVIA","HCP Segmentation — Final Report","Qualitative Interviews — Ophthalmologists","YI Combo ATU Analysis","Ali et al. 2011 — Five-Year Safety Study"],
   summary: {
     layer:"INSIGHT",
-    text:"Physicians are increasingly open to switching stable patients to a long-acting injectable — willingness has risen 18% → 27% → 34% across three waves — but they disagree on why, and the disagreement is strategically decisive.",
+    text:"Ophthalmologists are switching to YI Combo faster than to any brand in the segment — 42% value share within three years of launch — but the growth sits with a small prescriber base, and the evidence disagrees on what actually triggers the switch.",
     confidence:"high",
     why:{ points:[
-      {ok:true, text:"17 evidence units across the estate"},
-      {ok:true, text:"4 independent suppliers agree"},
-      {ok:true, text:"Quant tracker + qualitative interviews point the same way"},
-      {ok:true, text:"Consistent across three consecutive waves (W2–W4)"},
+      {ok:true, text:"22 evidence units across the estate"},
+      {ok:true, text:"IQVIA panel + segmentation + qualitative agree on direction"},
+      {ok:true, text:"Share trajectory read from source tables, three consecutive MATs"},
+      {ok:true, text:"Cross-method: quant tracker + n=25 interviews"},
     ]},
-    cites:["c2","c1"],
-    trend:{ series:[18,27,34], labels:["W2","W3","W4"], delta:"+7pp W3→W4", sig:"95%" }
+    cites:["c1","c2"],
+    trend:{ series:[22,33,42], labels:["FY24","FY25","FY26"], delta:"+9.2pp FY25→FY26", sig:"MAT panel" }
   },
   agreements: [
-    { layer:"FACT", text:"Willingness to switch stable patients to an LAI rose 18% → 27% → 34% across Waves 2–4.", confidence:"high",
+    { layer:"FACT", text:"YI Combo's value share of the Latanoprost+Timolol FDC segment rose 21.7% → 33.1% → 42.3% across FY2024–26, making it the #1 brand by MAT 2026 (₹10.8 Cr, +56.5% YoY).", confidence:"high",
       why:{ points:[
-        {ok:true, text:"Read directly from the tracker source table (not a chart)"},
-        {ok:true, text:"Three consecutive waves, same instrument"},
-        {ok:true, text:"+7pp W3→W4 is significant at 95%"},
-      ]}, cites:["c2"] },
-    { layer:"INSIGHT", text:"Missed-dose / resistance concern is the most consistent brake on switching — it appears in the quant read and recurs across interviews.", confidence:"high",
+        {ok:true, text:"Read directly from the IQVIA-style brand table (not a chart)"},
+        {ok:true, text:"Three consecutive MATs, same panel"},
+        {ok:true, text:"Units × price build reconciles with the value read"},
+      ]}, cites:["c1","c2"] },
+    { layer:"INSIGHT", text:"Growth is prescriber-concentrated: 950 prescribers — under 1% of the 172,828 HCP universe — generate the entire ₹10.8 Cr. The three priority cohorts hold 43% of HCPs but 83% of segment prescriptions.", confidence:"high",
       why:{ points:[
-        {ok:true, text:"Appears in Wave-4 quant"},
-        {ok:true, text:"Independently recurs across multiple transcripts"},
-        {ok:true, text:"Cross-method agreement (quant + qual)"},
-      ]}, cites:["c1","c4"] },
-    { layer:"INSIGHT", text:"Peer consensus is the strongest influence channel on the switching decision.", confidence:"moderate",
+        {ok:true, text:"Prescriber build from the IQVIA workbook"},
+        {ok:true, text:"Cohort TRx concentration from segmentation"},
+        {ok:true, text:"Two independent sources point the same way"},
+      ]}, cites:["c2","c3"] },
+    { layer:"INSIGHT", text:"Guideline positioning is a tailwind: EGS, AAO, NICE and ICO all support prostaglandin analogues first-line, which underwrites the escalation story to a once-daily PGA+timolol fixed combination.", confidence:"moderate",
       why:{ points:[
-        {ok:true, text:"Strong and repeated across qualitative interviews"},
-        {ok:false, text:"Not yet quantified in the tracker — single-method"},
-        {ok:false, text:"Confidence capped until a wave measures it"},
-      ]}, cites:["c5"] },
+        {ok:true, text:"Four independent guideline bodies aligned"},
+        {ok:false, text:"Guideline awareness among Indian community ophthalmologists not yet measured"},
+        {ok:false, text:"Confidence capped until the next ATU quantifies it"},
+      ]}, cites:["c7"] },
   ],
   contradiction: {
-    topic:"What actually drives the switch",
-    a:{ method:"QUANT", source:"ATU Wave 4 — Meridian", claim:"Top stated driver is non-daily / pill-fatigue preference (54%); weight concern is only 19%.", cite:"c1" },
-    b:{ method:"QUAL", source:"In-Depth Interviews — Northstar", claim:"Weight-gain concern is the decisive real-world trigger — the injection is “just the exit they ask for.”", cite:"c3" },
-    why:"The two methods measure different things — stated preference vs. the emotional trigger behind the ask. Averaging them into one “driver” would hide the lever your strategy has to pull. This is a genuine open question, not noise.",
+    topic:"What actually moves a switch to YI Combo",
+    a:{ method:"QUANT", source:"YI Combo ATU Analysis", claim:"Top stated switch driver is once-daily dosing convenience (58%); better IOP control is cited by only 24%.", cite:"c5" },
+    b:{ method:"QUAL", source:"Qualitative Interviews — n=25", claim:"Prescribing habit and belief in current control decide in practice — Habitualists switch only after “a greater shift in beliefs on need”, regardless of convenience.", cite:"c4" },
+    why:"The two methods measure different things — stated preference vs. the behavioural driver behind the prescription. If messaging leads on convenience alone, it never touches the belief barrier that holds 25% of segment TRx. Averaging the two would hide the lever your strategy has to pull. This is a genuine open question, not noise.",
     layer:"INTERPRETATION",
   },
   gaps: [
-    { text:"No dedicated payer / HEOR-vs-LAI research exists in the estate — only a single proxy item in the ATU. Coverage pressure on LAIs is a decision-critical unknown.",
-      severity:"high", action:"Draft a payer-value study question for the next wave" },
-    { text:"Segment view is thin: community vs. academic openness differs (40% vs 27%), but the sample can't yet explain the gap.",
-      severity:"moderate", cites:["c6"], action:"Add a segment oversample to the next ATU" },
+    { text:"No formulary / IDN access research exists in the estate. Network-Controlled Providers are 16% of HCPs and 22% of TRx, described as formulary-restrained — yet nothing measures which formularies list YI Combo or what it takes to get added.",
+      severity:"high", cites:["c11"], action:"Draft a formulary access study for the IDN segment" },
+    { text:"Long-term persistence evidence is legacy-molecule only (Xalacom, Ali et al. 2011). The 97% persistence claim covers 6 months; no YI Combo-specific real-world persistence beyond that exists.",
+      severity:"moderate", cites:["c6","c8"], action:"Commission a YI Combo real-world persistence tracker" },
   ],
   recommendation: {
     layer:"RECOMMENDATION",
-    text:"Lead retention messaging on resistance-barrier confidence paired with proactive weight reassurance; equip the field with the approved objection responses; and commission a payer-value study before any value-defense claim is used.",
+    text:"Concentrate field effort on Prostaglandin-Sparing Advocates and Independent Habitualists with belief-shift messaging — lead with guideline-backed IOP control when monotherapy is inadequate, reinforced by once-daily convenience — and commission a formulary access study before investing in the Network-Controlled (IDN) segment.",
     confidence:"moderate",
     why:{ points:[
-      {ok:true, text:"Follows directly from the agreed findings"},
-      {ok:true, text:"Addresses both sides of the mixed signal"},
-      {ok:false, text:"Payer evidence gap is still unresolved"},
+      {ok:true, text:"Follows directly from the concentration and cohort findings"},
+      {ok:true, text:"Serves both sides of the driver contradiction"},
+      {ok:false, text:"Formulary evidence gap is still unresolved"},
       {ok:false, text:"Held at moderate — no manufactured certainty"},
     ]},
-    cites:["c1","c3","c4"],
+    cites:["c3","c4","c7"],
     explain: {
       evidence:[
-        {text:"Resistance concern is the most consistent brake, across methods", cites:["c1","c4"]},
-        {text:"Weight-gain concern is the decisive real-world trigger in interviews", cites:["c3"]},
+        {text:"Advocates + Habitualists = 27% of HCPs but 61% of segment TRx — the highest-yield audience", cites:["c3"]},
+        {text:"Habitualists switch on belief shift, not convenience — messaging must lead on control", cites:["c4"]},
+        {text:"First-line PGA guideline consensus underwrites the escalation story", cites:["c7"]},
       ],
-      studies:["ATU Wave 4 — Meridian","In-Depth Interviews — Northstar","HCP Interview Transcripts"],
+      studies:["HCP Segmentation — Final Report","Qualitative Interviews — Ophthalmologists","EGS Terminology & Guidelines, 5th Edition","Ophthal Market Sizing — IQVIA"],
       reasoning:[
-        "Switching intent is rising and physician-led, not price-led.",
-        "The two named drivers (resistance fear, weight) are both retention levers you already have approved language for.",
-        "A value-defense claim would require payer evidence that does not yet exist — so it is scoped out, not asserted.",
+        "Share growth is real but sits on 950 prescribers — expanding the base matters more than deepening it.",
+        "The two highest-value cohorts respond to different levers; a belief-led message with a convenience proof point serves both.",
+        "The IDN segment is formulary-gated: field effort there is wasted until access evidence exists — so it is scoped out, not asserted.",
       ],
       alternatives:[
-        "Compete on convenience parity with the LAI — rejected: concedes the frame and isn't supported as the true driver.",
-        "Wait for more data before acting — rejected: intent is already at 34% and climbing.",
+        "Spread field effort across all five cohorts — rejected: 57% of HCPs contribute only 17% of segment TRx.",
+        "Lead messaging on once-daily convenience alone — rejected: qualitative evidence says habit and belief, not convenience, decide the switch.",
+        "Push the IDN segment now — rejected: formulary access is unmeasured; commission the study first.",
       ],
       contradictions:[
-        "Quant says convenience (54%) is the top stated driver; qual says weight decides in practice. The recommendation deliberately serves both rather than betting on one.",
+        "ATU says convenience (58%) is the top stated driver; interviews say belief in control decides in practice. The recommendation deliberately serves both rather than betting on one.",
       ],
     },
   },
   followups: [
-    { id:"f1", q:"What changed since Wave 3?", a:{ layer:"FACT",
-      text:"Switching intent rose 27% → 34% (+7pp, significant), and the 'would wait 6+ months' group fell 44% → 36%. The direction hardened between waves.", cites:["c2"] } },
-    { id:"f2", q:"Which physician segments disagree?", a:{ layer:"INSIGHT",
-      text:"Community practice is markedly more open than academic centers (40% vs 27% in Wave 4). The estate can't yet explain the gap — it's flagged for a segment oversample.", cites:["c6"] } },
-    { id:"f3", q:"What's the weakest evidence here?", a:{ layer:"INTERPRETATION",
-      text:"The payer / access picture. There is no dedicated payer-vs-LAI study — only a single proxy ATU item — so any coverage-pressure claim is low-confidence today.", cites:["c2"] } },
-    { id:"f4", q:"Show me the contradiction again.", a:{ layer:"INTERPRETATION",
-      text:"Quant names non-daily preference (54%) as the top driver; qual says weight-gain concern is what actually decides the switch. Preserved, not averaged — it's the decision to make.", cites:["c1","c3"] } },
+    { id:"f1", q:"What changed compared with last quarter?", a:{ layer:"FACT",
+      text:"YI Combo's MAT value accelerated to +56.5% YoY (₹6.9 → 10.8 Cr) and the prescriber base added 260 physicians (690 → 950). Segment rank moved to #1, passing Xalacom, whose growth slowed to +2.7%.", cites:["c1","c2"] } },
+    { id:"f2", q:"What are the biggest adherence barriers?", a:{ layer:"INSIGHT",
+      text:"Multi-bottle regimens and dosing complexity are the recurring barrier themes — the once-daily FDC directly answers them, and 97% of patients persisted over 6 months. Beyond 6 months the evidence is legacy-molecule only; a YI Combo-specific persistence tracker is flagged.", cites:["c8","c6"] } },
+    { id:"f3", q:"What are physician objections?", a:{ layer:"INSIGHT",
+      text:"Three recur: comfort with familiar monotherapy (belief barrier, strongest among Habitualists), beta-blocker caution in asthma/COPD and bradycardia patients, and price versus older generic FDCs at a ₹321 net pack price.", cites:["c4","c2"] } },
+    { id:"f4", q:"Which segments should we prioritise?", a:{ layer:"RECOMMENDATION",
+      text:"Prostaglandin-Sparing Advocates (17% of HCPs, 36% of TRx — quick wins) and Independent Habitualists (10%, 25% — high value over time). Network-Controlled Providers are attractive but formulary-gated; Delayed Digitalists (29% of HCPs, 6% of TRx) are explicitly deprioritised.", cites:["c3","c11"] } },
     { id:"f5", q:"What should we research next?", a:{ layer:"RECOMMENDATION",
-      text:"A dedicated payer / HEOR-vs-LAI value study, plus a segment oversample to explain the community–academic gap. Both are drafted and ready to commission.", cites:["c2","c6"] } },
+      text:"A formulary / IDN access study (decision-critical for 22% of segment TRx) and a YI Combo-specific real-world persistence tracker beyond 6 months. Both are drafted and ready to commission.", cites:["c11","c8"] } },
   ],
 };
 
-// Brand Brain — published pages + the page this insight updates, with version history.
+/* ------------------------------------------------------------------ BRAND BRAIN — pages, versions, timeline */
 const BRAIN_SECTIONS = [
-  { name:"MARKET & COMPETITION", pages:["bp-switch","bp-lai","bp-size"] },
-  { name:"HCP INSIGHTS", pages:["bp-seg","bp-peer","bp-tol"] },
-  { name:"ACCESS & PAYERS", pages:["bp-access"] },
+  { name:"MARKET & COMPETITION", pages:["bp-switch","bp-comp","bp-size"] },
+  { name:"HCP INSIGHTS", pages:["bp-seg","bp-belief","bp-tol"] },
+  { name:"ACCESS & FORMULARY", pages:["bp-access"] },
 ];
 const BRAIN_PAGES = {
-  "bp-switch":{ id:"bp-switch", section:"MARKET & COMPETITION", title:"Switching Drivers — What We Know", hero:true, version:2, updated:"just now",
+  "bp-switch":{ id:"bp-switch", section:"MARKET & COMPETITION", title:"Switching Drivers — What We Know", hero:true, version:12, updated:"just now",
      body:[
-       { layer:"FACT", text:"Willingness to switch stable patients to an LAI: 18% → 27% → 34% (Waves 2–4).", cites:["c2"] },
-       { layer:"INSIGHT", text:"Stated driver is non-daily preference (54%, quant); qualitative evidence points to weight-gain concern as decisive in practice. Driver hierarchy unresolved.", cites:["c1","c3"] },
-       { layer:"INSIGHT", text:"Missed-dose / resistance concern is the most consistent brake, across methods.", cites:["c4"] },
+       { layer:"FACT", text:"YI Combo value share of the Latanoprost+Timolol FDC segment: 21.7% → 33.1% → 42.3% (FY2024–26) — #1 brand by MAT 2026.", cites:["c1","c2"] },
+       { layer:"INSIGHT", text:"Stated switch driver is once-daily convenience (58%, ATU); qualitative evidence points to belief in IOP control as decisive in practice. Driver hierarchy unresolved.", cites:["c5","c4"] },
+       { layer:"INSIGHT", text:"Growth is prescriber-concentrated — 950 prescribers carry the full ₹10.8 Cr; cohort concentration mirrors this (43% of HCPs → 83% of TRx).", cites:["c2","c3"] },
      ],
-     openQ:"Payer / HEOR-vs-LAI research recommended before the switch-defense strategy locks." },
-  "bp-lai":{ id:"bp-lai", section:"MARKET & COMPETITION", title:"LAI Competitive Timeline", version:1, updated:"Jun 20",
-     body:[{ layer:"FACT", text:"LAI share of the dynamic market ~5–8% now, projected 15–20% by 2028.", cites:["c1"] }] },
-  "bp-size":{ id:"bp-size", section:"MARKET & COMPETITION", title:"Market Sizing", version:1, updated:"Jun 20",
-     body:[{ layer:"INSIGHT", text:"US HIV STR class stable; LAI is the growth vector to watch.", cites:["c1"] }] },
-  "bp-seg":{ id:"bp-seg", section:"HCP INSIGHTS", title:"Switching Attitudes by Segment", version:1, updated:"Jun 20",
-     body:[{ layer:"FACT", text:"Community practice more open than academic centers (40% vs 27%, W4).", cites:["c6"] }] },
-  "bp-peer":{ id:"bp-peer", section:"HCP INSIGHTS", title:"Peer Influence Channels", version:1, updated:"Jun 20",
-     body:[{ layer:"INSIGHT", text:"Peer consensus is the strongest influence channel on switching.", cites:["c5"] }] },
-  "bp-tol":{ id:"bp-tol", section:"HCP INSIGHTS", title:"Tolerability Perceptions", version:1, updated:"Jun 20",
-     body:[{ layer:"INSIGHT", text:"HCP view of tolerability diverges from patient-reported weight concern.", cites:["c3"] }] },
-  "bp-access":{ id:"bp-access", section:"ACCESS & PAYERS", title:"Access Environment", version:1, updated:"Jun 20", thin:true,
-     body:[{ layer:"INTERPRETATION", text:"No dedicated payer / HEOR-vs-LAI research — flagged as an evidence gap, not padded with inference.", cites:["c2"] }] },
+     openQ:"Formulary / IDN access research recommended before the Network-Controlled segment strategy locks." },
+  "bp-comp":{ id:"bp-comp", section:"MARKET & COMPETITION", title:"Latanoprost+Timolol Competitive Set", version:3, updated:"Jul 12",
+     body:[
+       { layer:"FACT", text:"Segment MAT 2026: ₹25.5 Cr (+22.5%). Xalacom (Pfizer) #2 at 19.1% — growth slowed to +2.7%. Latocom (Sun) #3 at 16.6%.", cites:["c1"] },
+       { layer:"INSIGHT", text:"The competitive threat is class-level, not brand-level: rho-kinase inhibitors are growing at a 68.7% CAGR and now exceed the entire Lat/Tim FDC segment in value.", cites:["c9"] } ] },
+  "bp-size":{ id:"bp-size", section:"MARKET & COMPETITION", title:"Market Sizing — Glaucoma, India", version:2, updated:"Jul 12",
+     body:[
+       { layer:"FACT", text:"Antiglaucoma & Miotics India MAT 2026: ₹823 Cr (+12.4%), within a ₹4,919 Cr total ophthalmology market.", cites:["c9"] },
+       { layer:"FACT", text:"Maharashtra, Karnataka and Tamil Nadu are the top three state markets; YI Combo over-indexes in Maharashtra (19% share) and Kerala (13%).", cites:["c10"] } ] },
+  "bp-seg":{ id:"bp-seg", section:"HCP INSIGHTS", title:"Segmentation & Priority Cohorts", version:2, updated:"Jul 13",
+     body:[
+       { layer:"FACT", text:"Five cohorts across a 172,828 HCP universe. Priority: Prostaglandin-Sparing Advocates (17%/36% TRx), Network-Controlled Providers (16%/22%), Independent Habitualists (10%/25%).", cites:["c3"] },
+       { layer:"INSIGHT", text:"Practice type splits cleanly: Advocates are solo practice; Network-Controlled and Delayed Digitalists are nearly all IDN; Habitualists nearly all non-IDN.", cites:["c11"] } ] },
+  "bp-belief":{ id:"bp-belief", section:"HCP INSIGHTS", title:"Prescribing Habit & Beliefs", version:1, updated:"Jul 13",
+     body:[{ layer:"INSIGHT", text:"Switching is a belief decision before it is a clinical one — Habitualists require “a greater shift in beliefs on need”; familiar monotherapy feels safe.", cites:["c4"] }] },
+  "bp-tol":{ id:"bp-tol", section:"HCP INSIGHTS", title:"Tolerability & Safety Perceptions", version:1, updated:"Jul 10",
+     body:[
+       { layer:"FACT", text:"Fixed-combination latanoprost/timolol was well tolerated over five years in OAG (legacy molecule evidence, Ali et al. 2011).", cites:["c6"] },
+       { layer:"INTERPRETATION", text:"Beta-blocker caution (asthma/COPD, bradycardia) is the standing safety objection; approved responses exist in the claims library.", cites:["c8"] } ] },
+  "bp-access":{ id:"bp-access", section:"ACCESS & FORMULARY", title:"IDN / Formulary Environment", version:1, updated:"Jul 13", thin:true,
+     body:[{ layer:"INTERPRETATION", text:"No dedicated formulary / IDN access research — flagged as an evidence gap, not padded with inference. 22% of segment TRx is formulary-gated.", cites:["c11"] }] },
 };
 const VERSION_HISTORY = [
-  { v:2, when:"just now", who:"Dr. Andrew Smith", note:"Published synthesis: driver hierarchy unresolved; added weight-gain qual signal + payer gap.", current:true },
-  { v:1, when:"Jun 22, 2026", who:"Dr. Andrew Smith", note:"Initial page from Wave 3 read." },
+  { v:12, when:"just now", who:"Dr. Ananya Rao", note:"Published synthesis: driver hierarchy unresolved; prescriber concentration added; formulary gap flagged for research.", current:true },
+  { v:11, when:"Jul 13, 2026", who:"Dr. Ananya Rao", note:"Page updated from the HCP segmentation read — priority cohorts and practice-type split added." },
 ];
 
 // A living institutional memory. The final entry only appears once the user publishes today's insight.
 const BRAIN_TIMELINE = [
-  { month:"June", tone:"slate", events:[
-    { icon:"doc", text:"18 new physician interviews ingested (Northstar)" },
-    { icon:"brain", text:"“Switching Drivers” page created from Wave 3" }, ], conf:61 },
-  { month:"July", tone:"indigo", events:[
-    { icon:"trend", text:"Switching barriers updated — intent climbs to 34%" },
-    { icon:"doc", text:"Competitive landscape (syndicated) added" }, ], conf:68 },
-  { month:"August", tone:"amber", events:[
-    { icon:"split", text:"Contradiction detected — quant vs. qual on the driver" },
-    { icon:"gap", text:"Payer evidence gap flagged for next research" }, ], conf:74 },
-  { month:"September", tone:"emerald", events:[
-    { icon:"checkc", text:"Wave 4 synthesis reviewed & published" },
-    { icon:"shield", text:"Confidence rose 61% → 82% as evidence triangulated" }, ], conf:82, live:true },
+  { month:"Q3 2025", tone:"slate", events:[
+    { icon:"doc", text:"Brand Plan 2025 and legacy clinical evidence (Ali 2011, EGS 2020) ingested" },
+    { icon:"brain", text:"“Switching Drivers” page created from launch-year IQVIA read" }, ], conf:54 },
+  { month:"Q4 2025", tone:"indigo", events:[
+    { icon:"doc", text:"Segmentation fieldwork ingested — 172,828 HCP universe mapped into 5 cohorts" },
+    { icon:"trend", text:"Prescriber concentration insight added — 690 prescribers carry ₹6.9 Cr" }, ], conf:61 },
+  { month:"Q1 2026", tone:"amber", events:[
+    { icon:"split", text:"Contradiction detected — stated convenience vs. behavioural belief driver" },
+    { icon:"gap", text:"Formulary / IDN access gap flagged for next research" }, ], conf:68 },
+  { month:"Q2 2026", tone:"emerald", events:[
+    { icon:"checkc", text:"Switching synthesis reviewed & published — Brand Brain v12" },
+    { icon:"shield", text:"Confidence rose 61% → 82% as market data, segmentation and qual triangulated" }, ], conf:82, live:true },
 ];
 
 // Shown the instant an insight is published — proof the Brain evolves.
@@ -281,21 +390,256 @@ const ACTIVITY = {
   added:2,
   changes:[
     { icon:"doc",   text:"2 new findings added" },
-    { icon:"trend", text:"“Switching barriers” updated" },
+    { icon:"trend", text:"“Switching Drivers” updated to v12" },
     { icon:"split", text:"New contradiction recorded" },
+    { icon:"brain", text:"2 nodes + 2 relationships added to the graph" },
   ],
   conf:{ from:61, to:82 },
 };
 
+/* ------------------------------------------------------------------ BRAND PULSE */
 const PULSE = {
-  week:"Week of Jul 1–7, 2026",
-  headline:"Switching risk is still rising — and the ‘why’ is now the open question your strategy must answer.",
+  week:"Week of Jul 13–19, 2026",
+  headline:"YI Combo just became the #1 Latanoprost+Timolol brand — the open question is whether 950 prescribers can become 2,000.",
+  kpis:[
+    { label:"MAT 2026 value", value:"₹10.8 Cr", delta:"+56.5% YoY", tone:"emerald", cite:"c2" },
+    { label:"Segment value share", value:"42.3%", delta:"Rank #1 · +9.2pp", tone:"emerald", cite:"c1" },
+    { label:"Prescriber base", value:"950", delta:"+260 vs FY25", tone:"indigo", cite:"c2" },
+    { label:"Glaucoma market", value:"₹823 Cr", delta:"+12.4% MAT", tone:"indigo", cite:"c9" },
+  ],
   items:[
-    { icon:"trend", tone:"amber", title:"Switching intent +7pp (W3→W4)", body:"Now 34% of physicians would consider switching a stable patient to an LAI.", cite:"c2" },
-    { icon:"split", tone:"indigo", title:"Quant and qual disagree on the driver", body:"Stated preference says convenience (54%); interviews say weight. Needs a decision.", cite:"c1" },
-    { icon:"gap", tone:"rose", title:"Payer evidence gap", body:"No dedicated payer/HEOR-vs-LAI study in the estate. Recommended for the next wave.", cite:"c2" },
+    { icon:"trend", tone:"amber", title:"Competitor movement — the threat is class-level", body:"Xalacom growth slowed to +2.7%, but rho-kinase inhibitors are compounding at 68.7% — the class now out-values the whole Lat/Tim segment.", cite:"c9" },
+    { icon:"split", tone:"indigo", title:"Physician sentiment — quant and qual disagree on the switch driver", body:"Stated preference says once-daily convenience (58%); interviews say belief in IOP control decides. Needs a messaging decision.", cite:"c5" },
+    { icon:"gap", tone:"rose", title:"Strategic alert — formulary evidence gap", body:"22% of segment TRx sits with formulary-restrained IDN prescribers, and no access study exists. Recommended before the IDN push.", cite:"c11" },
   ]
 };
+
+/* ------------------------------------------------------------------ HCP PERSONA STUDIO */
+// Synthetic ophthalmologist personas built from the segmentation framework (5 cohorts).
+const PERSONAS = [
+  { id:"p1", name:"Dr. Meera Krishnan", city:"Chennai", years:"18 yrs · senior consultant, cataract & glaucoma",
+    cohort:"Prostaglandin-Sparing Advocate", code:"B", priority:true,
+    pctHcp:"17% of HCPs (29,131)", pctTrx:"36% of TRx", practice:"Solo practice institutions",
+    mbti:"ENTJ", mbtiName:"The Commander", tone:"fuchsia",
+    behaviour:"Early adopter of fixed combinations — a quick, high-value win who prescribes on belief in the need for combination alternatives once monotherapy falls short.",
+    motivations:"Measurable IOP reduction, simplifying multi-bottle regimens, staying ahead of the guidelines.",
+    barriers:"Cash-pay price sensitivity; wants head-to-head efficacy data before defaulting to a new FDC.",
+    messaging:"Guideline-led efficacy: first-line PGA consensus (EGS · AAO · NICE · ICO) plus the escalation story when monotherapy is inadequate.",
+    comms:"Direct and data-first. Short, high-density visits; prefers evidence summaries by email she can verify herself.",
+    treatment:"Initiates PGA first-line, escalates early to a PGA+timolol FDC on inadequate control; monitors IOP aggressively." },
+  { id:"p2", name:"Dr. Rajesh Malhotra", city:"Delhi NCR", years:"12 yrs · corporate hospital network",
+    cohort:"Network-Controlled Provider", code:"B", priority:true,
+    pctHcp:"16% of HCPs (27,017)", pctTrx:"22% of TRx", practice:"Nearly all IDN institutions",
+    mbti:"ISTJ", mbtiName:"The Logistician", tone:"violet",
+    behaviour:"A priority, formulary-restrained prescriber who sees clear value in the combination approach but prescribes inside network protocol.",
+    motivations:"Protocol consistency, defensible outcomes, and standing within the network's clinical governance.",
+    barriers:"Hospital formulary listing and procurement committees — personal conviction cannot override the protocol.",
+    messaging:"Health-economics and formulary dossiers; network-level outcome evidence rather than individual-brand claims.",
+    comms:"Formal and institutional. Prefers structured meetings, approved email, and material he can table with the P&T committee.",
+    treatment:"Follows network protocol precisely; switches patients the day the formulary allows — and not before." },
+  { id:"p3", name:"Dr. Kavita Deshmukh", city:"Pune", years:"24 yrs · independent clinic owner",
+    cohort:"Independent Habitualist", code:"E", priority:true,
+    pctHcp:"10% of HCPs (17,347)", pctTrx:"25% of TRx", practice:"Nearly all non-IDN institutions",
+    mbti:"ISFJ", mbtiName:"The Defender", tone:"purple",
+    behaviour:"High value, an ambitious win over time — requires a greater shift in beliefs on need. Decades of habit make familiar monotherapy feel safe.",
+    motivations:"Patient trust built over 20+ years; long-term safety; never being the first to take a risk on her patients.",
+    barriers:"Habit itself. Confidence in current control; switching reads as risk, not progress.",
+    messaging:"Long-term safety first (five-year molecule data, Ali 2011), then peer testimony — belief-shift over feature lists.",
+    comms:"Relationship-led. Values rep continuity and unhurried in-person conversations; distrusts flashy digital.",
+    treatment:"Loyal to established molecules; switches slowly — but once converted, becomes a durable, high-volume prescriber." },
+  { id:"p4", name:"Dr. Arjun Nair", city:"Kochi", years:"6 yrs · general ophthalmology",
+    cohort:"Low-volume Enthusiast", code:"D", priority:false,
+    pctHcp:"28% of HCPs (48,349)", pctTrx:"11% of TRx", practice:"Majority non-IDN · some solo/IDN mix",
+    mbti:"ENFP", mbtiName:"The Campaigner", tone:"pink",
+    behaviour:"Low prescription volume but genuinely sees the value — and is the most digitally engaged physician in the universe.",
+    motivations:"Learning, digital CME, being visibly current with the field; enjoys sharing what he learns.",
+    barriers:"A small glaucoma caseload — he refers complex patients out before therapy escalation is his decision.",
+    messaging:"Digital-first: webinars, quick-reference dosing cards, case-based micro-content he can consume between patients.",
+    comms:"WhatsApp and email; watches short videos, replies fast, and amplifies content to peers.",
+    treatment:"Prescribes confidently for straightforward OAG; refers advanced and surgical cases to sub-specialists." },
+  { id:"p5", name:"Dr. Sunita Patel", city:"Ahmedabad", years:"30 yrs · trust hospital department head",
+    cohort:"Delayed Digitalist", code:"A", priority:false,
+    pctHcp:"29% of HCPs (49,984)", pctTrx:"6% of TRx", practice:"Nearly all IDN institutions",
+    mbti:"INTP", mbtiName:"The Logician", tone:"slate",
+    behaviour:"Low value, tied to formulary and unlikely to change behaviour or see need for new therapy. Analytically sharp but promotionally unreachable.",
+    motivations:"Departmental stability, teaching, and the clinical status quo that has served her patients for decades.",
+    barriers:"Formulary constraints plus genuine scepticism of promotion; near-zero digital engagement.",
+    messaging:"Nurture-only: guideline updates and institutional education through the network — no active field effort.",
+    comms:"Rarely sees reps. Reachable through hospital academic programmes, if at all.",
+    treatment:"Prescribes the formulary default; escalation decisions defer to network protocol and junior consultants." },
+];
+
+/* ------------------------------------------------------------------ MLR REVIEW */
+const MLR_CHECKS = [
+  { name:"Claims validation", detail:"2 claims matched to the approved claim library (CL-014 · IOP control, CL-022 · long-term tolerability)" },
+  { name:"Safety statement", detail:"Prescribing-information reference present · aligned to SmPC (Feb 2021)" },
+  { name:"Promotional compliance", detail:"“Registered Medical Practitioners only” + job code PP-YIC-GLB-0258 + date of creation present" },
+  { name:"Evidence verification", detail:"Ali et al., J Glaucoma 2011;20(4):215–222 — citation resolves to the source PDF in the Library" },
+];
+const MLR_ASSETS = [
+  { id:"a258", code:"PP-YIC-GLB-0258", name:"Banner — Long-Term Tolerability (OAG)", type:"HCP banner",
+    submitted:"Jul 18, 2026", owner:"Field Marketing", claims:2, status:"review" },
+  { id:"a125", code:"PP-YIC-GLB-0125", name:"Banner — First-Line PGA Guidelines", type:"HCP banner",
+    submitted:"Jun 28, 2026", owner:"Field Marketing", claims:1, status:"approved", by:"Priya Mehta", when:"Jul 02, 2026", cycles:1,
+    note:"Approved first cycle — guideline references (EGS 2020 · AAO 2020 · NICE NG81 · ICO 2015) verified against the Library." },
+  { id:"a193", code:"PP-YIC-GLB-0193", name:"HCP Email — Once-Daily Glaucoma Control", type:"Rep-triggered email",
+    submitted:"Jun 18, 2026", owner:"Omnichannel", claims:4, status:"approved", by:"Priya Mehta", when:"Jun 24, 2026", cycles:2,
+    note:"Approved with changes — persistence claim scoped to 6-month data; legacy XALACOM references kept with dates removed." },
+];
+const MLR_HISTORY = [
+  { when:"Jul 02, 2026 · 14:31", who:"Priya Mehta", role:"Regulatory Affairs", what:"Approved PP-YIC-GLB-0125 (cycle 1 of 1)", tone:"emerald" },
+  { when:"Jun 24, 2026 · 11:07", who:"Priya Mehta", role:"Regulatory Affairs", what:"Approved PP-YIC-GLB-0193 with changes (cycle 2 of 2)", tone:"emerald" },
+  { when:"Jun 20, 2026 · 16:44", who:"Dr. S. Venkatesan", role:"Medical Affairs", what:"Requested changes on PP-YIC-GLB-0193 — persistence claim to be scoped to 6-month data", tone:"amber" },
+  { when:"Jun 18, 2026 · 09:12", who:"System", role:"Automated checks", what:"PP-YIC-GLB-0193 passed 4/4 automated checks · routed to Medical Affairs", tone:"slate" },
+];
+
+/* ------------------------------------------------------------------ AUDIT TRAIL */
+const AUDIT_SEED = [
+  { ts:"Jul 18, 2026 · 17:20", user:"Field Marketing", role:"Submitter", action:"Submitted “Banner — Long-Term Tolerability (OAG)” for MLR review", evidence:["c6","c8"], conf:null, status:"In review", tone:"amber" },
+  { ts:"Jul 15, 2026 · 10:22", user:"Dr. Ananya Rao", role:"Brand Director", action:"Asked “Which segments should we prioritise?” — answered from 3 sources", evidence:["c3","c11"], conf:"high", status:"Answered", tone:"indigo" },
+  { ts:"Jul 14, 2026 · 15:40", user:"System", role:"Synthesis engine", action:"Contradiction detected — stated convenience (ATU) vs. behavioural belief driver (qual). Preserved, not averaged", evidence:["c5","c4"], conf:"moderate", status:"Flagged", tone:"amber" },
+  { ts:"Jul 13, 2026 · 11:02", user:"Sameer Iyer", role:"Insights Lead", action:"Ingested “HCP Segmentation — Final Report” — 5 cohorts, 172,828 HCP universe, qual n=25", evidence:["c3"], conf:null, status:"Verified", tone:"emerald" },
+  { ts:"Jul 12, 2026 · 09:14", user:"Sameer Iyer", role:"Insights Lead", action:"Ingested “Ophthal Market Sizing — IQVIA” — 6 sheets parsed, 214 evidence units extracted", evidence:["c1","c9"], conf:null, status:"Verified", tone:"emerald" },
+  { ts:"Jul 10, 2026 · 14:05", user:"Medical Affairs", role:"Library", action:"Reference evidence added — Ali et al. 2011 (J Glaucoma) and EGS Guidelines 5th Edition", evidence:["c6","c7"], conf:null, status:"Verified", tone:"emerald" },
+  { ts:"Jul 02, 2026 · 14:31", user:"Priya Mehta", role:"Regulatory Affairs", action:"Approved MLR asset PP-YIC-GLB-0125 — First-Line PGA Guidelines banner", evidence:["c7"], conf:null, status:"Approved", tone:"emerald" },
+];
+
+/* ------------------------------------------------------------------ SEMANTIC KNOWLEDGE GRAPH */
+// Node types → visual identity. The graph is the visual signature of Brainlee.
+const GTYPE = {
+  brand:         { color:"#4F46E5", label:"Brand" },
+  study:         { color:"#0EA5E9", label:"Clinical evidence" },
+  guideline:     { color:"#8B5CF6", label:"Guidelines" },
+  research:      { color:"#6366F1", label:"Market research" },
+  segment:       { color:"#D946EF", label:"Physician segments" },
+  claim:         { color:"#10B981", label:"Claims" },
+  asset:         { color:"#F59E0B", label:"MLR assets" },
+  campaign:      { color:"#F97316", label:"Campaigns" },
+  competitor:    { color:"#F43F5E", label:"Competitors" },
+  sales:         { color:"#14B8A6", label:"Sales performance" },
+  objective:     { color:"#0D9488", label:"Brand objectives" },
+  insight:       { color:"#059669", label:"Insights" },
+  recommendation:{ color:"#0F172A", label:"Recommendations" },
+  kol:           { color:"#A855F7", label:"KOLs" },
+  gap:           { color:"#E11D48", label:"Evidence gaps" },
+};
+
+// ring 0 = centre; rings 1–3 at increasing radius; a = angle in degrees.
+const GRAPH_NODES = [
+  { id:"yc",    label:"YI Combo", sub:"latanoprost + timolol · once daily", type:"brand", ring:0, a:0,
+    summary:"The brand node. Every piece of evidence, every claim, every campaign and every decision in this graph connects back here — this is the institutional memory of YI Combo.",
+    conf:"high", updated:"just now", cites:["c1","c2"], src:"Entire evidence estate" },
+  { id:"sales", label:"Sales Performance", sub:"₹10.8 Cr MAT 2026 · +56.5%", type:"sales", ring:1, a:-90,
+    summary:"YI Combo closed MAT 2026 at ₹10.8 Cr — 336.5k packs across 950 prescribers — becoming the #1 brand in the Latanoprost+Timolol FDC segment.",
+    conf:"high", updated:"Jul 12, 2026", cites:["c1","c2"], src:"Ophthal Market Sizing — IQVIA · Sheets 3–4" },
+  { id:"guide", label:"Guidelines", sub:"EGS · AAO · NICE · ICO", type:"guideline", ring:1, a:-45,
+    summary:"Four international guideline bodies recommend prostaglandin analogues as first-line IOP-lowering agents — the clinical foundation of the YI Combo escalation story.",
+    conf:"high", updated:"Jul 10, 2026", cites:["c7"], src:"EGS Terminology & Guidelines, 5th Edition (2020)" },
+  { id:"res1",  label:"IQVIA Market Sizing", sub:"MAT 2022–26 · India", type:"research", ring:1, a:0,
+    summary:"Six-sheet market model: total ophthalmology (₹4,919 Cr) → glaucoma (₹823 Cr) → Latanoprost+Timolol segment (₹25.5 Cr) → YI Combo build and state split.",
+    conf:"high", updated:"Jul 12, 2026", cites:["c9","c10"], src:"Ophthal Market Sizing — IQVIA" },
+  { id:"seghub",label:"Physician Segments", sub:"5 cohorts · 172,828 HCPs", type:"segment", ring:1, a:45,
+    summary:"The HCP universe maps into five cohorts. Three are priority for YI Combo engagement — together 43% of HCPs and 83% of segment prescriptions.",
+    conf:"high", updated:"Jul 13, 2026", cites:["c3","c11"], src:"HCP Segmentation — Final Report" },
+  { id:"res2",  label:"Qualitative Interviews", sub:"n=25 ophthalmologists", type:"research", ring:1, a:90,
+    summary:"Twenty-five in-depth interviews. The decisive theme: switching is a belief decision before it is a clinical one — habit is the strongest brake.",
+    conf:"high", updated:"Jul 13, 2026", cites:["c4"], src:"Qualitative Interviews — Ophthalmologists" },
+  { id:"camp",  label:"Campaign — Once Daily", sub:"3 approved assets live", type:"campaign", ring:1, a:135,
+    summary:"The flagship HCP campaign. Carries the first-line PGA guideline story and the once-daily control message through banners and rep-triggered email.",
+    conf:"moderate", updated:"Jul 02, 2026", cites:["c8"], src:"Veeva Vault PromoMats" },
+  { id:"study1",label:"Ali et al. 2011", sub:"5-year safety · J Glaucoma", type:"study", ring:1, a:180,
+    summary:"Five-year multicenter safety study of fixed-combination latanoprost/timolol in OAG and ocular hypertension — the long-term tolerability anchor for the molecule.",
+    conf:"high", updated:"Jul 10, 2026", cites:["c6"], src:"J Glaucoma 2011;20(4):215–222" },
+  { id:"comp1", label:"Xalacom · Pfizer", sub:"Rank #2 · 19.1% share", type:"competitor", ring:1, a:-135,
+    summary:"The originator brand and closest competitor. Growth slowed to +2.7% in MAT 2026 as YI Combo took segment leadership.",
+    conf:"high", updated:"Jul 12, 2026", cites:["c1"], src:"Ophthal Market Sizing — IQVIA · Sheet 3" },
+  /* ring 2 */
+  { id:"obj",   label:"Objective — Segment #1", sub:"Hold rank · 2,000 prescribers", type:"objective", ring:2, a:-108,
+    summary:"Brand Plan 2025 objective: hold #1 in the Lat/Tim FDC segment and double the prescriber base from 950 toward 2,000 by FY2027.",
+    conf:"moderate", updated:"Jul 12, 2026", cites:["c2"], src:"YI Combo Brand Plan 2025" },
+  { id:"kol",   label:"KOL Network", sub:"Glaucoma Society of India", type:"kol", ring:2, a:-66,
+    summary:"Twelve engaged KOLs aligned with the first-line PGA guideline consensus; three are segmentation-validated Advocates who influence Habitualist peers.",
+    conf:"moderate", updated:"Jul 05, 2026", cites:["c7"], src:"CRM — Field Force" },
+  { id:"claim2",label:"Claim — First-line PGA", sub:"CL-014 · guideline-backed", type:"claim", ring:2, a:-38,
+    summary:"“Prostaglandins are recommended by international guidelines as first-line IOP-lowering agents.” Approved claim, verified against all four guideline sources.",
+    conf:"high", updated:"Jul 02, 2026", cites:["c7"], src:"Approved claim library · CL-014" },
+  { id:"atu",   label:"ATU Analysis", sub:"Stated switch drivers", type:"research", ring:2, a:8,
+    summary:"Stated-preference tracker. Once-daily convenience ranks first (58%) among reasons to switch to a PGA fixed combination — a finding the qualitative work contradicts.",
+    conf:"moderate", updated:"Jul 13, 2026", cites:["c5"], src:"YI Combo ATU Analysis" },
+  { id:"seg1",  label:"PG-Sparing Advocates", sub:"17% HCPs · 36% TRx", type:"segment", ring:2, a:32,
+    summary:"Quick, high-value wins — solo-practice physicians who prescribe on belief in the need for combination alternatives. The first target of the belief-shift strategy.",
+    conf:"high", updated:"Jul 13, 2026", cites:["c3"], src:"HCP Segmentation — Final Report" },
+  { id:"seg2",  label:"Independent Habitualists", sub:"10% HCPs · 25% TRx", type:"segment", ring:2, a:56,
+    summary:"High value, ambitious wins over time — require a greater shift in beliefs on need. Nearly all non-IDN. The cohort behind the belief-driver insight.",
+    conf:"high", updated:"Jul 13, 2026", cites:["c3","c4"], src:"HCP Segmentation — Final Report" },
+  { id:"seg3",  label:"Network-Controlled (IDN)", sub:"16% HCPs · 22% TRx", type:"segment", ring:2, a:80,
+    summary:"Priority formulary-restrained prescribers who see value in the combination approach but prescribe inside network protocol. Blocked by the formulary evidence gap.",
+    conf:"high", updated:"Jul 13, 2026", cites:["c11"], src:"HCP Segmentation — Final Report" },
+  { id:"ins1",  label:"Insight — Habit decides", sub:"Belief shift precedes the switch", type:"insight", ring:2, a:104,
+    summary:"Cross-method insight: stated convenience does not predict switching; belief in IOP control does. Generated from the qual read, contradicted by the ATU — preserved as an open strategic question.",
+    conf:"moderate", updated:"Jul 14, 2026", cites:["c4","c5"], src:"Synthesis · Jul 14, 2026" },
+  { id:"asset3",label:"HCP Email · GLB-0193", sub:"97% persistence · approved", type:"asset", ring:2, a:126,
+    summary:"Rep-triggered email carrying the once-daily control story and the 6-month persistence claim. Approved with changes after two MLR cycles.",
+    conf:"high", updated:"Jun 24, 2026", cites:["c8"], src:"Veeva Vault PromoMats" },
+  { id:"asset1",label:"Banner · GLB-0125", sub:"First-line PGA · approved", type:"asset", ring:2, a:148,
+    summary:"HCP banner carrying the four-guideline first-line PGA story. Approved first cycle; live in the Once Daily campaign.",
+    conf:"high", updated:"Jul 02, 2026", cites:["c7"], src:"Veeva Vault PromoMats" },
+  { id:"asset2",label:"Banner · GLB-0258", sub:"5-yr tolerability · in MLR", type:"asset", ring:2, a:170,
+    summary:"HCP banner anchored on the five-year safety study. Currently in MLR review — 4 automated checks passed, awaiting reviewer approval.",
+    conf:"moderate", updated:"Jul 18, 2026", cites:["c6"], src:"Veeva Vault PromoMats" },
+  { id:"comp2", label:"Rho-kinase class", sub:"+68.7% CAGR · emerging", type:"competitor", ring:2, a:-152,
+    summary:"The real competitive threat is class-level: rho-kinase inhibitors compounding at 68.7% since 2022, now ₹55.1 Cr — larger than the entire Lat/Tim FDC segment.",
+    conf:"high", updated:"Jul 12, 2026", cites:["c9"], src:"Ophthal Market Sizing — IQVIA · Sheet 2" },
+  /* ring 3 */
+  { id:"gapn",  label:"Gap — Formulary access", sub:"No IDN research exists", type:"gap", ring:3, a:80,
+    summary:"Named honestly: nothing in the estate measures formulary access for the Network-Controlled segment. Flagged as decision-critical before any IDN investment.",
+    conf:"low", updated:"Jul 14, 2026", cites:["c11"], src:"Synthesis · evidence-gap detection" },
+  { id:"claim1",label:"Claim — 97% persistence", sub:"CL-022 · 6-month scope", type:"claim", ring:3, a:126,
+    summary:"“97% of patients persisted with YI Combo over 6 months.” Approved with MLR-enforced scope: 6-month data only; long-term persistence remains legacy-molecule evidence.",
+    conf:"moderate", updated:"Jun 24, 2026", cites:["c8","c6"], src:"Approved claim library · CL-022" },
+];
+
+// Appears only after the user approves today's insight — the graph visibly evolves.
+const GRAPH_NEW_NODES = [
+  { id:"rec1", label:"Recommendation — Belief-shift", sub:"Approved by Dr. Rao · just now", type:"recommendation", ring:3, a:104,
+    summary:"Concentrate on Advocates + Habitualists with belief-shift messaging on IOP control; commission the formulary study before the IDN push. Approved into the Brand Brain as v12.",
+    conf:"moderate", updated:"just now", cites:["c3","c4","c7"], src:"Brand Brain v12 · approved insight" },
+];
+
+const GRAPH_EDGES = [
+  { from:"yc", to:"sales",  label:"measured by" },
+  { from:"yc", to:"guide",  label:"positioned by" },
+  { from:"yc", to:"res1",   label:"sized by" },
+  { from:"yc", to:"seghub", label:"targets" },
+  { from:"yc", to:"res2",   label:"learns from" },
+  { from:"yc", to:"camp",   label:"promoted by" },
+  { from:"yc", to:"study1", label:"evidenced by" },
+  { from:"yc", to:"comp1",  label:"competes with" },
+  { from:"sales",  to:"obj",    label:"advances" },
+  { from:"comp2",  to:"comp1",  label:"class pressure", tone:"rose" },
+  { from:"comp2",  to:"obj",    label:"threatens", tone:"rose" },
+  { from:"guide",  to:"claim2", label:"supports" },
+  { from:"guide",  to:"kol",    label:"aligned with" },
+  { from:"claim2", to:"asset1", label:"used in" },
+  { from:"camp",   to:"asset1", label:"contains" },
+  { from:"camp",   to:"asset3", label:"contains" },
+  { from:"camp",   to:"asset2", label:"contains" },
+  { from:"study1", to:"asset2", label:"cited by" },
+  { from:"study1", to:"claim1", label:"supports" },
+  { from:"asset3", to:"claim1", label:"carries" },
+  { from:"seghub", to:"seg1",   label:"cohort" },
+  { from:"seghub", to:"seg2",   label:"cohort" },
+  { from:"seghub", to:"seg3",   label:"cohort" },
+  { from:"seghub", to:"atu",    label:"measured by" },
+  { from:"res2",   to:"ins1",   label:"generated" },
+  { from:"seg2",   to:"ins1",   label:"explains" },
+  { from:"atu",    to:"ins1",   label:"contradicts", tone:"amber" },
+  { from:"seg3",   to:"gapn",   label:"blocked by", tone:"rose" },
+];
+const GRAPH_NEW_EDGES = [
+  { from:"ins1", to:"rec1", label:"approved into", tone:"emerald" },
+  { from:"rec1", to:"obj",  label:"advances", tone:"emerald" },
+];
 
 /* ------------------------------------------------------------------ ICONS (Lucide-style, inline for demo reliability) */
 const Ic = ({d, size=18, sw=1.8, fill="none", cls=""}) =>
@@ -330,6 +674,17 @@ const Icon = {
   plus:     p=><Ic {...p} d={<path d="M12 5v14M5 12h14"/>}/>,
   file:     p=><Ic {...p} d={<><path d="M6 3h8l4 4v14H6z"/></>}/>,
   bolt:     p=><Ic {...p} d={<path d="M13 2L4 14h6l-1 8 9-12h-6z"/>}/>,
+  graph:    p=><Ic {...p} d={<><circle cx="12" cy="12" r="2.5"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="M6.5 6.5l3.6 3.6M17.5 6.5l-3.6 3.6M6.5 17.5l3.6-3.6M17.5 17.5l-3.6-3.6"/></>}/>,
+  users:    p=><Ic {...p} d={<><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.2 3.4-5 6.5-5s5.7 1.8 6.5 5"/><circle cx="17.5" cy="9" r="2.5"/><path d="M16.5 15.5c2.4.3 4.3 1.8 5 4.5"/></>}/>,
+  stamp:    p=><Ic {...p} d={<><path d="M5 21h14"/><path d="M6 17h12v-3H6z"/><path d="M12 14V9"/><path d="M9 6a3 3 0 1 1 6 0c0 1.6-1 2.4-1 3h-4c0-.6-1-1.4-1-3z"/></>}/>,
+  list:     p=><Ic {...p} d={<><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r="1" fill="currentColor" stroke="none"/></>}/>,
+  grid:     p=><Ic {...p} d={<><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></>}/>,
+  mail:     p=><Ic {...p} d={<><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></>}/>,
+  vault:    p=><Ic {...p} d={<><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="12" cy="12" r="4"/><path d="M12 8v1.5M12 14.5V16M8 12h1.5M14.5 12H16"/></>}/>,
+  plug:     p=><Ic {...p} d={<><path d="M9 7V3M15 7V3"/><path d="M6 7h12v4a6 6 0 0 1-12 0z"/><path d="M12 17v4"/></>}/>,
+  eye:      p=><Ic {...p} d={<><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></>}/>,
+  tag:      p=><Ic {...p} d={<><path d="M3 3h8l10 10-8 8L3 11z"/><circle cx="8" cy="8" r="1.5"/></>}/>,
+  refresh:  p=><Ic {...p} d={<><path d="M21 12a9 9 0 1 1-2.6-6.4L21 8"/><path d="M21 3v5h-5"/></>}/>,
 };
 
 /* ------------------------------------------------------------------ TRUST DESIGN TOKENS */
@@ -426,7 +781,7 @@ function Tag({children, tone="slate"}) {
   return <span className={cx("inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold", t)}>{children}</span>;
 }
 
-/* The global source slide-over: the trust primitive. */
+/* The global source slide-over: the trust primitive. Rivals Perplexity's citation experience. */
 function SourcePanel({cite, onClose}) {
   return <div className="fixed inset-0 z-50">
     <div className="absolute inset-0 bg-ink/25 backdrop-blur-[2px] animate-fadein" onClick={onClose}/>
@@ -449,11 +804,11 @@ function SourcePanel({cite, onClose}) {
           <p className="text-[15px] leading-relaxed text-ink pl-3">{cite.snippet}</p>
         </div>
         <div className="mt-3 text-[12px] text-ink-mute flex items-center gap-2"><Icon.shield size={14} cls="text-emerald-600"/>{cite.meta}</div>
-        {/* Mock document render */}
+        {/* Mock document render — the passage highlighted in its surrounding context */}
         <div className="mt-6 text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-2">In context · {cite.loc}</div>
         <div className="rounded-xl border border-line overflow-hidden">
           <div className="bg-slate-50 border-b border-line px-4 py-2 text-[11px] font-semibold text-ink-mute flex items-center justify-between">
-            <span>{cite.doc}</span><span>{cite.loc}</span></div>
+            <span className="truncate">{cite.doc}</span><span className="shrink-0 ml-2">{cite.loc}</span></div>
           <div className="p-4 space-y-2">
             {[0,1,2].map(i=><div key={i} className="h-2.5 rounded bg-slate-100" style={{width:`${[92,78,85][i]}%`}}/>)}
             <div className="h-2.5 rounded bg-indigo-200" style={{width:"96%"}}/>
@@ -496,7 +851,7 @@ function TrendSparkline({series, labels, delta, sig}) {
     </div>
     <div className="flex flex-col gap-1.5 pb-4">
       <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 rounded-md px-2 py-1 text-[12px] font-bold w-fit"><Icon.trend size={13}/>{delta}</span>
-      <span className="text-[11px] font-semibold text-ink-mute">significant · {sig} confidence</span>
+      <span className="text-[11px] font-semibold text-ink-mute">value share of segment · {sig}</span>
     </div>
   </div>;
 }
@@ -505,7 +860,7 @@ function ContradictionCard({c}) {
   return <div className="rounded-2xl border border-amber-200 bg-gradient-to-b from-amber-50/70 to-white overflow-hidden shadow-card">
     <div className="px-5 pt-4 pb-3 flex items-center gap-2.5 border-b border-amber-100">
       <span className="text-amber-600"><Icon.split size={18}/></span>
-      <div><div className="font-bold text-[15px] text-ink">The studies disagree — and it matters</div>
+      <div><div className="font-bold text-[15px] text-ink">Mixed evidence detected — and it matters</div>
         <div className="text-[12px] text-amber-700 font-semibold">{c.topic}</div></div>
       <div className="ml-auto"><LayerBadge layer={c.layer}/></div>
     </div>
@@ -619,7 +974,7 @@ function SynthesisView({data, onApprove, published}) {
 
     {/* 1 · Agreements */}
     <div className="mt-8 animate-fadeup">
-      <SectionHead n="1" title="What multiple studies agree on" sub="Findings that hold across methods and suppliers"/>
+      <SectionHead n="1" title="What multiple sources agree on" sub="Findings that hold across methods and suppliers"/>
       <div className="space-y-3 stagger">
         {data.agreements.map((a,i)=><TrustLine key={i} {...a} why={a.why}/>)}
       </div>
@@ -676,7 +1031,7 @@ function PublishBar({published, onReview}) {
       <div className="pointer-events-auto rounded-2xl bg-ink text-white shadow-pop px-5 py-3.5 flex items-center gap-4 animate-fadeup">
         {published ? <>
           <span className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 grid place-items-center shrink-0"><Icon.checkc size={20}/></span>
-          <div className="flex-1"><div className="font-bold text-[14px]">Published to the Brand Brain · v2</div>
+          <div className="flex-1"><div className="font-bold text-[14px]">Published to the Brand Brain · v12</div>
             <div className="text-[12px] text-white/60">Now part of what {BRAND.name} knows — readable by every future answer.</div></div>
           <Button variant="soft" size="sm" onClick={onReview} iconRight={<Icon.arrow size={15}/>}>View in Brand Brain</Button>
         </> : <>
@@ -704,13 +1059,13 @@ function ReviewModal({onApprove, onReject, onClose}) {
         <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-2">What will be written</div>
         <div className="rounded-xl border border-line divide-y divide-line">
           <div className="p-3 flex gap-2 items-start"><span className="text-emerald-600 mt-0.5"><Icon.plus size={14}/></span>
-            <span className="text-[13.5px] text-ink">Driver hierarchy is <b>unresolved</b>: stated non-daily preference (54%, quant) vs. weight-gain concern (decisive, qual).</span></div>
+            <span className="text-[13.5px] text-ink">Driver hierarchy is <b>unresolved</b>: stated once-daily convenience (58%, ATU) vs. belief in IOP control (decisive, qual).</span></div>
           <div className="p-3 flex gap-2 items-start"><span className="text-emerald-600 mt-0.5"><Icon.plus size={14}/></span>
-            <span className="text-[13.5px] text-ink">Open question added: <b>payer / HEOR-vs-LAI research</b> recommended before strategy locks.</span></div>
+            <span className="text-[13.5px] text-ink">Open question added: <b>formulary / IDN access research</b> recommended before the Network-Controlled strategy locks.</span></div>
         </div>
         <div className="mt-4 text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-2">Automatic checks</div>
         <div className="space-y-1.5">
-          {["Locked-claim guard — 1 locked claim preserved verbatim","Citations preserved — 6 kept · 2 added · none lost","Brand-isolated — NUVEXA only"].map((c,i)=>
+          {["Locked-claim guard — 2 approved claims preserved verbatim (CL-014, CL-022)","Citations preserved — 9 kept · 2 added · none lost","Brand-isolated — YI Combo only"].map((c,i)=>
             <div key={i} className="flex items-center gap-2 text-[13px] text-ink-soft"><span className="text-emerald-600"><Icon.checkc size={15}/></span>{c}</div>)}
         </div>
       </div>
@@ -718,6 +1073,81 @@ function ReviewModal({onApprove, onReject, onClose}) {
         <span className="text-[11.5px] text-ink-mute flex-1 flex items-center gap-1.5"><Icon.shield size={13} cls="text-emerald-600"/>Every decision is logged with your name.</span>
         <Button variant="danger" size="sm" onClick={onReject} icon={<Icon.x size={14}/>}>Reject</Button>
         <Button variant="emerald" size="sm" onClick={onApprove} icon={<Icon.check size={14}/>}>Approve &amp; publish</Button>
+      </div>
+    </div>
+  </div>;
+}
+
+/* ------------------------------------------------------------------ WELCOME EXPERIENCE */
+// A miniature of the knowledge graph — the signature visual — floating behind the welcome copy.
+function WelcomeConstellation() {
+  const pts=[[160,120],[340,70],[560,150],[780,90],[980,170],[220,320],[470,270],[720,300],[940,340],[120,480],[380,470],[640,460],[880,520],[520,560]];
+  const links=[[0,1],[1,2],[2,3],[3,4],[1,6],[2,6],[5,6],[6,7],[7,8],[5,9],[6,10],[7,11],[8,12],[10,13],[11,13],[10,11]];
+  return <svg viewBox="0 0 1100 640" className="absolute inset-0 w-full h-full opacity-[.22]" preserveAspectRatio="xMidYMid slice">
+    {links.map(([a,b],i)=><line key={i} x1={pts[a][0]} y1={pts[a][1]} x2={pts[b][0]} y2={pts[b][1]}
+      stroke="#818CF8" strokeWidth="1" className="edgeflow"/>)}
+    {pts.map((p,i)=><g key={i} className="wfloat" style={{animationDelay:`${(i%7)*.9}s`}}>
+      <circle cx={p[0]} cy={p[1]} r={i%3===0?7:4.5} fill={i%4===0?"#6366F1":i%4===1?"#10B981":i%4===2?"#D946EF":"#0EA5E9"} className="wpulse" style={{animationDelay:`${(i%5)*.7}s`}}/>
+    </g>)}
+  </svg>;
+}
+
+function WelcomeScreen({onEnter}) {
+  const pillars=[
+    { icon:"library", title:"Ingest everything", body:"Market data, research decks, transcripts, MLR assets — every document becomes governed evidence." },
+    { icon:"ask", title:"Ask anything", body:"Strategic questions answered from your evidence — every claim labeled, scored and cited." },
+    { icon:"shield", title:"Verify every claim", body:"One click opens the exact source passage. Contradictions are preserved, never averaged." },
+    { icon:"brain", title:"Remember forever", body:"Approved insights become versioned institutional memory that every future answer reads." },
+  ];
+  return <div className="fixed inset-0 z-[70] overflow-y-auto" style={{background:"radial-gradient(1200px 700px at 50% -10%, #1E1B4B 0%, #0F172A 55%, #0B1120 100%)"}}>
+    <WelcomeConstellation/>
+    <div className="relative min-h-full flex flex-col items-center justify-center px-6 py-14">
+      <div className="w-full max-w-3xl text-center wstagger">
+        {/* identity */}
+        <div className="flex items-center justify-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 grid place-items-center text-white shadow-pop"><Icon.brain size={26}/></div>
+          <div className="text-left leading-none">
+            <div className="text-white font-extrabold text-[20px] tracking-[-.02em]">BrandBrain</div>
+            <div className="text-indigo-300 text-[11px] font-bold uppercase tracking-[.18em] mt-1">by Brainlee</div>
+          </div>
+        </div>
+        {/* the five-second promise */}
+        <h1 className="mt-9 text-[42px] leading-[1.08] font-extrabold tracking-[-.035em] text-white">
+          Every insight your brand<br/>has ever learned. <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-emerald-300">One brain.</span>
+        </h1>
+        <p className="mt-5 text-[16.5px] leading-relaxed text-slate-300 max-w-xl mx-auto">
+          BrandBrain is the institutional memory of your pharmaceutical brand. It reads every study,
+          remembers every decision, and answers strategic questions with evidence you can verify —
+          so Brand Managers decide with confidence, not recollection.
+        </p>
+        {/* four pillars — scannable in seconds */}
+        <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-3 text-left">
+          {pillars.map((p,i)=>{ const PIc=Icon[p.icon]; return <div key={i} className="rounded-2xl bg-white/[.06] border border-white/10 backdrop-blur-sm p-4 hover:bg-white/[.09] transition">
+            <span className="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-300 grid place-items-center"><PIc size={18}/></span>
+            <div className="mt-3 font-bold text-[14px] text-white">{p.title}</div>
+            <div className="mt-1 text-[12.5px] leading-relaxed text-slate-400">{p.body}</div>
+          </div>;})}
+        </div>
+        {/* the loop */}
+        <div className="mt-8 flex items-center justify-center gap-2 text-[12px] font-semibold text-slate-400 flex-wrap">
+          {["Evidence in","Cited answers","Human approval","Living memory"].map((s,i)=><React.Fragment key={s}>
+            {i>0 && <span className="text-indigo-400"><Icon.arrow size={13}/></span>}
+            <span className={cx("rounded-full px-3 py-1 border", i===3?"border-emerald-400/40 text-emerald-300 bg-emerald-400/10":"border-white/10 bg-white/5")}>{s}</span>
+          </React.Fragment>)}
+        </div>
+        {/* enter */}
+        <div className="mt-10 flex flex-col items-center gap-3">
+          <button onClick={onEnter}
+            className="group inline-flex items-center gap-3 rounded-2xl bg-white text-ink font-bold text-[15px] px-7 py-4 shadow-pop hover:shadow-lift hover:-translate-y-0.5 transition-all">
+            <span className="w-7 h-7 rounded-lg bg-indigo-600 text-white grid place-items-center"><Icon.bolt size={15}/></span>
+            Enter with YI Combo
+            <span className="text-ink-mute group-hover:translate-x-1 transition-transform"><Icon.arrow size={17}/></span>
+          </button>
+          <div className="text-[11.5px] text-slate-500 font-medium">Glaucoma · Ophthalmology · latanoprost 50 µg/ml + timolol 5 mg/ml · once daily</div>
+        </div>
+        <div className="mt-8 flex items-center justify-center gap-2 text-[11px] text-slate-500">
+          <Icon.shield size={13} cls="text-emerald-400"/> Built for pharmaceutical brand teams · MLR-governed · nothing published without human approval
+        </div>
       </div>
     </div>
   </div>;
@@ -732,27 +1162,82 @@ function ScreenHeader({title, sub, right}) {
   </div>;
 }
 
+function DocRow({d, last}) {
+  const [open,setOpen]=useState(false);
+  const statusMap={
+    ready:    {label:"Ready", cls:"text-emerald-700 bg-emerald-50", dot:"bg-emerald-500"},
+    approved: {label:"MLR approved", cls:"text-emerald-700 bg-emerald-50", dot:"bg-emerald-500"},
+    review:   {label:"In MLR review", cls:"text-amber-700 bg-amber-50", dot:"bg-amber-500"},
+  };
+  const st=statusMap[d.status]||statusMap.ready;
+  return <div className={cx(!last&&"border-b border-line")}>
+    <button onClick={()=>setOpen(o=>!o)} className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-50 transition text-left">
+      <span className={cx("w-9 h-9 rounded-lg grid place-items-center shrink-0",
+        d.color==="indigo"?"bg-indigo-50 text-indigo-600":d.color==="emerald"?"bg-emerald-50 text-emerald-600":d.color==="amber"?"bg-amber-50 text-amber-600":"bg-slate-100 text-ink-soft")}><Icon.doc size={17}/></span>
+      <div className="flex-1 min-w-0"><div className="font-semibold text-[14px] text-ink truncate">{d.name}</div>
+        <div className="text-[12px] text-ink-mute truncate">{d.type} · {d.meta}</div></div>
+      <span className="hidden md:block text-[11.5px] text-ink-faint shrink-0">{d.uploaded}</span>
+      <span className={cx("text-[11px] rounded-md px-2 py-0.5 font-semibold flex items-center gap-1 shrink-0", st.cls)}><span className={cx("w-1.5 h-1.5 rounded-full", st.dot)}/>{st.label}</span>
+      <span className={cx("text-ink-faint transition-transform shrink-0", open&&"rotate-90")}><Icon.chevron size={14}/></span>
+    </button>
+    {open && <div className="px-3 pb-4 animate-fadein">
+      <div className="ml-12 rounded-xl border border-line bg-slate-50/50 p-4">
+        <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2.5 text-[12.5px]">
+          <div><span className="text-ink-faint font-bold uppercase text-[10px] tracking-wider block mb-0.5">File</span><span className="text-ink font-medium break-all">{d.file}</span></div>
+          <div><span className="text-ink-faint font-bold uppercase text-[10px] tracking-wider block mb-0.5">Source</span><span className="text-ink font-medium">{d.source}</span></div>
+          <div><span className="text-ink-faint font-bold uppercase text-[10px] tracking-wider block mb-0.5">Therapeutic area</span><span className="text-ink font-medium">{d.ta} · Glaucoma</span></div>
+          <div><span className="text-ink-faint font-bold uppercase text-[10px] tracking-wider block mb-0.5">Brand</span><span className="text-ink font-medium">{d.brand}</span></div>
+        </div>
+        <div className="mt-3 flex items-center gap-1.5 flex-wrap">
+          <span className="text-ink-faint"><Icon.tag size={13}/></span>
+          {d.tags.map(t=><span key={t} className="text-[11px] font-semibold bg-white border border-line rounded-md px-2 py-0.5 text-ink-soft">{t}</span>)}
+        </div>
+      </div>
+    </div>}
+  </div>;
+}
+
+function ConnectorCard({c}) {
+  const CIc=Icon[c.icon]||Icon.plug;
+  return <div className="rounded-2xl border border-line bg-white shadow-card p-4 hover:shadow-lift transition">
+    <div className="flex items-center gap-3">
+      <span className="w-10 h-10 rounded-xl bg-slate-50 border border-line text-ink-soft grid place-items-center"><CIc size={19}/></span>
+      <div className="flex-1 min-w-0">
+        <div className="font-bold text-[14px] text-ink truncate">{c.name}</div>
+        <div className="text-[11.5px] text-ink-mute truncate">{c.desc}</div>
+      </div>
+      <span className="text-[10.5px] font-bold text-emerald-700 bg-emerald-50 rounded-md px-2 py-1 flex items-center gap-1 shrink-0">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"/>{c.status}</span>
+    </div>
+    <div className="mt-3.5 pt-3 border-t border-line grid grid-cols-2 gap-2 text-[11.5px]">
+      <div className="flex items-center gap-1.5 text-ink-mute"><Icon.refresh size={12}/><span>Last sync <b className="text-ink-soft">{c.sync}</b></span></div>
+      <div className="flex items-center gap-1.5 text-ink-mute"><Icon.doc size={12}/><span><b className="text-ink-soft">{c.docs}</b> imported</span></div>
+    </div>
+  </div>;
+}
+
 function LibraryScreen({app}) {
   const [phase,setPhase]=useState(app.uploaded?"added":"idle"); // idle | parsing | detected | added
   const [pstep,setPstep]=useState(0);
   const [query,setQuery]=useState("");
   const [searched,setSearched]=useState(false);
-  const PSTEPS=["Reading the document","Extracting atomic evidence (14 pages)","Detecting study metadata"];
+  const PSTEPS=["Reading the document","Extracting atomic evidence (12 pages)","Detecting study metadata"];
 
   const startParse=()=>{ setPhase("parsing"); setPstep(0);
     let i=0; const t=setInterval(()=>{ i++; setPstep(i); if(i>=PSTEPS.length){ clearInterval(t); setTimeout(()=>setPhase("detected"),400);} },780); };
-  const confirm=()=>{ setPhase("added"); app.setUploaded(true); app.toast("Added to the estate · indexed and searchable"); };
+  const confirm=()=>{ setPhase("added"); app.setUploaded(true); app.toast("Added to the estate · indexed and searchable");
+    app.log("Ingested “YI Combo ATU Wave 2 Topline — IQVIA” — metadata confirmed by reviewer", ["c5"], null, "Verified", "emerald"); };
 
   return <div className="max-w-4xl mx-auto pb-24">
     <ScreenHeader title="Library" sub="Your brand's governed evidence estate. Everything the AI reasons over — and nothing it hasn't."
-      right={<div className="text-[12px] text-ink-mute flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>{DOCUMENTS.length + (phase==="added"?1:0)} studies</div>}/>
+      right={<div className="text-[12px] text-ink-mute flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>{DOCUMENTS.length + (phase==="added"?1:0)} sources</div>}/>
 
     {/* Upload / ingestion */}
     {phase==="idle" && <button onClick={startParse}
       className="group w-full rounded-2xl border-2 border-dashed border-line hover:border-indigo-300 hover:bg-indigo-50/30 transition p-8 flex flex-col items-center gap-2 text-center">
       <span className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 grid place-items-center group-hover:scale-105 transition"><Icon.upload size={22}/></span>
       <div className="font-bold text-[15px] text-ink mt-1">Drop new research here</div>
-      <div className="text-[13px] text-ink-mute">This morning's Meridian delivery is in your downloads · PDF, PPTX, DOCX, audio</div>
+      <div className="text-[13px] text-ink-mute">This morning's IQVIA ATU delivery is in your inbox · PDF, PPTX, XLSX, audio</div>
     </button>}
 
     {phase==="parsing" && <Card pad="p-6" className="animate-fadeup">
@@ -802,32 +1287,38 @@ function LibraryScreen({app}) {
           placeholder="e.g. switching drivers" className="flex-1 bg-transparent outline-none text-[15px] placeholder:text-ink-faint"/>
         <Button size="sm" onClick={()=>setSearched(true)}>Search</Button>
       </div>
-      {!searched && <div className="mt-3"><button onClick={()=>{setQuery("switching drivers");setSearched(true);}}
-        className="text-[13px] text-ink-mute hover:text-indigo-700 inline-flex items-center gap-1.5"><Icon.clock size={13}/>Try “switching drivers”</button></div>}
+      {!searched && <div className="mt-3"><button onClick={()=>{setQuery("yi combo share");setSearched(true);}}
+        className="text-[13px] text-ink-mute hover:text-indigo-700 inline-flex items-center gap-1.5"><Icon.clock size={13}/>Try “yi combo share”</button></div>}
       {searched && <div className="mt-4 space-y-2.5 stagger">
         {SEARCH_RESULTS.map(r=><SearchResult key={r.id} r={r}/>)}
       </div>}
     </div>
 
-    {/* Estate list */}
+    {/* Estate list — the knowledge repository */}
     <div className="mt-9">
-      <div className="font-bold text-[15px] mb-3">In the estate</div>
+      <div className="flex items-center gap-2 mb-3">
+        <div className="font-bold text-[15px]">In the estate</div>
+        <span className="ml-auto text-[11px] text-ink-faint">click a document for source, metadata &amp; tags</span></div>
       <Card pad="p-2">
-        {DOCUMENTS.map((d,i)=><div key={d.id} className={cx("flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-50 transition", i<DOCUMENTS.length-1&&"border-b border-line")}>
-          <span className={cx("w-9 h-9 rounded-lg grid place-items-center shrink-0",
-            d.color==="indigo"?"bg-indigo-50 text-indigo-600":d.color==="emerald"?"bg-emerald-50 text-emerald-600":"bg-slate-100 text-ink-soft")}><Icon.doc size={17}/></span>
-          <div className="flex-1 min-w-0"><div className="font-semibold text-[14px] text-ink truncate">{d.name}</div>
-            <div className="text-[12px] text-ink-mute">{d.type} · {d.meta}</div></div>
-          <span className="text-[11px] text-emerald-700 bg-emerald-50 rounded-md px-2 py-0.5 font-semibold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>Ready</span>
-        </div>)}
+        {DOCUMENTS.map((d,i)=><DocRow key={d.id} d={d} last={i===DOCUMENTS.length-1}/>)}
       </Card>
+    </div>
+
+    {/* Connectors — the estate feeds itself */}
+    <div className="mt-9">
+      <div className="flex items-center gap-2 mb-1"><span className="text-ink-soft"><Icon.plug size={16}/></span>
+        <div className="font-bold text-[15px]">Connectors</div>
+        <span className="ml-auto text-[11px] text-emerald-700 font-semibold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>4 of 4 healthy</span></div>
+      <p className="text-[12.5px] text-ink-mute mb-3.5">Enterprise systems feeding the estate automatically — every import passes the same metadata gate.</p>
+      <div className="grid sm:grid-cols-2 gap-3">
+        {CONNECTORS.map(c=><ConnectorCard key={c.id} c={c}/>)}
+      </div>
     </div>
   </div>;
 }
 
 function SearchResult({r}) {
   const src=useSource();
-  const map={ s1:"c1", s2:"c2", s3:"c3", s4:"c4" }; // link snippet -> citation source
   return <div className="rounded-xl border border-line bg-white p-4 hover:shadow-card transition">
     <div className="flex items-start gap-3">
       <span className={cx("mt-0.5 shrink-0", r.color==="indigo"?"text-indigo-600":r.color==="emerald"?"text-emerald-600":"text-ink-soft")}><Icon.quote size={16}/></span>
@@ -835,7 +1326,7 @@ function SearchResult({r}) {
         <p className="text-[15px] leading-relaxed text-ink">{r.quote}</p>
         <div className="mt-2.5 flex items-center gap-2 flex-wrap">
           <LayerBadge layer={r.type} size="xs"/>
-          <button onClick={()=>src.open(map[r.id])}
+          <button onClick={()=>src.open(r.cite)}
             className="inline-flex items-center gap-1 rounded-md bg-slate-50 border border-line px-2 py-0.5 text-[11px] font-semibold text-ink-mute hover:text-indigo-700 hover:border-indigo-200 transition">
             <Icon.doc size={11}/> {r.src} · {r.loc}</button>
         </div>
@@ -846,9 +1337,24 @@ function SearchResult({r}) {
 
 /* ------------------------------------------------------------------ BRAND PULSE */
 function PulseScreen({app}) {
+  const src=useSource();
   const toneMap={ amber:{bg:"bg-amber-50",fg:"text-amber-700",dot:"bg-amber-500"}, indigo:{bg:"bg-indigo-50",fg:"text-indigo-700",dot:"bg-indigo-500"}, rose:{bg:"bg-rose-50",fg:"text-rose-600",dot:"bg-rose-600"} };
   return <div className="max-w-2xl mx-auto pb-24">
-    <ScreenHeader title="Brand Pulse" sub="What changed this week — and whether you should care. Nothing to configure; it just tells you."/>
+    <ScreenHeader title="Brand Pulse" sub="What changed this week in the glaucoma market — and whether you should care. Nothing to configure; it just tells you."/>
+
+    {/* KPI strip — brand performance from the IQVIA workbook */}
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4 stagger">
+      {PULSE.kpis.map((k,i)=><button key={i} onClick={()=>src.open(k.cite)}
+        className="rounded-2xl border border-line bg-white shadow-card p-4 text-left hover:shadow-lift hover:border-indigo-200 transition group">
+        <div className="text-[10.5px] font-bold uppercase tracking-wider text-ink-faint">{k.label}</div>
+        <div className="text-[22px] font-extrabold tracking-[-.02em] text-ink mt-1">{k.value}</div>
+        <div className={cx("mt-1 inline-flex items-center gap-1 text-[11px] font-bold rounded-md px-1.5 py-0.5",
+          k.tone==="emerald"?"text-emerald-700 bg-emerald-50":"text-indigo-700 bg-indigo-50")}>
+          <Icon.trend size={11}/>{k.delta}</div>
+        <div className="mt-1.5 text-[10px] text-ink-faint opacity-0 group-hover:opacity-100 transition flex items-center gap-1"><Icon.quote size={10}/>verify source</div>
+      </button>)}
+    </div>
+
     <Card pad="p-6" className="animate-fadeup">
       <div className="flex items-center gap-2 text-[12px] text-ink-mute font-semibold"><Icon.clock size={14}/>{PULSE.week}</div>
       <p className="text-[19px] font-bold tracking-[-.02em] text-ink leading-snug mt-3">{PULSE.headline}</p>
@@ -868,152 +1374,7 @@ function PulseScreen({app}) {
   </div>;
 }
 
-/* ------------------------------------------------------------------ BRAND BRAIN */
-// Animated number — used for the confidence lift, so the jump is felt, not just read.
-function CountUp({from, to, dur=1100, suffix="%"}) {
-  const [v,setV]=useState(from); const raf=useRef(null);
-  useEffect(()=>{ const t0=performance.now();
-    const tick=(t)=>{ const p=Math.min(1,(t-t0)/dur); const eased=1-Math.pow(1-p,3);
-      setV(Math.round(from+(to-from)*eased)); if(p<1) raf.current=requestAnimationFrame(tick); };
-    raf.current=requestAnimationFrame(tick); return ()=>cancelAnimationFrame(raf.current);
-  },[from,to,dur]);
-  return <span>{v}{suffix}</span>;
-}
-
-// Shown the instant an insight is published — the Brain visibly evolves.
-function ActivityFeed({onOpenTimeline}) {
-  return <div className="mb-5 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50/80 to-white p-5 shadow-card animate-fadeup">
-    <div className="flex items-center gap-2.5 mb-3">
-      <span className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 grid place-items-center"><Icon.checkc size={18}/></span>
-      <div className="font-bold text-[15px] text-ink">Brand Brain updated</div>
-      <span className="ml-auto text-[11px] text-emerald-700 font-semibold">just now</span>
-    </div>
-    <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2">
-      {ACTIVITY.changes.map((c,i)=>{ const CIc=Icon[c.icon]; return <div key={i} className="flex items-center gap-2 text-[13.5px] text-ink-soft">
-        <span className="text-emerald-600 shrink-0"><Icon.check size={14}/></span><span className="flex-1">{c.text}</span></div>;})}
-      <div className="flex items-center gap-2 text-[13.5px] text-ink-soft">
-        <span className="text-emerald-600 shrink-0"><Icon.trend size={14}/></span>
-        <span>Confidence improved
-          <b className="text-ink"> {ACTIVITY.conf.from}%</b> <span className="text-ink-faint">→</span>
-          <b className="text-emerald-700"> <CountUp from={ACTIVITY.conf.from} to={ACTIVITY.conf.to}/></b></span>
-      </div>
-    </div>
-  </div>;
-}
-
-// A living institutional memory — knowledge accreting month over month, confidence compounding.
-// Honest: the "NOW" month only appears once the user has actually published today's insight.
-function BrainTimeline({published}) {
-  const tonec={ slate:"bg-slate-400", indigo:"bg-indigo-500", amber:"bg-amber-500", emerald:"bg-emerald-600" };
-  const months = BRAIN_TIMELINE.filter(m=>published || !m.live);
-  return <Card pad="p-6" className="mt-8">
-    <div className="flex items-center gap-2 mb-1"><span className="text-ink-soft"><Icon.history size={16}/></span>
-      <div className="font-bold text-[15px]">How this knowledge evolved</div>
-      <span className="ml-auto text-[11px] text-ink-faint">a living memory, not a static file</span></div>
-    <p className="text-[12.5px] text-ink-mute mb-5">Each month, new evidence sharpened what {BRAND.name} knows — and the confidence behind it.</p>
-    <div className="relative pl-6">
-      <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-slate-200 via-amber-200 to-emerald-300"/>
-      {months.map((m,i)=><div key={m.month} className="relative mb-6 last:mb-0">
-        <span className={cx("absolute -left-[22px] top-1 w-4 h-4 rounded-full border-2 border-white shadow", tonec[m.tone], m.live&&"ring-4 ring-emerald-100")}/>
-        <div className="flex items-center gap-2.5">
-          <span className="font-extrabold text-[14px] tracking-[-.01em]">{m.month}</span>
-          <span className={cx("text-[11px] font-bold rounded-md px-2 py-0.5",
-            m.tone==="emerald"?"bg-emerald-50 text-emerald-700":m.tone==="amber"?"bg-amber-50 text-amber-700":m.tone==="indigo"?"bg-indigo-50 text-indigo-700":"bg-slate-100 text-ink-mute")}>
-            confidence {m.conf}%</span>
-          {m.live && <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 rounded px-1.5 py-0.5 flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"/>NOW</span>}
-        </div>
-        <div className="mt-1.5 space-y-1">
-          {m.events.map((e,j)=>{ const EIc=Icon[e.icon]; return <div key={j} className="flex items-center gap-2 text-[13px] text-ink-soft">
-            <span className="text-ink-faint shrink-0"><EIc size={14}/></span>{e.text}</div>;})}
-        </div>
-      </div>)}
-    </div>
-  </Card>;
-}
-
-function BrandBrainScreen({app}) {
-  const [sel,setSel]=useState("bp-switch");
-  const page=BRAIN_PAGES[sel];
-  const isHero = sel==="bp-switch";
-  const published = app.published;
-  // v1 (pre-publish) shows a reduced body; v2 (published) shows the full body incl. the unresolved-driver insight.
-  const body = isHero && !published ? [page.body[0], page.body[2]] : page.body;
-  const version = isHero ? (published?2:1) : page.version;
-
-  return <div className="max-w-5xl mx-auto pb-24">
-    <ScreenHeader title="Brand Brain" sub="Everything your brand has decided is true — curated, cited, versioned. Read by every answer the AI gives."/>
-    <div className="grid grid-cols-[220px_1fr] gap-7">
-      {/* tree */}
-      <div className="space-y-4">
-        {BRAIN_SECTIONS.map(s=><div key={s.name}>
-          <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint px-2 mb-1">{s.name}</div>
-          {s.pages.map(pid=>{ const p=BRAIN_PAGES[pid]; const on=pid===sel;
-            return <button key={pid} onClick={()=>setSel(pid)} className={cx("w-full text-left px-2.5 py-2 rounded-lg text-[13px] font-medium transition flex items-center gap-2",
-              on?"bg-indigo-50 text-indigo-700 font-semibold":"text-ink-soft hover:bg-slate-50")}>
-              <span className="flex-1">{p.title}</span>
-              {pid==="bp-switch" && !published && <span className="w-1.5 h-1.5 rounded-full bg-amber-500" title="pending review"/>}
-              {p.thin && <span className="text-[9px] text-rose-600 font-bold">THIN</span>}
-            </button>;})}
-        </div>)}
-      </div>
-
-      {/* page */}
-      <div>
-        {isHero && published && <ActivityFeed/>}
-        {isHero && !published && <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50/70 p-3.5 flex items-center gap-3 animate-fadeup">
-          <span className="text-amber-600"><Icon.sparkles size={18}/></span>
-          <div className="flex-1"><div className="font-bold text-[13.5px] text-ink">1 insight awaiting your review</div>
-            <div className="text-[12px] text-amber-700">A synthesis proposed an update to this page.</div></div>
-          <Button variant="emerald" size="sm" onClick={app.openReview} icon={<Icon.check size={14}/>}>Review</Button>
-        </div>}
-
-        <Card pad="p-6">
-          <div className="flex items-start gap-3 border-b border-line pb-4 mb-4">
-            <div className="flex-1">
-              <div className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">{page.section}</div>
-              <h2 className="text-[20px] font-extrabold tracking-[-.02em] mt-0.5">{page.title}</h2>
-              <div className="text-[12px] text-ink-mute mt-1.5 flex items-center gap-3 flex-wrap">
-                <span className="inline-flex items-center gap-1"><Icon.layers size={13}/>v{version}</span>
-                <span className="inline-flex items-center gap-1"><Icon.clock size={13}/>{isHero?(published?"just now":"Jun 22"):page.updated}</span>
-                <span className="inline-flex items-center gap-1 text-emerald-700"><Icon.shield size={13}/>{body.reduce((n,b)=>n+(b.cites?b.cites.length:0),0)} citations</span>
-                {isHero && <span className={cx("inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-bold", published?"bg-emerald-50 text-emerald-700":"bg-amber-50 text-amber-700")}>
-                  <Icon.trend size={12}/>{published?"82%":"61%"} confidence</span>}
-              </div>
-            </div>
-            {published && isHero && <span className="text-[11px] text-emerald-700 bg-emerald-50 rounded-md px-2 py-1 font-bold flex items-center gap-1"><Icon.checkc size={13}/>Updated just now</span>}
-          </div>
-          <div className="space-y-3">
-            {body.map((b,i)=><TrustLine key={i} layer={b.layer} text={b.text} cites={b.cites}/>)}
-          </div>
-          {page.openQ && (published||!isHero) && <div className="mt-4 rounded-xl border border-dashed border-indigo-200 bg-indigo-50/40 p-4">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 mb-1">Open question</div>
-            <p className="text-[13.5px] text-ink-soft leading-relaxed">{page.openQ}</p></div>}
-        </Card>
-
-        {/* version history — institutional memory */}
-        {isHero && <div className="mt-6">
-          <div className="flex items-center gap-2 mb-3"><span className="text-ink-soft"><Icon.history size={16}/></span><div className="font-bold text-[15px]">Version history</div></div>
-          <div className="relative pl-5">
-            <div className="absolute left-[7px] top-1 bottom-1 w-px bg-line"/>
-            {VERSION_HISTORY.filter(v=>published?true:v.v===1).map(v=><div key={v.v} className="relative mb-4">
-              <span className={cx("absolute -left-[13px] top-1 w-3.5 h-3.5 rounded-full border-2 border-white", v.current&&published?"bg-emerald-600":"bg-slate-300")}/>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-[13.5px]">v{v.v}</span>
-                {v.current&&published && <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 rounded px-1.5 py-0.5">CURRENT</span>}
-                <span className="text-[12px] text-ink-mute">· {v.when} · {v.who}</span>
-              </div>
-              <p className="text-[13px] text-ink-soft mt-0.5 leading-relaxed">{v.note}</p>
-            </div>)}
-          </div>
-        </div>}
-
-        {/* living institutional memory */}
-        {isHero && <BrainTimeline published={published}/>}
-      </div>
-    </div>
-  </div>;
-}
-
+/* ------------------------------------------------------------------ ASK */
 function AskScreen({app}) {
   const S=app; // phases: 'idle' | 'retrieving' | 'thinking' | 'done'
   const [q,setQ]=useState("");
@@ -1025,11 +1386,12 @@ function AskScreen({app}) {
 
   const run=useCallback((question)=>{
     setQ(question); setPhase("retrieving"); setStep(0); setFoundN(0);
-    // retrieval: count up sources found
     let n=0; const ri=setInterval(()=>{ n++; setFoundN(n); if(n>=SYNTHESIS.sourcesUsed.length) clearInterval(ri); }, 260);
     setTimeout(()=>{ setPhase("thinking");
       let i=0; const ti=setInterval(()=>{ i++; setStep(i); if(i>=SYNTHESIS.thinkSteps.length){ clearInterval(ti);
-        setTimeout(()=>{ setPhase("done"); S.setSynthDone(true); }, 520);
+        setTimeout(()=>{ setPhase("done"); S.setSynthDone(true);
+          S.log("Asked “"+question+"” — synthesized from 5 sources with 1 contradiction preserved", ["c1","c4","c5"], "high", "Answered", "indigo");
+        }, 520);
       }}, 620);
     }, 1500);
   },[S]);
@@ -1038,11 +1400,11 @@ function AskScreen({app}) {
   if(phase==="idle") return <div className="h-full flex flex-col items-center justify-center px-6 -mt-10">
     <div className="w-full max-w-2xl text-center animate-fadeup">
       <div className="inline-flex items-center gap-2 text-[12px] font-semibold text-ink-mute bg-white border border-line rounded-full px-3 py-1.5 shadow-card mb-6">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/> {DOCUMENTS.length} studies · governed · ready
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/> {DOCUMENTS.length} sources · governed · ready
       </div>
       <h1 className="text-[30px] font-extrabold tracking-[-.03em] text-ink">Ask your brand's memory.</h1>
       <p className="text-[15px] text-ink-mute mt-3 max-w-lg mx-auto leading-relaxed">
-        A strategic question, answered from everything your brand has ever learned — with every claim labeled, scored, and traceable to its source.</p>
+        A strategic question, answered from everything {BRAND.name} has ever learned — with every claim labeled, scored, and traceable to its source.</p>
       <div className="mt-8 relative">
         <div className="flex items-center gap-3 bg-white border border-line rounded-2xl shadow-lift px-4 py-3.5 focus-within:border-indigo-300 focus-within:ring-4 focus-within:ring-indigo-50 transition">
           <span className="text-ink-faint"><Icon.search size={20}/></span>
@@ -1059,6 +1421,11 @@ function AskScreen({app}) {
           <span className="text-[14.5px] font-medium text-ink flex-1">{HERO_QUESTION}</span>
           <span className="text-ink-faint group-hover:text-indigo-600 group-hover:translate-x-0.5 transition"><Icon.arrow size={16}/></span>
         </button>
+        <div className="flex flex-wrap justify-center gap-2 mt-1">
+          {["What are the biggest adherence barriers?","What are physician objections?"].map(s=>
+            <button key={s} onClick={()=>run(HERO_QUESTION)}
+              className="text-[12.5px] font-medium text-ink-mute border border-line bg-white rounded-full px-3.5 py-1.5 hover:border-indigo-200 hover:text-indigo-700 hover:bg-indigo-50/40 transition">{s}</button>)}
+        </div>
       </div>
     </div>
   </div>;
@@ -1098,14 +1465,652 @@ function AskScreen({app}) {
   return <div className="pt-8 px-2"><SynthesisView data={SYNTHESIS} published={S.published}
     onApprove={()=> S.published ? S.go("brand") : S.openReview()}/></div>;
 }
+
+/* ------------------------------------------------------------------ BRAND BRAIN */
+// Animated number — used for the confidence lift, so the jump is felt, not just read.
+function CountUp({from, to, dur=1100, suffix="%"}) {
+  const [v,setV]=useState(from); const raf=useRef(null);
+  useEffect(()=>{ const t0=performance.now();
+    const tick=(t)=>{ const p=Math.min(1,(t-t0)/dur); const eased=1-Math.pow(1-p,3);
+      setV(Math.round(from+(to-from)*eased)); if(p<1) raf.current=requestAnimationFrame(tick); };
+    raf.current=requestAnimationFrame(tick); return ()=>cancelAnimationFrame(raf.current);
+  },[from,to,dur]);
+  return <span>{v}{suffix}</span>;
+}
+
+// Shown the instant an insight is published — the Brain visibly evolves.
+function ActivityFeed() {
+  return <div className="mb-5 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50/80 to-white p-5 shadow-card animate-fadeup">
+    <div className="flex items-center gap-2.5 mb-3">
+      <span className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 grid place-items-center"><Icon.checkc size={18}/></span>
+      <div className="font-bold text-[15px] text-ink">Brand Brain updated · v12</div>
+      <span className="ml-auto text-[11px] text-emerald-700 font-semibold">just now</span>
+    </div>
+    <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2">
+      {ACTIVITY.changes.map((c,i)=><div key={i} className="flex items-center gap-2 text-[13.5px] text-ink-soft">
+        <span className="text-emerald-600 shrink-0"><Icon.check size={14}/></span><span className="flex-1">{c.text}</span></div>)}
+      <div className="flex items-center gap-2 text-[13.5px] text-ink-soft">
+        <span className="text-emerald-600 shrink-0"><Icon.trend size={14}/></span>
+        <span>Confidence improved
+          <b className="text-ink"> {ACTIVITY.conf.from}%</b> <span className="text-ink-faint">→</span>
+          <b className="text-emerald-700"> <CountUp from={ACTIVITY.conf.from} to={ACTIVITY.conf.to}/></b></span>
+      </div>
+    </div>
+  </div>;
+}
+
+// A living institutional memory — knowledge accreting quarter over quarter, confidence compounding.
+// Honest: the "NOW" quarter only appears once the user has actually published today's insight.
+function BrainTimeline({published}) {
+  const tonec={ slate:"bg-slate-400", indigo:"bg-indigo-500", amber:"bg-amber-500", emerald:"bg-emerald-600" };
+  const months = BRAIN_TIMELINE.filter(m=>published || !m.live);
+  return <Card pad="p-6">
+    <div className="flex items-center gap-2 mb-1"><span className="text-ink-soft"><Icon.history size={16}/></span>
+      <div className="font-bold text-[15px]">Knowledge timeline</div>
+      <span className="ml-auto text-[11px] text-ink-faint">a living memory, not a static file</span></div>
+    <p className="text-[12.5px] text-ink-mute mb-5">Each quarter, new evidence sharpened what {BRAND.name} knows — and the confidence behind it.</p>
+    <div className="relative pl-6">
+      <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-slate-200 via-amber-200 to-emerald-300"/>
+      {months.map((m,i)=><div key={m.month} className="relative mb-6 last:mb-0">
+        <span className={cx("absolute -left-[22px] top-1 w-4 h-4 rounded-full border-2 border-white shadow", tonec[m.tone], m.live&&"ring-4 ring-emerald-100")}/>
+        <div className="flex items-center gap-2.5">
+          <span className="font-extrabold text-[14px] tracking-[-.01em]">{m.month}</span>
+          <span className={cx("text-[11px] font-bold rounded-md px-2 py-0.5",
+            m.tone==="emerald"?"bg-emerald-50 text-emerald-700":m.tone==="amber"?"bg-amber-50 text-amber-700":m.tone==="indigo"?"bg-indigo-50 text-indigo-700":"bg-slate-100 text-ink-mute")}>
+            confidence {m.conf}%</span>
+          {m.live && <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 rounded px-1.5 py-0.5 flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"/>NOW</span>}
+        </div>
+        <div className="mt-1.5 space-y-1">
+          {m.events.map((e,j)=>{ const EIc=Icon[e.icon]; return <div key={j} className="flex items-center gap-2 text-[13px] text-ink-soft">
+            <span className="text-ink-faint shrink-0"><EIc size={14}/></span>{e.text}</div>;})}
+        </div>
+      </div>)}
+    </div>
+  </Card>;
+}
+
+// Every approval visibly makes the Brain smarter.
+function KnowledgeEvolution({published}) {
+  const rows = [
+    { icon:"graph", text:"New relationships created", live:"Insight → Recommendation → Objective (2 edges)" },
+    { icon:"trend", text:"Existing confidence updated", live:"“Switching Drivers” 61% → 82%" },
+    { icon:"split", text:"Contradictions resolved or preserved", live:"Driver contradiction preserved as an open question" },
+    { icon:"doc",   text:"New evidence linked", live:"9 citations kept · 2 added · none lost" },
+    { icon:"history", text:"Timeline updated", live:"Q2 2026 entry written" },
+    { icon:"layers", text:"Version incremented", live:"Brand Brain v11 → v12" },
+  ];
+  return <Card pad="p-6">
+    <div className="flex items-center gap-2 mb-1"><span className="text-ink-soft"><Icon.bolt size={16}/></span>
+      <div className="font-bold text-[15px]">Knowledge evolution</div>
+      <span className="ml-auto text-[11px] text-ink-faint">what every approval changes</span></div>
+    <p className="text-[12.5px] text-ink-mute mb-4">{published?"Today's approval just did all six — the Brain got measurably smarter.":"Approve today's synthesis and each of these will happen, visibly."}</p>
+    <div className="space-y-2.5">
+      {rows.map((r,i)=>{ const RIc=Icon[r.icon]; return <div key={i} className="flex items-start gap-2.5 text-[13.5px]">
+        <span className={cx("mt-0.5 shrink-0", published?"text-emerald-600":"text-ink-faint")}>{published?<Icon.checkc size={16}/>:<RIc size={15}/>}</span>
+        <div className="flex-1">
+          <span className={published?"text-ink font-medium":"text-ink-soft"}>{r.text}</span>
+          {published && <span className="block text-[12px] text-emerald-700 mt-0.5">{r.live}</span>}
+        </div>
+      </div>;})}
+    </div>
+  </Card>;
+}
+
+/* --------------------------------------------- SEMANTIC KNOWLEDGE GRAPH (the signature visual) */
+const gpos = (n) => {
+  if(n.ring===0) return {x:550, y:330};
+  const R = n.ring===1?165 : n.ring===2?272 : 362;
+  const rad = n.a*Math.PI/180;
+  return { x: 550 + Math.cos(rad)*R*1.30, y: 330 + Math.sin(rad)*R*0.80 };
+};
+const EDGE_TONE = { default:"#C3CAD9", amber:"#F59E0B", rose:"#F43F5E", emerald:"#10B981" };
+
+function KnowledgeGraph({app, onSelect}) {
+  const published = app.published;
+  const nodes = useMemo(()=> published ? [...GRAPH_NODES, ...GRAPH_NEW_NODES] : GRAPH_NODES, [published]);
+  const edges = useMemo(()=> published ? [...GRAPH_EDGES, ...GRAPH_NEW_EDGES] : GRAPH_EDGES, [published]);
+  const [hover,setHover]=useState(null);
+  const pos = useMemo(()=>{ const m={}; nodes.forEach(n=>m[n.id]=gpos(n)); return m; },[nodes]);
+  const nbrs = useMemo(()=>{ const m={}; edges.forEach(e=>{ (m[e.from]=m[e.from]||new Set()).add(e.to); (m[e.to]=m[e.to]||new Set()).add(e.from); }); return m; },[edges]);
+  const nodeDim = (id)=> hover && id!==hover && !(nbrs[hover]&&nbrs[hover].has(id));
+  const edgeOn = (e)=> hover && (e.from===hover || e.to===hover);
+  const isNew = (id)=> published && GRAPH_NEW_NODES.some(n=>n.id===id);
+  const hovered = hover && nodes.find(n=>n.id===hover);
+
+  return <div className="relative rounded-2xl border border-line bg-white shadow-card overflow-hidden">
+    {/* header strip */}
+    <div className="absolute top-0 left-0 right-0 z-10 px-5 py-3 flex items-center gap-3 pointer-events-none">
+      <span className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">Semantic knowledge graph</span>
+      <span className="text-[11px] text-ink-faint">·</span>
+      <span className="text-[11px] font-semibold text-ink-mute">{nodes.length} nodes · {edges.length} relationships</span>
+      {published && <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 rounded px-1.5 py-0.5 flex items-center gap-1 pointer-events-none"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"/>+2 today</span>}
+      <span className="ml-auto text-[11px] text-ink-faint pointer-events-none">hover to trace · click to inspect</span>
+    </div>
+
+    <svg viewBox="0 0 1100 660" className="w-full" style={{background:"radial-gradient(700px 420px at 50% 50%, #F6F8FE 0%, #FBFCFE 70%)"}}>
+      <defs>
+        <radialGradient id="brandGrad" cx="35%" cy="30%">
+          <stop offset="0%" stopColor="#818CF8"/><stop offset="100%" stopColor="#4338CA"/>
+        </radialGradient>
+      </defs>
+      {/* edges */}
+      {edges.map((e,i)=>{ const a=pos[e.from], b=pos[e.to]; if(!a||!b) return null;
+        const on=edgeOn(e); const tone=EDGE_TONE[e.tone||"default"];
+        const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
+        const isNewE = published && GRAPH_NEW_EDGES.includes(e);
+        return <g key={i} className={cx("gedge", hover&&!on&&"dim", isNewE&&"edgedraw")}>
+          <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={on?"#6366F1":tone} strokeWidth={on?2:1.2}
+            className={cx(!on&&"edgeflow")} opacity={on?1:.55}/>
+          {on && (()=>{ const w=e.label.length*5.6+18; return <g>
+            <rect x={mx-w/2} y={my-9} width={w} height="18" rx="9" fill="#0F172A" opacity=".92"/>
+            <text x={mx} y={my+3.5} textAnchor="middle" fill="#fff" fontSize="9.5" fontWeight="700" fontFamily="Inter">{e.label}</text>
+          </g>;})()}
+        </g>;})}
+      {/* nodes */}
+      {nodes.map(n=>{ const p=pos[n.id]; const T=GTYPE[n.type]; const center=n.ring===0;
+        const r = center?40 : n.ring===1?16 : 11;
+        return <g key={n.id} className={cx("gnode", nodeDim(n.id)&&"dim", isNew(n.id)&&"nodepop")}
+          onMouseEnter={()=>setHover(n.id)} onMouseLeave={()=>setHover(null)} onClick={()=>onSelect(n.id)}>
+          {center && <circle cx={p.x} cy={p.y} r={58} fill="#6366F1" opacity=".14" className="ghalo"/>}
+          {isNew(n.id) && <circle cx={p.x} cy={p.y} r={r+9} fill="none" stroke="#10B981" strokeWidth="2" opacity=".5" className="ghalo"/>}
+          {hover===n.id && !center && <circle cx={p.x} cy={p.y} r={r+7} fill={T.color} opacity=".14"/>}
+          <circle cx={p.x} cy={p.y} r={r} fill={center?"url(#brandGrad)":"#fff"} stroke={T.color} strokeWidth={center?0:2.2}/>
+          {!center && <circle cx={p.x} cy={p.y} r={Math.max(3.2, r-6.5)} fill={T.color} opacity=".85"/>}
+          {center && <text x={p.x} y={p.y+6} textAnchor="middle" fill="#fff" fontSize="17" fontWeight="800" fontFamily="Inter" letterSpacing="-0.5">YI</text>}
+          <text x={p.x} y={p.y+r+15} textAnchor="middle" fill="#0F172A" fontSize={center?13:10.5} fontWeight="700" fontFamily="Inter">{n.label}</text>
+          <text x={p.x} y={p.y+r+27} textAnchor="middle" fill="#94A3B8" fontSize="9" fontWeight="500" fontFamily="Inter">{n.sub}</text>
+        </g>;})}
+    </svg>
+
+    {/* hover hint */}
+    {hovered && hovered.ring!==0 && <div className="absolute bottom-14 left-1/2 -translate-x-1/2 z-10 pointer-events-none animate-fadein">
+      <div className="bg-ink text-white rounded-xl shadow-pop px-4 py-2 text-[12px] font-medium flex items-center gap-2">
+        <span className="w-2 h-2 rounded-full" style={{background:GTYPE[hovered.type].color}}/>
+        {hovered.label} — click to inspect evidence
+      </div>
+    </div>}
+
+    {/* legend */}
+    <div className="border-t border-line bg-slate-50/60 px-5 py-2.5 flex items-center gap-x-4 gap-y-1 flex-wrap">
+      {["brand","study","guideline","research","segment","claim","asset","competitor","sales","insight","recommendation","gap"].map(t=>
+        <span key={t} className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold text-ink-mute">
+          <span className="w-2 h-2 rounded-full" style={{background:GTYPE[t].color}}/>{GTYPE[t].label}</span>)}
+    </div>
+  </div>;
+}
+
+/* Node inspector — clicking any node reveals summary, evidence, confidence, citations, sources. */
+function NodePanel({nodeId, app, onClose, onJump}) {
+  const published=app.published;
+  const nodes = published ? [...GRAPH_NODES, ...GRAPH_NEW_NODES] : GRAPH_NODES;
+  const edges = published ? [...GRAPH_EDGES, ...GRAPH_NEW_EDGES] : GRAPH_EDGES;
+  const n = nodes.find(x=>x.id===nodeId); if(!n) return null;
+  const T=GTYPE[n.type];
+  const conns = edges.filter(e=>e.from===n.id||e.to===n.id).map(e=>{
+    const otherId = e.from===n.id ? e.to : e.from;
+    const other = nodes.find(x=>x.id===otherId);
+    return other ? { other, label:e.label, out:e.from===n.id } : null;
+  }).filter(Boolean);
+  return <div className="fixed inset-0 z-50">
+    <div className="absolute inset-0 bg-ink/25 backdrop-blur-[2px] animate-fadein" onClick={onClose}/>
+    <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-pop animate-slidein flex flex-col">
+      <div className="px-6 py-5 border-b border-line flex items-start gap-3">
+        <span className="mt-0.5 w-9 h-9 rounded-xl grid place-items-center shrink-0" style={{background:T.color+"1A", color:T.color}}><Icon.graph size={19}/></span>
+        <div className="flex-1 min-w-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider" style={{color:T.color}}>{T.label}</div>
+          <div className="font-bold text-[16px] leading-snug mt-0.5">{n.label}</div>
+          <div className="text-[12px] text-ink-mute mt-0.5">{n.sub}</div>
+        </div>
+        <button onClick={onClose} className="text-ink-mute hover:text-ink hover:bg-slate-100 rounded-lg p-1.5"><Icon.x size={18}/></button>
+      </div>
+      <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex items-center gap-2 mb-3">
+          {n.conf && <ConfidenceBadge level={n.conf}/>}
+          <span className="text-[11.5px] text-ink-mute inline-flex items-center gap-1"><Icon.clock size={12}/>updated {n.updated}</span>
+        </div>
+        <p className="text-[14.5px] leading-relaxed text-ink">{n.summary}</p>
+        {n.cites && n.cites.length>0 && <div className="mt-3"><Cites ids={n.cites}/></div>}
+        <div className="mt-5 text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-2">Source</div>
+        <div className="rounded-xl border border-line bg-slate-50/50 px-3.5 py-2.5 text-[13px] font-medium text-ink-soft flex items-center gap-2">
+          <Icon.doc size={14} cls="text-ink-faint"/>{n.src}
+        </div>
+        <div className="mt-5 text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-2">Connected evidence · {conns.length}</div>
+        <div className="space-y-1.5">
+          {conns.map((c,i)=><button key={i} onClick={()=>onJump(c.other.id)}
+            className="w-full flex items-center gap-2.5 rounded-xl border border-line bg-white px-3.5 py-2.5 hover:border-indigo-200 hover:bg-indigo-50/40 transition text-left">
+            <span className="w-2 h-2 rounded-full shrink-0" style={{background:GTYPE[c.other.type].color}}/>
+            <span className="flex-1 min-w-0">
+              <span className="block text-[13px] font-semibold text-ink truncate">{c.other.label}</span>
+              <span className="block text-[10.5px] text-ink-faint">{c.out? "→ "+c.label : c.label+" →"}</span>
+            </span>
+            <span className="text-ink-faint shrink-0"><Icon.chevron size={13}/></span>
+          </button>)}
+        </div>
+      </div>
+      <div className="px-6 py-4 border-t border-line bg-slate-50/60 text-[12px] text-ink-mute flex items-center gap-2">
+        <Icon.shield size={14} cls="text-emerald-600"/> Every node is cited, scored, and versioned in the Brand Brain.
+      </div>
+    </div>
+  </div>;
+}
+
+function BrandBrainScreen({app}) {
+  const [sel,setSel]=useState("bp-switch");
+  const [nodeSel,setNodeSel]=useState(null);
+  const tab=app.brainTab; const setTab=app.setBrainTab;
+  const page=BRAIN_PAGES[sel];
+  const isHero = sel==="bp-switch";
+  const published = app.published;
+  // v11 (pre-publish) shows a reduced body; v12 (published) shows the full body incl. the unresolved-driver insight.
+  const body = isHero && !published ? [page.body[0], page.body[2]] : page.body;
+  const version = isHero ? (published?12:11) : page.version;
+  const TABS=[ {id:"graph",label:"Knowledge Graph",icon:"graph"}, {id:"pages",label:"Memory Pages",icon:"layers"}, {id:"timeline",label:"Timeline & Evolution",icon:"history"} ];
+
+  return <div className="max-w-5xl mx-auto pb-24">
+    <ScreenHeader title="Brand Brain" sub="Everything YI Combo has decided is true — curated, cited, versioned. Read by every answer the AI gives."
+      right={<div className="flex items-center gap-3">
+        <span className="text-[12px] text-ink-mute inline-flex items-center gap-1.5"><Icon.layers size={13}/>v{published?12:11}</span>
+        <span className={cx("text-[12px] font-bold inline-flex items-center gap-1.5 rounded-md px-2 py-1", published?"bg-emerald-50 text-emerald-700":"bg-amber-50 text-amber-700")}>
+          <Icon.trend size={13}/>{published?<CountUp from={61} to={82}/>:"61%"} confidence</span>
+      </div>}/>
+
+    {/* tabs */}
+    <div className="flex items-center gap-1 mb-5 bg-slate-100/70 border border-line rounded-xl p-1 w-fit">
+      {TABS.map(t=>{ const TIc=Icon[t.icon]; const on=tab===t.id;
+        return <button key={t.id} onClick={()=>setTab(t.id)}
+          className={cx("inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-[13px] font-semibold transition",
+            on?"bg-white text-ink shadow-card":"text-ink-mute hover:text-ink-soft")}>
+          <TIc size={15}/>{t.label}
+          {t.id==="graph" && published && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"/>}
+        </button>;})}
+    </div>
+
+    {published && <ActivityFeed/>}
+    {!published && app.synthDone && <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50/70 p-3.5 flex items-center gap-3 animate-fadeup">
+      <span className="text-amber-600"><Icon.sparkles size={18}/></span>
+      <div className="flex-1"><div className="font-bold text-[13.5px] text-ink">1 insight awaiting your review</div>
+        <div className="text-[12px] text-amber-700">Today's synthesis proposed an update to “Switching Drivers — What We Know”.</div></div>
+      <Button variant="emerald" size="sm" onClick={app.openReview} icon={<Icon.check size={14}/>}>Review</Button>
+    </div>}
+
+    {tab==="graph" && <div className="animate-fadeup">
+      <KnowledgeGraph app={app} onSelect={setNodeSel}/>
+      <div className="mt-4 grid sm:grid-cols-3 gap-3">
+        {[
+          {icon:"graph", title:"Semantic, not hierarchical", body:"Relationships carry meaning — supports, contradicts, blocked by — so the AI can explain how everything connects."},
+          {icon:"split", title:"Contradictions stay visible", body:"The amber edge between the ATU and the habit insight is a preserved disagreement, not an error."},
+          {icon:"bolt", title:"It evolves with every approval", body:published?"Today's approval added the recommendation node and wired it to the brand objective.":"Approve today's insight and watch new nodes appear here."},
+        ].map((c,i)=>{ const CIc=Icon[c.icon]; return <div key={i} className="rounded-xl border border-line bg-white p-4">
+          <span className="text-indigo-600"><CIc size={16}/></span>
+          <div className="font-bold text-[13px] text-ink mt-1.5">{c.title}</div>
+          <div className="text-[12px] text-ink-mute leading-relaxed mt-1">{c.body}</div>
+        </div>;})}
+      </div>
+    </div>}
+
+    {tab==="timeline" && <div className="grid lg:grid-cols-2 gap-5 animate-fadeup">
+      <BrainTimeline published={published}/>
+      <KnowledgeEvolution published={published}/>
+    </div>}
+
+    {tab==="pages" && <div className="grid grid-cols-[220px_1fr] gap-7 animate-fadeup">
+      {/* tree */}
+      <div className="space-y-4">
+        {BRAIN_SECTIONS.map(s=><div key={s.name}>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint px-2 mb-1">{s.name}</div>
+          {s.pages.map(pid=>{ const p=BRAIN_PAGES[pid]; const on=pid===sel;
+            return <button key={pid} onClick={()=>setSel(pid)} className={cx("w-full text-left px-2.5 py-2 rounded-lg text-[13px] font-medium transition flex items-center gap-2",
+              on?"bg-indigo-50 text-indigo-700 font-semibold":"text-ink-soft hover:bg-slate-50")}>
+              <span className="flex-1">{p.title}</span>
+              {pid==="bp-switch" && !published && app.synthDone && <span className="w-1.5 h-1.5 rounded-full bg-amber-500" title="pending review"/>}
+              {p.thin && <span className="text-[9px] text-rose-600 font-bold">THIN</span>}
+            </button>;})}
+        </div>)}
+      </div>
+
+      {/* page */}
+      <div>
+        <Card pad="p-6">
+          <div className="flex items-start gap-3 border-b border-line pb-4 mb-4">
+            <div className="flex-1">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">{page.section}</div>
+              <h2 className="text-[20px] font-extrabold tracking-[-.02em] mt-0.5">{page.title}</h2>
+              <div className="text-[12px] text-ink-mute mt-1.5 flex items-center gap-3 flex-wrap">
+                <span className="inline-flex items-center gap-1"><Icon.layers size={13}/>v{version}</span>
+                <span className="inline-flex items-center gap-1"><Icon.clock size={13}/>{isHero?(published?"just now":"Jul 13"):page.updated}</span>
+                <span className="inline-flex items-center gap-1 text-emerald-700"><Icon.shield size={13}/>{body.reduce((n,b)=>n+(b.cites?b.cites.length:0),0)} citations</span>
+                {isHero && <span className={cx("inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-bold", published?"bg-emerald-50 text-emerald-700":"bg-amber-50 text-amber-700")}>
+                  <Icon.trend size={12}/>{published?"82%":"61%"} confidence</span>}
+              </div>
+            </div>
+            {published && isHero && <span className="text-[11px] text-emerald-700 bg-emerald-50 rounded-md px-2 py-1 font-bold flex items-center gap-1"><Icon.checkc size={13}/>Updated just now</span>}
+          </div>
+          <div className="space-y-3">
+            {body.map((b,i)=><TrustLine key={i} layer={b.layer} text={b.text} cites={b.cites}/>)}
+          </div>
+          {page.openQ && (published||!isHero) && <div className="mt-4 rounded-xl border border-dashed border-indigo-200 bg-indigo-50/40 p-4">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 mb-1">Open question</div>
+            <p className="text-[13.5px] text-ink-soft leading-relaxed">{page.openQ}</p></div>}
+        </Card>
+
+        {/* version history — institutional memory */}
+        {isHero && <div className="mt-6">
+          <div className="flex items-center gap-2 mb-3"><span className="text-ink-soft"><Icon.history size={16}/></span><div className="font-bold text-[15px]">Version history</div></div>
+          <div className="relative pl-5">
+            <div className="absolute left-[7px] top-1 bottom-1 w-px bg-line"/>
+            {VERSION_HISTORY.filter(v=>published?true:v.v===11).map(v=><div key={v.v} className="relative mb-4">
+              <span className={cx("absolute -left-[13px] top-1 w-3.5 h-3.5 rounded-full border-2 border-white", v.current&&published?"bg-emerald-600":"bg-slate-300")}/>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-[13.5px]">v{v.v}</span>
+                {v.current&&published && <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 rounded px-1.5 py-0.5">CURRENT</span>}
+                <span className="text-[12px] text-ink-mute">· {v.when} · {v.who}</span>
+              </div>
+              <p className="text-[13px] text-ink-soft mt-0.5 leading-relaxed">{v.note}</p>
+            </div>)}
+          </div>
+        </div>}
+      </div>
+    </div>}
+
+    {nodeSel && <NodePanel nodeId={nodeSel} app={app} onClose={()=>setNodeSel(null)} onJump={setNodeSel}/>}
+  </div>;
+}
+
+/* ------------------------------------------------------------------ HCP PERSONA STUDIO */
+const PTONE = { fuchsia:"#D946EF", violet:"#8B5CF6", purple:"#A855F7", pink:"#EC4899", slate:"#64748B" };
+
+function PersonaCard({p, onOpen}) {
+  const col=PTONE[p.tone];
+  return <button onClick={()=>onOpen(p.id)}
+    className="group text-left rounded-2xl border border-line bg-white shadow-card hover:shadow-lift hover:border-indigo-200 transition p-5 flex flex-col">
+    <div className="flex items-start gap-3">
+      <span className="w-11 h-11 rounded-xl grid place-items-center text-white font-extrabold text-[15px] shrink-0"
+        style={{background:`linear-gradient(135deg, ${col}, ${col}CC)`}}>{p.name.split(" ").slice(1).map(w=>w[0]).join("").slice(0,2)}</span>
+      <div className="flex-1 min-w-0">
+        <div className="font-bold text-[15px] text-ink leading-tight">{p.name}</div>
+        <div className="text-[11.5px] text-ink-mute mt-0.5">{p.city} · {p.years}</div>
+      </div>
+      {p.priority && <span className="text-[9.5px] font-bold text-indigo-700 bg-indigo-50 rounded px-1.5 py-0.5 shrink-0">PRIORITY</span>}
+    </div>
+    <div className="mt-3 flex items-center gap-1.5 flex-wrap">
+      <span className="text-[10.5px] font-bold rounded-md px-2 py-0.5 text-white" style={{background:col}}>{p.cohort} ({p.code})</span>
+      <span className="text-[10.5px] font-bold rounded-md px-2 py-0.5 bg-slate-100 text-ink-soft">{p.mbti} · {p.mbtiName}</span>
+    </div>
+    <p className="mt-3 text-[12.5px] leading-relaxed text-ink-soft line-clamp-3 flex-1">{p.behaviour}</p>
+    <div className="mt-3.5 pt-3 border-t border-line grid grid-cols-3 gap-2 text-center">
+      <div><div className="text-[13px] font-extrabold text-ink">{p.pctHcp.split(" ")[0]}</div><div className="text-[9.5px] text-ink-faint font-semibold uppercase tracking-wide">of HCPs</div></div>
+      <div><div className="text-[13px] font-extrabold" style={{color:col}}>{p.pctTrx.split(" ")[0]}</div><div className="text-[9.5px] text-ink-faint font-semibold uppercase tracking-wide">of TRx</div></div>
+      <div className="min-w-0"><div className="text-[10.5px] font-bold text-ink-soft leading-tight mt-0.5 truncate">{p.practice.split(" ")[0]==="Nearly"?p.practice.replace("Nearly all ","").replace(" institutions",""):p.practice.split(" ")[0]}</div><div className="text-[9.5px] text-ink-faint font-semibold uppercase tracking-wide">practice</div></div>
+    </div>
+    <div className="mt-3 text-[11.5px] font-semibold text-indigo-700 opacity-0 group-hover:opacity-100 transition flex items-center gap-1">Open full persona <Icon.arrow size={12}/></div>
+  </button>;
+}
+
+function PersonaPanel({p, onClose}) {
+  const col=PTONE[p.tone];
+  const Field=({label, children})=><div>
+    <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-1">{label}</div>
+    <p className="text-[13.5px] leading-relaxed text-ink">{children}</p></div>;
+  return <div className="fixed inset-0 z-50">
+    <div className="absolute inset-0 bg-ink/25 backdrop-blur-[2px] animate-fadein" onClick={onClose}/>
+    <div className="absolute right-0 top-0 h-full w-full max-w-lg bg-white shadow-pop animate-slidein flex flex-col">
+      <div className="px-6 py-5 border-b border-line flex items-start gap-3.5">
+        <span className="w-12 h-12 rounded-xl grid place-items-center text-white font-extrabold text-[16px] shrink-0"
+          style={{background:`linear-gradient(135deg, ${col}, ${col}CC)`}}>{p.name.split(" ").slice(1).map(w=>w[0]).join("").slice(0,2)}</span>
+        <div className="flex-1 min-w-0">
+          <div className="font-bold text-[17px] leading-tight">{p.name}</div>
+          <div className="text-[12px] text-ink-mute mt-0.5">{p.city} · {p.years}</div>
+          <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+            <span className="text-[10.5px] font-bold rounded-md px-2 py-0.5 text-white" style={{background:col}}>{p.cohort} ({p.code})</span>
+            {p.priority && <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 rounded px-1.5 py-0.5">PRIORITY COHORT</span>}
+          </div>
+        </div>
+        <button onClick={onClose} className="text-ink-mute hover:text-ink hover:bg-slate-100 rounded-lg p-1.5"><Icon.x size={18}/></button>
+      </div>
+      <div className="flex-1 overflow-y-auto p-6 space-y-5">
+        <div className="grid grid-cols-3 gap-2.5">
+          {[[p.pctHcp.split(" ")[0],"of HCP universe"],[p.pctTrx.split(" ")[0],"of segment TRx"],[p.mbti,"MBTI profile"]].map(([v,l],i)=>
+            <div key={i} className="rounded-xl border border-line bg-slate-50/50 p-3 text-center">
+              <div className="text-[17px] font-extrabold text-ink">{v}</div>
+              <div className="text-[9.5px] text-ink-faint font-bold uppercase tracking-wide mt-0.5">{l}</div></div>)}
+        </div>
+        <div className="rounded-xl border p-4" style={{borderColor:col+"55", background:col+"0D"}}>
+          <div className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{color:col}}>MBTI · {p.mbti} — {p.mbtiName}</div>
+          <p className="text-[13px] leading-relaxed text-ink-soft">{p.behaviour}</p>
+        </div>
+        <Field label="Experience">{p.years} · {p.practice}</Field>
+        <Field label="Motivations">{p.motivations}</Field>
+        <Field label="Barriers">{p.barriers}</Field>
+        <Field label="Preferred messaging">{p.messaging}</Field>
+        <Field label="Communication style">{p.comms}</Field>
+        <Field label="Treatment behaviour">{p.treatment}</Field>
+        <div className="rounded-xl border border-line bg-slate-50/60 p-3.5 text-[11.5px] text-ink-mute flex items-start gap-2">
+          <Icon.shield size={13} cls="text-emerald-600 mt-0.5 shrink-0"/>
+          <span>Synthetic persona generated from the HCP segmentation framework <CitationChip id="c3"/> — no real physician data.</span>
+        </div>
+      </div>
+    </div>
+  </div>;
+}
+
+function PersonasScreen() {
+  const [open,setOpen]=useState(null);
+  const p = PERSONAS.find(x=>x.id===open);
+  return <div className="max-w-5xl mx-auto pb-24">
+    <ScreenHeader title="HCP Persona Studio" sub="Five synthetic ophthalmologists — one for each segmentation cohort. Test messaging against how each actually decides."
+      right={<div className="text-[12px] text-ink-mute flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>Built from 172,828-HCP segmentation</div>}/>
+    <div className="mb-5 rounded-xl border border-line bg-white shadow-card px-4 py-3 flex items-center gap-3 text-[12.5px] text-ink-soft">
+      <span className="text-indigo-600"><Icon.users size={17}/></span>
+      Grounded in the segmentation study — IQVIA HCP universe analysis, ATU, and qualitative interviews (n=25). <CitationChip id="c3"/>
+    </div>
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+      {PERSONAS.map(x=><PersonaCard key={x.id} p={x} onOpen={setOpen}/>)}
+    </div>
+    {p && <PersonaPanel p={p} onClose={()=>setOpen(null)}/>}
+  </div>;
+}
+
+/* ------------------------------------------------------------------ MLR REVIEW */
+function MLRScreen({app}) {
+  const approved = app.mlrApproved;
+  const [checkStep,setCheckStep]=useState(approved?MLR_CHECKS.length:-1); // -1 idle, 0..n running, n done
+  const running = checkStep>=0 && checkStep<MLR_CHECKS.length;
+  const checksDone = checkStep>=MLR_CHECKS.length;
+
+  const runChecks=()=>{ setCheckStep(0);
+    let i=0; const t=setInterval(()=>{ i++; setCheckStep(i); if(i>=MLR_CHECKS.length) clearInterval(t); }, 850); };
+  const approve=()=>{ app.setMlrApproved(true);
+    app.toast("PP-YIC-GLB-0258 approved · routed to Veeva Vault as Approved for Distribution");
+    app.log("Approved MLR asset PP-YIC-GLB-0258 — Long-Term Tolerability banner (cycle 1 of 1)", ["c6"], null, "Approved", "emerald", "Priya Mehta", "Regulatory Affairs"); };
+
+  const statusPill = (s)=> s==="review"
+    ? <span className="text-[11px] font-bold text-amber-700 bg-amber-50 rounded-md px-2 py-0.5 flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"/>In review</span>
+    : <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 rounded-md px-2 py-0.5 flex items-center gap-1"><Icon.checkc size={12}/>Approved</span>;
+
+  return <div className="max-w-3xl mx-auto pb-24">
+    <ScreenHeader title="MLR Review" sub="Medical · Legal · Regulatory. Automated checks do the reading; a named reviewer makes the call. Every cycle is logged."
+      right={<div className="text-[12px] text-ink-mute flex items-center gap-1.5"><span className={cx("w-1.5 h-1.5 rounded-full", approved?"bg-emerald-500":"bg-amber-500")}/>{approved?"Queue clear":"1 asset awaiting review"}</div>}/>
+
+    {/* live review — the hero interaction */}
+    <Card pad="p-0" className="overflow-hidden animate-fadeup">
+      <div className="px-6 pt-5 pb-4 border-b border-line flex items-start gap-3">
+        <span className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 grid place-items-center shrink-0"><Icon.stamp size={20}/></span>
+        <div className="flex-1">
+          <div className="font-bold text-[15.5px] text-ink">Banner — Long-Term Tolerability (OAG)</div>
+          <div className="text-[12px] text-ink-mute mt-0.5">PP-YIC-GLB-0258 · HCP banner · submitted Jul 18, 2026 by Field Marketing · 2 claims</div>
+        </div>
+        {approved ? statusPill("approved") : statusPill("review")}
+      </div>
+
+      {/* asset preview */}
+      <div className="px-6 py-4 border-b border-line bg-slate-50/40">
+        <div className="rounded-xl border border-line bg-white p-4 flex items-center gap-4">
+          <div className="w-24 h-14 rounded-lg bg-gradient-to-br from-emerald-50 to-indigo-50 border border-line grid place-items-center text-[9px] font-bold text-ink-faint text-center leading-tight shrink-0">ONCE DAILY<br/>YI COMBO</div>
+          <div className="text-[13px] text-ink-soft leading-relaxed">“YI Combo is generally <b>well tolerated</b> for long-term treatment in patients with open-angle glaucoma (OAG)” — anchored on Ali et al., <i>J Glaucoma</i> 2011;20(4):215–222. <CitationChip id="c6"/></div>
+        </div>
+      </div>
+
+      {/* automated checks */}
+      <div className="px-6 py-5">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">Automated checks</div>
+          {checksDone && <span className="text-[10.5px] font-bold text-emerald-700 bg-emerald-50 rounded px-1.5 py-0.5">4 / 4 PASSED</span>}
+        </div>
+        {checkStep<0 ? <button onClick={runChecks}
+          className="w-full rounded-xl border-2 border-dashed border-line hover:border-indigo-300 hover:bg-indigo-50/30 transition p-5 flex items-center justify-center gap-2.5 text-[14px] font-semibold text-ink-soft">
+          <span className="text-indigo-600"><Icon.bolt size={17}/></span> Run automated checks
+        </button>
+        : <div className="space-y-2.5">
+          {MLR_CHECKS.map((c,i)=><div key={i} className={cx("flex items-start gap-3 rounded-xl border p-3.5 transition-all duration-300",
+            i<checkStep?"border-emerald-200 bg-emerald-50/40":i===checkStep&&running?"border-indigo-200 bg-indigo-50/30":"border-line opacity-40")}>
+            <span className="mt-0.5 w-4 h-4 shrink-0">{i<checkStep?<span className="text-emerald-600"><Icon.checkc size={17}/></span>
+              :i===checkStep&&running?<span className="block w-3.5 h-3.5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"/>
+              :<span className="block w-1.5 h-1.5 rounded-full bg-slate-300 ml-1 mt-1"/>}</span>
+            <div className="flex-1">
+              <div className={cx("text-[13.5px] font-bold", i<=checkStep?"text-ink":"text-ink-faint")}>{c.name}</div>
+              {i<checkStep && <div className="text-[12px] text-ink-mute mt-0.5 animate-fadein">{c.detail}</div>}
+            </div>
+          </div>)}
+        </div>}
+      </div>
+
+      {/* reviewer decision */}
+      {checksDone && <div className={cx("px-6 py-4 border-t border-line", approved?"bg-emerald-50/50":"bg-slate-50/60")}>
+        {approved ? <div className="flex items-center gap-3 animate-fadeup">
+          <span className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 grid place-items-center shrink-0"><Icon.checkc size={19}/></span>
+          <div className="flex-1"><div className="font-bold text-[14px] text-ink">Approved by Priya Mehta · Regulatory Affairs · just now</div>
+            <div className="text-[12px] text-ink-mute">Cycle 1 of 1 · routed to Veeva Vault as Approved for Distribution · logged to the audit trail.</div></div>
+        </div>
+        : <div className="flex items-center gap-3 animate-fadeup">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-700 to-slate-500 text-white grid place-items-center font-bold text-[12px] shrink-0">PM</div>
+          <div className="flex-1"><div className="font-bold text-[13.5px] text-ink">Reviewer approval — Priya Mehta, Regulatory Affairs</div>
+            <div className="text-[12px] text-ink-mute">Machine checks passed. The decision is yours — it will be logged with your name.</div></div>
+          <Button variant="danger" size="sm" icon={<Icon.x size={14}/>} onClick={()=>app.toast("Change request drafted — asset returned to Field Marketing")}>Request changes</Button>
+          <Button variant="emerald" size="sm" icon={<Icon.check size={14}/>} onClick={approve}>Approve</Button>
+        </div>}
+      </div>}
+    </Card>
+
+    {/* previously approved */}
+    <div className="mt-8">
+      <div className="font-bold text-[15px] mb-3">Previously approved</div>
+      <div className="space-y-2.5">
+        {MLR_ASSETS.filter(a=>a.status==="approved").map(a=><Card key={a.id} pad="p-4">
+          <div className="flex items-center gap-3">
+            <span className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 grid place-items-center shrink-0"><Icon.stamp size={17}/></span>
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold text-[14px] text-ink truncate">{a.name}</div>
+              <div className="text-[12px] text-ink-mute">{a.code} · {a.type} · {a.claims} claims · approved by {a.by} · {a.when} · {a.cycles} {a.cycles===1?"cycle":"cycles"}</div>
+            </div>
+            {statusPill("approved")}
+          </div>
+          {a.note && <div className="mt-2.5 ml-12 text-[12.5px] text-ink-soft bg-slate-50/70 border border-line rounded-lg px-3 py-2">{a.note}</div>}
+        </Card>)}
+      </div>
+    </div>
+
+    {/* approval history */}
+    <div className="mt-8">
+      <div className="flex items-center gap-2 mb-3"><span className="text-ink-soft"><Icon.history size={16}/></span><div className="font-bold text-[15px]">Approval history</div></div>
+      <div className="relative pl-5">
+        <div className="absolute left-[7px] top-1 bottom-1 w-px bg-line"/>
+        {(approved?[{when:"Just now", who:"Priya Mehta", role:"Regulatory Affairs", what:"Approved PP-YIC-GLB-0258 (cycle 1 of 1)", tone:"emerald"}]:[]).concat(MLR_HISTORY).map((h,i)=><div key={i} className="relative mb-4">
+          <span className={cx("absolute -left-[13px] top-1 w-3.5 h-3.5 rounded-full border-2 border-white", h.tone==="emerald"?"bg-emerald-600":h.tone==="amber"?"bg-amber-500":"bg-slate-300")}/>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-bold text-[13.5px]">{h.who}</span>
+            <span className="text-[11px] text-ink-mute bg-slate-100 rounded px-1.5 py-0.5 font-semibold">{h.role}</span>
+            <span className="text-[12px] text-ink-mute">· {h.when}</span>
+          </div>
+          <p className="text-[13px] text-ink-soft mt-0.5 leading-relaxed">{h.what}</p>
+        </div>)}
+      </div>
+    </div>
+  </div>;
+}
+
+/* ------------------------------------------------------------------ AUDIT TRAIL */
+function AuditScreen({app}) {
+  const rows = [...app.audit, ...AUDIT_SEED];
+  const statusTone={ "Published":"emerald","Approved":"emerald","Verified":"emerald","Answered":"indigo","Flagged":"amber","In review":"amber","Rejected":"rose" };
+  return <div className="max-w-3xl mx-auto pb-24">
+    <ScreenHeader title="Audit Trail" sub="Every interaction, decision and approval — timestamped, named, and immutable. Compliance can replay any answer."
+      right={<div className="text-[12px] text-ink-mute flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>{rows.length} events · append-only</div>}/>
+    <div className="space-y-2.5 stagger">
+      {rows.map((r,i)=>{ const tone=statusTone[r.status]||"slate";
+        return <Card key={i} pad="p-4">
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-700 to-slate-500 text-white grid place-items-center font-bold text-[11px] shrink-0">
+            {r.user.replace(/^Dr\.?\s+/,"").split(" ").filter(w=>/^[A-Z]/.test(w)).map(w=>w[0]).join("").slice(0,2)||"SY"}</div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-bold text-[13.5px] text-ink">{r.user}</span>
+              <span className="text-[10.5px] text-ink-mute bg-slate-100 rounded px-1.5 py-0.5 font-semibold">{r.role}</span>
+              <span className="text-[11.5px] text-ink-faint ml-auto shrink-0 inline-flex items-center gap-1"><Icon.clock size={11}/>{r.ts}</span>
+            </div>
+            <p className="text-[13.5px] text-ink leading-relaxed mt-1">{r.action}</p>
+            <div className="mt-2 flex items-center gap-2 flex-wrap">
+              {r.evidence && r.evidence.length>0 && <><span className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">Evidence</span><Cites ids={r.evidence}/></>}
+              {r.conf && <ConfidenceBadge level={r.conf}/>}
+              <span className={cx("ml-auto text-[10.5px] font-bold rounded-md px-2 py-0.5",
+                tone==="emerald"?"text-emerald-700 bg-emerald-50":tone==="indigo"?"text-indigo-700 bg-indigo-50":tone==="amber"?"text-amber-700 bg-amber-50":tone==="rose"?"text-rose-600 bg-rose-50":"text-ink-soft bg-slate-100")}>{r.status}</span>
+            </div>
+          </div>
+        </div>
+      </Card>;})}
+    </div>
+    <div className="mt-6 flex items-center gap-2 text-[12px] text-ink-mute justify-center">
+      <Icon.shield size={14} cls="text-emerald-600"/> Append-only log · exportable for compliance · nothing is ever deleted, including rejected drafts.
+    </div>
+  </div>;
+}
+
 /* ------------------------------------------------------------------ SHELL */
 const NAV=[
   { id:"ask", label:"Ask", icon:"ask" },
   { id:"pulse", label:"Brand Pulse", icon:"pulse" },
   { id:"library", label:"Library", icon:"library" },
   { id:"brand", label:"Brand Brain", icon:"brain" },
+  { id:"personas", label:"HCP Personas", icon:"users" },
+  { id:"mlr", label:"MLR Review", icon:"stamp" },
+  { id:"audit", label:"Audit Trail", icon:"list" },
 ];
-const ROADMAP=["Recommendations","MLR review","Audit trail","Settings"];
+const ROADMAP=["Recommendations","Field Copilot","Settings"];
+
+function BrandSwitcher({app}) {
+  const [open,setOpen]=useState(false);
+  const ref=useRef(null);
+  useEffect(()=>{ const h=(e)=>{ if(ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown",h); return ()=>document.removeEventListener("mousedown",h); },[]);
+  return <div ref={ref} className="relative mx-3 mb-2">
+    <button onClick={()=>setOpen(o=>!o)}
+      className={cx("w-full rounded-xl bg-slate-50 border px-3 py-2.5 flex items-center gap-2.5 transition text-left",
+        open?"border-indigo-300 ring-4 ring-indigo-50":"border-line hover:border-slate-300")}>
+      <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white grid place-items-center font-extrabold text-[12px] shrink-0">Y</div>
+      <div className="min-w-0 flex-1"><div className="font-bold text-[13px] truncate">{BRAND.name}</div><div className="text-[10.5px] text-ink-mute truncate">{BRAND.tag}</div></div>
+      <span className={cx("text-ink-faint transition-transform", open&&"rotate-180")}><Icon.chevdown size={14}/></span>
+    </button>
+    {open && <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white rounded-xl border border-line shadow-pop overflow-hidden animate-fadein">
+      <div className="px-3 pt-2.5 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-ink-faint">Your brands</div>
+      {BRANDS.map(b=><button key={b.id} disabled={!b.active}
+        onClick={()=>{ if(b.active){ setOpen(false); app.toast("YI Combo loaded · 9 sources · Brand Brain v"+(app.published?12:11)); } }}
+        className={cx("w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition",
+          b.active?"hover:bg-indigo-50/60 cursor-pointer":"opacity-55 cursor-not-allowed")}>
+        <div className={cx("w-7 h-7 rounded-lg grid place-items-center font-extrabold text-[12px] shrink-0",
+          b.active?"bg-indigo-600 text-white":"bg-slate-200 text-ink-mute")}>{b.initial}</div>
+        <div className="min-w-0 flex-1">
+          <div className="font-bold text-[13px] text-ink flex items-center gap-1.5">{b.name}
+            {b.active && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>}</div>
+          <div className={cx("text-[10.5px] truncate", b.active?"text-ink-mute":"text-ink-faint italic")}>{b.tag}</div>
+        </div>
+        {b.active ? <span className="text-[9.5px] font-bold text-indigo-700 bg-indigo-50 rounded px-1.5 py-0.5 shrink-0">ACTIVE</span>
+          : <span className="text-ink-faint shrink-0"><Icon.lock size={13}/></span>}
+      </button>)}
+      <div className="px-3 py-2 border-t border-line bg-slate-50/60 text-[10.5px] text-ink-faint">
+        Each brand's memory is isolated — evidence never crosses brands.
+      </div>
+    </div>}
+  </div>;
+}
 
 function Sidebar({app}) {
   return <aside className="w-[248px] shrink-0 h-screen bg-white border-r border-line flex flex-col">
@@ -1113,15 +2118,11 @@ function Sidebar({app}) {
       <div className="flex items-center gap-2.5">
         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-500 grid place-items-center shadow-card text-white"><Icon.brain size={19}/></div>
         <div><div className="font-extrabold text-[15px] tracking-[-.02em] leading-none">BrandBrain</div>
-          <div className="text-[10.5px] font-semibold text-ink-faint mt-1 uppercase tracking-wide">Decision Intelligence</div></div>
+          <div className="text-[10.5px] font-semibold text-ink-faint mt-1 uppercase tracking-wide">by Brainlee</div></div>
       </div>
     </div>
-    <div className="mx-3 mb-2 rounded-xl bg-slate-50 border border-line px-3 py-2.5 flex items-center gap-2.5">
-      <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white grid place-items-center font-extrabold text-[12px]">N</div>
-      <div className="min-w-0"><div className="font-bold text-[13px] truncate">{BRAND.name}</div><div className="text-[10.5px] text-ink-mute truncate">{BRAND.tag}</div></div>
-      <span className="ml-auto text-ink-faint"><Icon.chevdown size={14}/></span>
-    </div>
-    <nav className="px-3 mt-1 space-y-0.5">
+    <BrandSwitcher app={app}/>
+    <nav className="px-3 mt-1 space-y-0.5 overflow-y-auto">
       {NAV.map(n=>{ const on=app.nav===n.id; const Ico=Icon[n.icon];
         return <button key={n.id} onClick={()=>app.go(n.id)} className={cx("group w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition text-left relative",
           on?"bg-indigo-50 text-indigo-700":"text-ink-soft hover:bg-slate-50")}>
@@ -1129,9 +2130,10 @@ function Sidebar({app}) {
           <span className={on?"text-indigo-600":"text-ink-mute group-hover:text-ink-soft"}><Ico size={19}/></span>
           <span className="font-semibold text-[14px]">{n.label}</span>
           {n.id==="brand" && !app.published && app.synthDone && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-500"/>}
+          {n.id==="mlr" && !app.mlrApproved && <span className="ml-auto text-[9px] font-bold bg-amber-50 text-amber-700 rounded px-1.5 py-0.5">1</span>}
         </button>;})}
     </nav>
-    <div className="px-3 mt-6">
+    <div className="px-3 mt-5">
       <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint px-3 mb-1.5">On the roadmap</div>
       {ROADMAP.map(r=><div key={r} className="flex items-center gap-3 px-3 py-2 rounded-xl text-ink-faint cursor-not-allowed">
         <span className="w-[19px] h-[19px] grid place-items-center"><Icon.lock size={14}/></span><span className="text-[13.5px] font-medium">{r}</span>
@@ -1139,7 +2141,7 @@ function Sidebar({app}) {
     </div>
     <div className="mt-auto p-3 border-t border-line">
       <div className="flex items-center gap-3 px-2 py-1.5">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-700 to-slate-500 text-white grid place-items-center font-bold text-[13px]">AS</div>
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-700 to-slate-500 text-white grid place-items-center font-bold text-[13px]">AR</div>
         <div className="min-w-0"><div className="font-bold text-[13px] truncate">{BRAND.owner}</div><div className="text-[10.5px] text-ink-mute truncate">{BRAND.role} · {BRAND.name}</div></div>
       </div>
     </div>
@@ -1155,27 +2157,41 @@ function Toast({message}) {
 }
 
 function App() {
+  const [entered,setEntered]=useState(false);
   const [nav,setNav]=useState("ask");
   const [uploaded,setUploaded]=useState(false);
   const [synthDone,setSynthDone]=useState(false);
   const [published,setPublished]=useState(false);
+  const [mlrApproved,setMlrApproved]=useState(false);
   const [reviewOpen,setReviewOpen]=useState(false);
+  const [brainTab,setBrainTab]=useState("graph");
   const [source,setSource]=useState(null);       // citation id or null
+  const [audit,setAudit]=useState([]);
   const [toastMsg,setToastMsg]=useState(null);
   const toastTimer=useRef(null);
 
   const toast=useCallback((msg)=>{ setToastMsg(msg); clearTimeout(toastTimer.current);
     toastTimer.current=setTimeout(()=>setToastMsg(null),3200); },[]);
   const go=useCallback((id)=>{ setNav(id); const el=document.getElementById("scrollmain"); if(el) el.scrollTop=0; },[]);
+  const log=useCallback((action, evidence, conf, status, tone, user, role)=>{
+    setAudit(a=>[{ ts:"Just now", user:user||BRAND.owner, role:role||BRAND.role, action, evidence:evidence||[], conf, status, tone },...a]); },[]);
 
   const app={ nav, go, uploaded, setUploaded, synthDone, setSynthDone, published,
+              mlrApproved, setMlrApproved, brainTab, setBrainTab, audit, log,
               openReview:()=>setReviewOpen(true), toast };
   const srcApi={ open:(id)=>setSource(id), close:()=>setSource(null) };
 
-  const approve=()=>{ setPublished(true); setReviewOpen(false); toast("Published to the Brand Brain · logged as Dr. Andrew Smith"); go("brand"); };
-  const reject=()=>{ setReviewOpen(false); toast("Draft rejected — kept for audit, never deleted"); };
+  const approve=()=>{ setPublished(true); setReviewOpen(false);
+    toast("Published to the Brand Brain · logged as "+BRAND.owner);
+    log("Approved & published “Switching Drivers — What We Know” v12 — 2 findings added, driver contradiction preserved, graph +2 nodes", ["c1","c4","c5"], "high", "Published", "emerald");
+    setBrainTab("graph"); go("brand"); };
+  const reject=()=>{ setReviewOpen(false); toast("Draft rejected — kept for audit, never deleted");
+    log("Rejected today's synthesis draft — retained in the audit archive", [], null, "Rejected", "rose"); };
 
-  const Screen={ ask:AskScreen, pulse:PulseScreen, library:LibraryScreen, brand:BrandBrainScreen }[nav];
+  const Screen={ ask:AskScreen, pulse:PulseScreen, library:LibraryScreen, brand:BrandBrainScreen,
+                 personas:PersonasScreen, mlr:MLRScreen, audit:AuditScreen }[nav];
+
+  if(!entered) return <WelcomeScreen onEnter={()=>{ setEntered(true); toast("YI Combo loaded · 9 sources · governed · ready"); }}/>;
 
   return <SourceCtx.Provider value={srcApi}>
     <div className="flex h-screen bg-canvas">
