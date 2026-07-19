@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BrandBrain — Decision Intelligence</title>
+<!-- Zero-build React prototype: React 18 + Babel(TSX) + Tailwind. Opens in any browser.
+     Trust is the product. Calm. Executive-cognition. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Inter','ui-sans-serif','system-ui','-apple-system','sans-serif'] },
+        colors: {
+          ink:    { DEFAULT:'#0F172A', soft:'#334155', mute:'#64748B', faint:'#94A3B8' },
+          line:   '#E7EAF0',
+          canvas: '#FBFCFE',
+          indigo: { 50:'#EEF1FF',100:'#E0E7FF',500:'#6366F1',600:'#4F46E5',700:'#4338CA' },
+          emerald:{ 50:'#ECFDF5',600:'#059669',700:'#047857' },
+          amber:  { 50:'#FFFBEB',600:'#D97706',700:'#B45309' },
+          rose:   { 50:'#FFF1F2',600:'#E11D48' },
+        },
+        boxShadow: {
+          card:'0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.06)',
+          lift:'0 6px 20px rgba(15,23,42,.08), 0 2px 6px rgba(15,23,42,.04)',
+          pop:'0 24px 60px rgba(15,23,42,.18)',
+        },
+        keyframes: {
+          fadeup:{ '0%':{opacity:0,transform:'translateY(8px)'},'100%':{opacity:1,transform:'none'} },
+          fadein:{ '0%':{opacity:0},'100%':{opacity:1} },
+          slidein:{ '0%':{opacity:0,transform:'translateX(24px)'},'100%':{opacity:1,transform:'none'} },
+          shimmer:{ '100%':{transform:'translateX(100%)'} },
+          grow:{ '0%':{transform:'scaleX(0)'},'100%':{transform:'scaleX(1)'} },
+        },
+        animation: {
+          fadeup:'fadeup .5s cubic-bezier(.16,1,.3,1) both',
+          fadein:'fadein .4s ease both',
+          slidein:'slidein .35s cubic-bezier(.16,1,.3,1) both',
+        }
+      }
+    }
+  }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  html,body,#root{height:100%}
+  body{background:#FBFCFE;color:#0F172A;font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased;overflow:hidden}
+  *{scrollbar-width:thin;scrollbar-color:#D5DAE5 transparent}
+  *::-webkit-scrollbar{width:9px;height:9px}
+  *::-webkit-scrollbar-thumb{background:#D9DEE8;border-radius:20px;border:2px solid transparent;background-clip:content-box}
+  *::-webkit-scrollbar-thumb:hover{background:#C3CAD9;background-clip:content-box}
+  .stagger>*{animation:fadeup .5s cubic-bezier(.16,1,.3,1) both}
+  .stagger>*:nth-child(1){animation-delay:.02s}.stagger>*:nth-child(2){animation-delay:.08s}
+  .stagger>*:nth-child(3){animation-delay:.14s}.stagger>*:nth-child(4){animation-delay:.20s}
+  .stagger>*:nth-child(5){animation-delay:.26s}.stagger>*:nth-child(6){animation-delay:.32s}
+  .stagger>*:nth-child(7){animation-delay:.38s}.stagger>*:nth-child(8){animation-delay:.44s}
+  .barfill{transform-origin:left;animation:grow .9s cubic-bezier(.16,1,.3,1) both}
+  .caret::after{content:'';display:inline-block;width:2px;height:1.05em;background:#4F46E5;margin-left:2px;vertical-align:-2px;animation:fadein .6s steps(2) infinite alternate}
+  .prose-tight p{margin:0}
+  ::selection{background:#E0E7FF}
+  [data-loading]{display:flex;align-items:center;justify-content:center;height:100vh;color:#64748B;font:500 14px Inter,sans-serif}
+</style>
+</head>
+<body>
+<div id="root"><div data-loading>Preparing your brand's memory…</div></div>
+
+<script type="text/babel" data-presets="react,typescript">
+const { useState, useEffect, useRef, useCallback, createContext, useContext } = React;
+
+/* ============================================================================
+   BrandBrain — Decision Intelligence (interactive prototype)
+   Fictional brand NUVEXA (HIV single-tablet regimen). All data illustrative.
+   ========================================================================== */
+
+/* ------------------------------------------------------------------ DATA */
+const BRAND = { name: "NUVEXA", tag: "HIV · single-tablet regimen", owner: "Dr. Andrew Smith", role: "Brand Director" };
+
+// The question that drives the whole demo.
+const HERO_QUESTION = "What are physicians saying about switching stable patients?";
+
+// Evidence estate (Library) — governed research.
+const DOCUMENTS = [
+  { id:"w4", name:"ATU Wave 4 — Meridian", type:"ATU (quant)", meta:"n=212 US HIV treaters · Mar 2026", pages:48, status:"ready", color:"indigo" },
+  { id:"w3", name:"ATU Wave 3 — Meridian", type:"ATU (quant)", meta:"n=208 · Sep 2025", pages:44, status:"ready", color:"indigo" },
+  { id:"idi", name:"In-Depth Interviews — Northstar", type:"Qualitative", meta:"n=18 physicians · Jan 2026", pages:36, status:"ready", color:"emerald" },
+  { id:"t03", name:"HCP Interview Transcripts", type:"Transcripts", meta:"8 sessions · Jan 2026", pages:120, status:"ready", color:"emerald" },
+  { id:"cmp", name:"Competitive Landscape — Syndicated", type:"Syndicated", meta:"Q1 2026", pages:52, status:"ready", color:"slate" },
+];
+
+// The newly-uploaded document for step 1 (parsing demo).
+const UPLOAD_DOC = {
+  name:"ATU Wave 4 Topline Appendix — Meridian.pdf", sizeMB:1.8, pages:14,
+  detected:{ Brand:"NUVEXA", "Study type":"ATU · quantitative", Supplier:"Meridian Insights", Wave:"Wave 4 · Mar 2026", Market:"US" }
+};
+
+// Evidence search results (Library — Perplexity-style).
+const SEARCH_RESULTS = [
+  { id:"s1", quote:"Top stated switch driver: non-daily / pill-fatigue preference — 54%.", src:"ATU Wave 4 — Meridian", loc:"Slide 12", type:"FACT", color:"indigo" },
+  { id:"s2", quote:"Willingness to switch a stable patient to a long-acting injectable: 18% → 27% → 34% across three waves.", src:"ATU Waves 2–4 — Meridian", loc:"Tracker · ATU_Topline", type:"FACT", color:"indigo" },
+  { id:"s3", quote:"“Weight-gain concern is the decisive real-world trigger — the injection is the ask, but weight is the reason.”", src:"In-Depth Interviews — Northstar", loc:"p.14", type:"FACT", color:"emerald" },
+  { id:"s4", quote:"“My worry with switching anyone stable to the injectable is missed-dose resistance — if they skip a visit we're in trouble.”", src:"HCP Transcript 02", loc:"00:22:15", type:"FACT", color:"emerald" },
+];
+
+// Atomic citations used across the synthesis. Each opens a source snippet.
+const CITATIONS = {
+  c1:{ id:"c1", label:"ATU W4 · slide 12", doc:"ATU Wave 4 — Meridian", loc:"Slide 12", kind:"quant",
+       snippet:"Top switch driver (stated), Wave 4 (n=212): Non-daily / pill-fatigue preference — 54%. Adherence concerns — 27%. Weight concern — 19%.", meta:"Meridian Insights · NUVEXA ATU Wave 4 · Mar 2026" },
+  c2:{ id:"c2", label:"ATU W2–W4 · tracker", doc:"ATU Waves 2–4 — Meridian", loc:"ATU_Topline table", kind:"quant",
+       snippet:"Would consider switching stable patients to a long-acting injectable within 12 months: W2 18% · W3 27% · W4 34%. Change +7pp W3→W4 (significant, 95%).", meta:"Read from source table — not a chart" },
+  c3:{ id:"c3", label:"In-Depth · p.14", doc:"In-Depth Interviews — Northstar", loc:"p.14", kind:"qual",
+       snippet:"“Weight-gain concern is the decisive real-world trigger — the injection is the ask, but weight is the reason.” — Infectious Disease physician, community practice.", meta:"Northstar Qual · n=18 in-depth interviews · Jan 2026" },
+  c4:{ id:"c4", label:"Transcript 02 · 00:22:15", doc:"HCP Interview Transcript 02", loc:"00:22:15", kind:"qual",
+       snippet:"“My worry with switching anyone stable to the injectable is missed-dose resistance — if they skip a visit we're in real trouble.”", meta:"Northstar Qual · verbatim, audio-aligned" },
+  c5:{ id:"c5", label:"In-Depth · p.18", doc:"In-Depth Interviews — Northstar", loc:"p.18", kind:"qual",
+       snippet:"Peer consensus repeatedly named as the strongest influence: “If two colleagues at clinic have switched patients, that changes the conversation for everyone.”", meta:"Northstar Qual · thematic analysis" },
+  c6:{ id:"c6", label:"ATU W4 · slide 21", doc:"ATU Wave 4 — Meridian", loc:"Slide 21", kind:"quant",
+       snippet:"LAI-switch openness by segment (W4): community practice 40% vs academic centers 27% (all 34%).", meta:"Meridian Insights · segment cut" },
+};
+
+window.__CITE = CITATIONS;
+
+// The hero synthesis output. Layers: FACT | INSIGHT | INTERPRETATION | RECOMMENDATION.
+const SYNTHESIS = {
+  question: HERO_QUESTION,
+  readMs: 1400,            // "retrieval" phase
+  thinkSteps: [
+    "Reading 4 studies across quant and qualitative",
+    "Aligning switching metrics across Waves 2–4",
+    "Cross-referencing stated drivers with interview themes",
+    "Detecting agreements, contradictions & evidence gaps",
+    "Assembling a leadership-ready synthesis",
+  ],
+  sourcesUsed: ["ATU Wave 4 — Meridian","ATU Wave 3 — Meridian","In-Depth Interviews — Northstar","HCP Interview Transcripts"],
+  summary: {
+    layer:"INSIGHT",
+    text:"Physicians are increasingly open to switching stable patients to a long-acting injectable — willingness has risen 18% → 27% → 34% across three waves — but they disagree on why, and the disagreement is strategically decisive.",
+    confidence:"high",
+    why:{ points:[
+      {ok:true, text:"17 evidence units across the estate"},
+      {ok:true, text:"4 independent suppliers agree"},
+      {ok:true, text:"Quant tracker + qualitative interviews point the same way"},
+      {ok:true, text:"Consistent across three consecutive waves (W2–W4)"},
+    ]},
+    cites:["c2","c1"],
+    trend:{ series:[18,27,34], labels:["W2","W3","W4"], delta:"+7pp W3→W4", sig:"95%" }
+  },
+  agreements: [
+    { layer:"FACT", text:"Willingness to switch stable patients to an LAI rose 18% → 27% → 34% across Waves 2–4.", confidence:"high",
+      why:{ points:[
+        {ok:true, text:"Read directly from the tracker source table (not a chart)"},
+        {ok:true, text:"Three consecutive waves, same instrument"},
+        {ok:true, text:"+7pp W3→W4 is significant at 95%"},
+      ]}, cites:["c2"] },
+    { layer:"INSIGHT", text:"Missed-dose / resistance concern is the most consistent brake on switching — it appears in the quant read and recurs across interviews.", confidence:"high",
+      why:{ points:[
+        {ok:true, text:"Appears in Wave-4 quant"},
+        {ok:true, text:"Independently recurs across multiple transcripts"},
+        {ok:true, text:"Cross-method agreement (quant + qual)"},
+      ]}, cites:["c1","c4"] },
+    { layer:"INSIGHT", text:"Peer consensus is the strongest influence channel on the switching decision.", confidence:"moderate",
+      why:{ points:[
+        {ok:true, text:"Strong and repeated across qualitative interviews"},
+        {ok:false, text:"Not yet quantified in the tracker — single-method"},
+        {ok:false, text:"Confidence capped until a wave measures it"},
+      ]}, cites:["c5"] },
+  ],
+  contradiction: {
+    topic:"What actually drives the switch",
+    a:{ method:"QUANT", source:"ATU Wave 4 — Meridian", claim:"Top stated driver is non-daily / pill-fatigue preference (54%); weight concern is only 19%.", cite:"c1" },
+    b:{ method:"QUAL", source:"In-Depth Interviews — Northstar", claim:"Weight-gain concern is the decisive real-world trigger — the injection is “just the exit they ask for.”", cite:"c3" },
+    why:"The two methods measure different things — stated preference vs. the emotional trigger behind the ask. Averaging them into one “driver” would hide the lever your strategy has to pull. This is a genuine open question, not noise.",
+    layer:"INTERPRETATION",
+  },
+  gaps: [
+    { text:"No dedicated payer / HEOR-vs-LAI research exists in the estate — only a single proxy item in the ATU. Coverage pressure on LAIs is a decision-critical unknown.",
+      severity:"high", action:"Draft a payer-value study question for the next wave" },
+    { text:"Segment view is thin: community vs. academic openness differs (40% vs 27%), but the sample can't yet explain the gap.",
+      severity:"moderate", cites:["c6"], action:"Add a segment oversample to the next ATU" },
+  ],
+  recommendation: {
+    layer:"RECOMMENDATION",
+    text:"Lead retention messaging on resistance-barrier confidence paired with proactive weight reassurance; equip the field with the approved objection responses; and commission a payer-value study before any value-defense claim is used.",
+    confidence:"moderate",
+    why:{ points:[
+      {ok:true, text:"Follows directly from the agreed findings"},
+      {ok:true, text:"Addresses both sides of the mixed signal"},
+      {ok:false, text:"Payer evidence gap is still unresolved"},
+      {ok:false, text:"Held at moderate — no manufactured certainty"},
+    ]},
+    cites:["c1","c3","c4"],
+    explain: {
+      evidence:[
+        {text:"Resistance concern is the most consistent brake, across methods", cites:["c1","c4"]},
+        {text:"Weight-gain concern is the decisive real-world trigger in interviews", cites:["c3"]},
+      ],
+      studies:["ATU Wave 4 — Meridian","In-Depth Interviews — Northstar","HCP Interview Transcripts"],
+      reasoning:[
+        "Switching intent is rising and physician-led, not price-led.",
+        "The two named drivers (resistance fear, weight) are both retention levers you already have approved language for.",
+        "A value-defense claim would require payer evidence that does not yet exist — so it is scoped out, not asserted.",
+      ],
+      alternatives:[
+        "Compete on convenience parity with the LAI — rejected: concedes the frame and isn't supported as the true driver.",
+        "Wait for more data before acting — rejected: intent is already at 34% and climbing.",
+      ],
+      contradictions:[
+        "Quant says convenience (54%) is the top stated driver; qual says weight decides in practice. The recommendation deliberately serves both rather than betting on one.",
+      ],
+    },
+  },
+  followups: [
+    { id:"f1", q:"What changed since Wave 3?", a:{ layer:"FACT",
+      text:"Switching intent rose 27% → 34% (+7pp, significant), and the 'would wait 6+ months' group fell 44% → 36%. The direction hardened between waves.", cites:["c2"] } },
+    { id:"f2", q:"Which physician segments disagree?", a:{ layer:"INSIGHT",
+      text:"Community practice is markedly more open than academic centers (40% vs 27% in Wave 4). The estate can't yet explain the gap — it's flagged for a segment oversample.", cites:["c6"] } },
+    { id:"f3", q:"What's the weakest evidence here?", a:{ layer:"INTERPRETATION",
+      text:"The payer / access picture. There is no dedicated payer-vs-LAI study — only a single proxy ATU item — so any coverage-pressure claim is low-confidence today.", cites:["c2"] } },
+    { id:"f4", q:"Show me the contradiction again.", a:{ layer:"INTERPRETATION",
+      text:"Quant names non-daily preference (54%) as the top driver; qual says weight-gain concern is what actually decides the switch. Preserved, not averaged — it's the decision to make.", cites:["c1","c3"] } },
+    { id:"f5", q:"What should we research next?", a:{ layer:"RECOMMENDATION",
+      text:"A dedicated payer / HEOR-vs-LAI value study, plus a segment oversample to explain the community–academic gap. Both are drafted and ready to commission.", cites:["c2","c6"] } },
+  ],
+};
+
+// Brand Brain — published pages + the page this insight updates, with version history.
+const BRAIN_SECTIONS = [
+  { name:"MARKET & COMPETITION", pages:["bp-switch","bp-lai","bp-size"] },
+  { name:"HCP INSIGHTS", pages:["bp-seg","bp-peer","bp-tol"] },
+  { name:"ACCESS & PAYERS", pages:["bp-access"] },
+];
+const BRAIN_PAGES = {
+  "bp-switch":{ id:"bp-switch", section:"MARKET & COMPETITION", title:"Switching Drivers — What We Know", hero:true, version:2, updated:"just now",
+     body:[
+       { layer:"FACT", text:"Willingness to switch stable patients to an LAI: 18% → 27% → 34% (Waves 2–4).", cites:["c2"] },
+       { layer:"INSIGHT", text:"Stated driver is non-daily preference (54%, quant); qualitative evidence points to weight-gain concern as decisive in practice. Driver hierarchy unresolved.", cites:["c1","c3"] },
+       { layer:"INSIGHT", text:"Missed-dose / resistance concern is the most consistent brake, across methods.", cites:["c4"] },
+     ],
+     openQ:"Payer / HEOR-vs-LAI research recommended before the switch-defense strategy locks." },
+  "bp-lai":{ id:"bp-lai", section:"MARKET & COMPETITION", title:"LAI Competitive Timeline", version:1, updated:"Jun 20",
+     body:[{ layer:"FACT", text:"LAI share of the dynamic market ~5–8% now, projected 15–20% by 2028.", cites:["c1"] }] },
+  "bp-size":{ id:"bp-size", section:"MARKET & COMPETITION", title:"Market Sizing", version:1, updated:"Jun 20",
+     body:[{ layer:"INSIGHT", text:"US HIV STR class stable; LAI is the growth vector to watch.", cites:["c1"] }] },
+  "bp-seg":{ id:"bp-seg", section:"HCP INSIGHTS", title:"Switching Attitudes by Segment", version:1, updated:"Jun 20",
+     body:[{ layer:"FACT", text:"Community practice more open than academic centers (40% vs 27%, W4).", cites:["c6"] }] },
+  "bp-peer":{ id:"bp-peer", section:"HCP INSIGHTS", title:"Peer Influence Channels", version:1, updated:"Jun 20",
+     body:[{ layer:"INSIGHT", text:"Peer consensus is the strongest influence channel on switching.", cites:["c5"] }] },
+  "bp-tol":{ id:"bp-tol", section:"HCP INSIGHTS", title:"Tolerability Perceptions", version:1, updated:"Jun 20",
+     body:[{ layer:"INSIGHT", text:"HCP view of tolerability diverges from patient-reported weight concern.", cites:["c3"] }] },
+  "bp-access":{ id:"bp-access", section:"ACCESS & PAYERS", title:"Access Environment", version:1, updated:"Jun 20", thin:true,
+     body:[{ layer:"INTERPRETATION", text:"No dedicated payer / HEOR-vs-LAI research — flagged as an evidence gap, not padded with inference.", cites:["c2"] }] },
+};
+const VERSION_HISTORY = [
+  { v:2, when:"just now", who:"Dr. Andrew Smith", note:"Published synthesis: driver hierarchy unresolved; added weight-gain qual signal + payer gap.", current:true },
+  { v:1, when:"Jun 22, 2026", who:"Dr. Andrew Smith", note:"Initial page from Wave 3 read." },
+];
+
+// A living institutional memory. The final entry only appears once the user publishes today's insight.
+const BRAIN_TIMELINE = [
+  { month:"June", tone:"slate", events:[
+    { icon:"doc", text:"18 new physician interviews ingested (Northstar)" },
+    { icon:"brain", text:"“Switching Drivers” page created from Wave 3" }, ], conf:61 },
+  { month:"July", tone:"indigo", events:[
+    { icon:"trend", text:"Switching barriers updated — intent climbs to 34%" },
+    { icon:"doc", text:"Competitive landscape (syndicated) added" }, ], conf:68 },
+  { month:"August", tone:"amber", events:[
+    { icon:"split", text:"Contradiction detected — quant vs. qual on the driver" },
+    { icon:"gap", text:"Payer evidence gap flagged for next research" }, ], conf:74 },
+  { month:"September", tone:"emerald", events:[
+    { icon:"checkc", text:"Wave 4 synthesis reviewed & published" },
+    { icon:"shield", text:"Confidence rose 61% → 82% as evidence triangulated" }, ], conf:82, live:true },
+];
+
+// Shown the instant an insight is published — proof the Brain evolves.
+const ACTIVITY = {
+  added:2,
+  changes:[
+    { icon:"doc",   text:"2 new findings added" },
+    { icon:"trend", text:"“Switching barriers” updated" },
+    { icon:"split", text:"New contradiction recorded" },
+  ],
+  conf:{ from:61, to:82 },
+};
+
+const PULSE = {
+  week:"Week of Jul 1–7, 2026",
+  headline:"Switching risk is still rising — and the ‘why’ is now the open question your strategy must answer.",
+  items:[
+    { icon:"trend", tone:"amber", title:"Switching intent +7pp (W3→W4)", body:"Now 34% of physicians would consider switching a stable patient to an LAI.", cite:"c2" },
+    { icon:"split", tone:"indigo", title:"Quant and qual disagree on the driver", body:"Stated preference says convenience (54%); interviews say weight. Needs a decision.", cite:"c1" },
+    { icon:"gap", tone:"rose", title:"Payer evidence gap", body:"No dedicated payer/HEOR-vs-LAI study in the estate. Recommended for the next wave.", cite:"c2" },
+  ]
+};
+
+/* ------------------------------------------------------------------ ICONS (Lucide-style, inline for demo reliability) */
+const Ic = ({d, size=18, sw=1.8, fill="none", cls=""}) =>
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth={sw}
+       strokeLinecap="round" strokeLinejoin="round" className={cls}>{d}</svg>;
+const Icon = {
+  ask:      p=><Ic {...p} d={<><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V6a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"/><path d="M8 10h8M8 13h5"/></>}/>,
+  pulse:    p=><Ic {...p} d={<path d="M3 12h4l2 6 4-14 2 8h6"/>}/>,
+  library:  p=><Ic {...p} d={<><path d="M4 5h5l2 2h9v12H4z"/><path d="M4 9h16"/></>}/>,
+  brain:    p=><Ic {...p} d={<><path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-1 5.7A3 3 0 0 0 6 18a3 3 0 0 0 6 .5 3 3 0 0 0 6-.5 3 3 0 0 0 1-5.3A3 3 0 0 0 18 7a3 3 0 0 0-3-3 3 3 0 0 0-6 0z"/><path d="M12 5v14"/></>}/>,
+  search:   p=><Ic {...p} d={<><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></>}/>,
+  send:     p=><Ic {...p} d={<path d="M4 12l16-8-6 16-3-6z"/>}/>,
+  sparkles: p=><Ic {...p} d={<><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></>}/>,
+  check:    p=><Ic {...p} d={<path d="M4 12l5 5L20 6"/>}/>,
+  checkc:   p=><Ic {...p} d={<><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></>}/>,
+  x:        p=><Ic {...p} d={<path d="M6 6l12 12M18 6L6 18"/>}/>,
+  arrow:    p=><Ic {...p} d={<path d="M5 12h14M13 6l6 6-6 6"/>}/>,
+  doc:      p=><Ic {...p} d={<><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></>}/>,
+  quote:    p=><Ic {...p} d={<path d="M7 7H4v6h3l-1 4h2l2-4V7zm10 0h-3v6h3l-1 4h2l2-4V7z"/>}/>,
+  upload:   p=><Ic {...p} d={<><path d="M12 15V4M8 8l4-4 4 4"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></>}/>,
+  split:    p=><Ic {...p} d={<><path d="M12 3v18"/><path d="M6 8l-3 4 3 4M18 8l3 4-3 4"/></>}/>,
+  gap:      p=><Ic {...p} d={<><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></>}/>,
+  trend:    p=><Ic {...p} d={<><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></>}/>,
+  shield:   p=><Ic {...p} d={<><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></>}/>,
+  clock:    p=><Ic {...p} d={<><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>}/>,
+  chevron:  p=><Ic {...p} d={<path d="M9 6l6 6-6 6"/>}/>,
+  chevdown: p=><Ic {...p} d={<path d="M6 9l6 6 6-6"/>}/>,
+  lock:     p=><Ic {...p} d={<><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></>}/>,
+  layers:   p=><Ic {...p} d={<><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></>}/>,
+  history:  p=><Ic {...p} d={<><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 4v4h4"/><path d="M12 8v4l3 2"/></>}/>,
+  dot:      p=><Ic {...p} d={<circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/>}/>,
+  plus:     p=><Ic {...p} d={<path d="M12 5v14M5 12h14"/>}/>,
+  file:     p=><Ic {...p} d={<><path d="M6 3h8l4 4v14H6z"/></>}/>,
+  bolt:     p=><Ic {...p} d={<path d="M13 2L4 14h6l-1 8 9-12h-6z"/>}/>,
+};
+
+/* ------------------------------------------------------------------ TRUST DESIGN TOKENS */
+// The four layers are the heart of the trust system. Each is visually distinct.
+const LAYER = {
+  FACT:          { label:"Fact",          desc:"What a source states",            fg:"text-indigo-700", bg:"bg-indigo-50",  ring:"ring-indigo-100",  bar:"bg-indigo-500" },
+  INSIGHT:       { label:"Insight",       desc:"A pattern across sources",         fg:"text-emerald-700",bg:"bg-emerald-50", ring:"ring-emerald-100", bar:"bg-emerald-600" },
+  INTERPRETATION:{ label:"Interpretation",desc:"What it may mean",                 fg:"text-amber-700",  bg:"bg-amber-50",   ring:"ring-amber-100",   bar:"bg-amber-500" },
+  RECOMMENDATION:{ label:"Recommendation",desc:"What the AI advises — you decide", fg:"text-ink",        bg:"bg-slate-100",  ring:"ring-slate-200",   bar:"bg-slate-800" },
+};
+const CONF = {
+  high:     { label:"High confidence",     dots:3, fg:"text-emerald-700", bg:"bg-emerald-50", dot:"bg-emerald-600" },
+  moderate: { label:"Moderate confidence", dots:2, fg:"text-amber-700",   bg:"bg-amber-50",   dot:"bg-amber-500" },
+  low:      { label:"Low confidence",      dots:1, fg:"text-rose-600",    bg:"bg-rose-50",    dot:"bg-rose-600" },
+};
+const cx = (...a) => a.filter(Boolean).join(" ");
+
+/* Source panel context — any citation, anywhere, opens the same slide-over. */
+const SourceCtx = createContext(null);
+const useSource = () => useContext(SourceCtx);
+
+/* ------------------------------------------------------------------ PRIMITIVES */
+function Button({children, onClick, variant="primary", size="md", icon, iconRight, disabled, className}) {
+  const base="inline-flex items-center gap-2 font-semibold rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap";
+  const sizes={ sm:"text-[13px] px-3 py-1.5", md:"text-sm px-4 py-2.5", lg:"text-[15px] px-5 py-3" };
+  const variants={
+    primary:"bg-indigo-600 text-white shadow-card hover:bg-indigo-700 hover:shadow-lift active:translate-y-px",
+    soft:"bg-indigo-50 text-indigo-700 hover:bg-indigo-100",
+    ghost:"text-ink-soft hover:bg-slate-100",
+    outline:"border border-line text-ink-soft bg-white hover:bg-slate-50 hover:border-slate-300",
+    emerald:"bg-emerald-600 text-white shadow-card hover:bg-emerald-700 hover:shadow-lift active:translate-y-px",
+    danger:"border border-rose-200 text-rose-600 bg-white hover:bg-rose-50",
+  };
+  return <button onClick={onClick} disabled={disabled} className={cx(base,sizes[size],variants[variant],className)}>
+    {icon && <span className="-ml-0.5">{icon}</span>}{children}{iconRight && <span className="-mr-0.5">{iconRight}</span>}
+  </button>;
+}
+
+function LayerBadge({layer, size="sm"}) {
+  const L=LAYER[layer]; if(!L) return null;
+  return <span className={cx("inline-flex items-center gap-1.5 rounded-md font-bold tracking-wide uppercase ring-1",
+    L.fg, L.bg, L.ring, size==="xs"?"text-[9.5px] px-1.5 py-0.5":"text-[10px] px-2 py-0.5")}>
+    <span className={cx("w-1.5 h-1.5 rounded-full", L.bar)}></span>{L.label}
+  </span>;
+}
+
+// Confidence is never a magic number. Hover/click reveals exactly what earned the score.
+function ConfidenceBadge({level, why, align="left"}) {
+  const C=CONF[level]; const [open,setOpen]=useState(false);
+  const points = why && why.points ? why.points : null;
+  const legacy = typeof why === "string" ? why : null;
+  return <span className="relative inline-flex" onMouseEnter={()=>setOpen(true)} onMouseLeave={()=>setOpen(false)}>
+    <button onClick={()=>setOpen(o=>!o)}
+      className={cx("inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold transition", C.fg, C.bg)}>
+      <span className="flex gap-0.5">{[0,1,2].map(i=><span key={i} className={cx("w-1.5 h-1.5 rounded-full", i<C.dots?C.dot:"bg-slate-300")}/>)}</span>
+      {C.label}
+    </button>
+    {open && (points||legacy) && <div className={cx("absolute z-40 bottom-full mb-2 w-[300px] rounded-2xl bg-ink text-white shadow-pop animate-fadein overflow-hidden", align==="right"?"right-0":"left-0")}>
+      <div className="px-4 pt-3.5 pb-2.5 flex items-center gap-2 border-b border-white/10">
+        <span className="flex gap-0.5">{[0,1,2].map(i=><span key={i} className={cx("w-2 h-2 rounded-full", i<C.dots?C.dot:"bg-white/20")}/>)}</span>
+        <span className="font-bold text-[13px]">{C.label}</span>
+      </div>
+      {points ? <div className="px-4 py-3">
+        <div className="text-[9.5px] font-bold uppercase tracking-wider text-white/45 mb-2">
+          {level==="low"?"Based on":"Supported by"}</div>
+        <div className="space-y-1.5">
+          {points.map((p,i)=><div key={i} className="flex items-start gap-2 text-[12.5px] leading-snug">
+            <span className={cx("mt-0.5 shrink-0", p.ok?"text-emerald-400":"text-amber-400")}>
+              {p.ok? <Icon.check size={13}/> : <Icon.gap size={13}/>}</span>
+            <span className={p.ok?"text-white/90":"text-white/60"}>{p.text}</span>
+          </div>)}
+        </div>
+      </div> : <div className="px-4 py-3 text-[12.5px] leading-relaxed text-white/85">{legacy}</div>}
+      <div className={cx("absolute -bottom-1 w-2.5 h-2.5 bg-ink rotate-45", align==="right"?"right-6":"left-6")}/>
+    </div>}
+  </span>;
+}
+
+function CitationChip({id}) {
+  const c=CITATIONS[id]; const src=useSource(); if(!c) return null;
+  return <button onClick={()=>src.open(id)}
+    className="group inline-flex items-center gap-1 align-middle rounded-md bg-white border border-line px-1.5 py-0.5 text-[11px] font-semibold text-ink-mute hover:text-indigo-700 hover:border-indigo-200 hover:bg-indigo-50 transition">
+    <span className="text-indigo-500 group-hover:text-indigo-700"><Icon.quote size={11}/></span>{c.label}
+  </button>;
+}
+function Cites({ids}) { return <span className="inline-flex flex-wrap gap-1 items-center align-middle">{ids.map(id=><CitationChip key={id} id={id}/>)}</span>; }
+
+function Card({children, className, pad="p-5"}) {
+  return <div className={cx("bg-white rounded-2xl border border-line shadow-card", pad, className)}>{children}</div>;
+}
+function Tag({children, tone="slate"}) {
+  const t={ slate:"bg-slate-100 text-ink-soft", indigo:"bg-indigo-50 text-indigo-700", emerald:"bg-emerald-50 text-emerald-700",
+            amber:"bg-amber-50 text-amber-700", rose:"bg-rose-50 text-rose-600" }[tone];
+  return <span className={cx("inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold", t)}>{children}</span>;
+}
+
+/* The global source slide-over: the trust primitive. */
+function SourcePanel({cite, onClose}) {
+  return <div className="fixed inset-0 z-50">
+    <div className="absolute inset-0 bg-ink/25 backdrop-blur-[2px] animate-fadein" onClick={onClose}/>
+    <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-pop animate-slidein flex flex-col">
+      <div className="px-6 py-5 border-b border-line flex items-start gap-3">
+        <div className="mt-0.5 text-indigo-600"><Icon.doc size={20}/></div>
+        <div className="flex-1 min-w-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">Original source · verify</div>
+          <div className="font-bold text-[15px] leading-snug mt-0.5">{cite.doc}</div>
+          <div className="text-[12px] text-ink-mute mt-0.5 flex items-center gap-1.5">
+            <Tag tone={cite.kind==="quant"?"indigo":"emerald"}>{cite.kind==="quant"?"Quantitative":"Qualitative"}</Tag>· {cite.loc}
+          </div>
+        </div>
+        <button onClick={onClose} className="text-ink-mute hover:text-ink hover:bg-slate-100 rounded-lg p-1.5"><Icon.x size={18}/></button>
+      </div>
+      <div className="flex-1 overflow-y-auto p-6">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-2">Cited passage</div>
+        <div className="relative rounded-xl border border-indigo-100 bg-indigo-50/50 p-4">
+          <div className="absolute -left-px top-4 bottom-4 w-1 rounded-full bg-indigo-500"/>
+          <p className="text-[15px] leading-relaxed text-ink pl-3">{cite.snippet}</p>
+        </div>
+        <div className="mt-3 text-[12px] text-ink-mute flex items-center gap-2"><Icon.shield size={14} cls="text-emerald-600"/>{cite.meta}</div>
+        {/* Mock document render */}
+        <div className="mt-6 text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-2">In context · {cite.loc}</div>
+        <div className="rounded-xl border border-line overflow-hidden">
+          <div className="bg-slate-50 border-b border-line px-4 py-2 text-[11px] font-semibold text-ink-mute flex items-center justify-between">
+            <span>{cite.doc}</span><span>{cite.loc}</span></div>
+          <div className="p-4 space-y-2">
+            {[0,1,2].map(i=><div key={i} className="h-2.5 rounded bg-slate-100" style={{width:`${[92,78,85][i]}%`}}/>)}
+            <div className="h-2.5 rounded bg-indigo-200" style={{width:"96%"}}/>
+            <div className="h-2.5 rounded bg-indigo-200" style={{width:"64%"}}/>
+            {[0,1].map(i=><div key={i} className="h-2.5 rounded bg-slate-100" style={{width:`${[88,71][i]}%`}}/>)}
+          </div>
+        </div>
+      </div>
+      <div className="px-6 py-4 border-t border-line bg-slate-50/60 text-[12px] text-ink-mute flex items-center gap-2">
+        <Icon.shield size={14} cls="text-emerald-600"/> Every claim in BrandBrain links to a passage like this.
+      </div>
+    </div>
+  </div>;
+}
+
+/* A single trust-formatted statement: layer + text + confidence(why) + citations. Reused everywhere. */
+function TrustLine({layer, text, confidence, why, cites, className}) {
+  const L=LAYER[layer];
+  return <div className={cx("relative rounded-xl border border-line bg-white p-4 pl-5", className)}>
+    <span className={cx("absolute left-0 top-4 bottom-4 w-1 rounded-full", L?.bar)}/>
+    <div className="flex items-center gap-2 flex-wrap mb-2">
+      <LayerBadge layer={layer}/>
+      {confidence && <ConfidenceBadge level={confidence} why={why}/>}
+    </div>
+    <p className="text-[15px] leading-relaxed text-ink">{text}</p>
+    {cites && cites.length>0 && <div className="mt-2.5"><Cites ids={cites}/></div>}
+  </div>;
+}
+
+/* ------------------------------------------------------------------ ASK + SYNTHESIZER (HERO) */
+function TrendSparkline({series, labels, delta, sig}) {
+  const max=Math.max(...series);
+  return <div className="flex items-end gap-5">
+    <div className="flex items-end gap-3 h-20">
+      {series.map((v,i)=><div key={i} className="flex flex-col items-center gap-1.5 justify-end">
+        <div className="text-[12px] font-extrabold text-indigo-700">{v}%</div>
+        <div className="w-9 rounded-t-md barfill" style={{height:`${v/max*56}px`, background:i===series.length-1?"#4F46E5":"#C7D2FE", animationDelay:`${i*90}ms`}}/>
+        <div className="text-[10px] font-semibold text-ink-mute">{labels[i]}</div>
+      </div>)}
+    </div>
+    <div className="flex flex-col gap-1.5 pb-4">
+      <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 rounded-md px-2 py-1 text-[12px] font-bold w-fit"><Icon.trend size={13}/>{delta}</span>
+      <span className="text-[11px] font-semibold text-ink-mute">significant · {sig} confidence</span>
+    </div>
+  </div>;
+}
+
+function ContradictionCard({c}) {
+  return <div className="rounded-2xl border border-amber-200 bg-gradient-to-b from-amber-50/70 to-white overflow-hidden shadow-card">
+    <div className="px-5 pt-4 pb-3 flex items-center gap-2.5 border-b border-amber-100">
+      <span className="text-amber-600"><Icon.split size={18}/></span>
+      <div><div className="font-bold text-[15px] text-ink">The studies disagree — and it matters</div>
+        <div className="text-[12px] text-amber-700 font-semibold">{c.topic}</div></div>
+      <div className="ml-auto"><LayerBadge layer={c.layer}/></div>
+    </div>
+    <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-amber-100">
+      {[c.a,c.b].map((s,i)=><div key={i} className="p-5">
+        <div className={cx("inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider mb-2 rounded-md px-2 py-0.5",
+          s.method==="QUANT"?"text-indigo-700 bg-indigo-50":"text-emerald-700 bg-emerald-50")}>
+          <span className={cx("w-1.5 h-1.5 rounded-full", s.method==="QUANT"?"bg-indigo-500":"bg-emerald-600")}/>{s.method}</div>
+        <p className="text-[14.5px] leading-relaxed text-ink">{s.claim}</p>
+        <div className="mt-2.5 flex items-center gap-2"><span className="text-[11px] text-ink-mute font-medium">{s.source}</span><CitationChip id={s.cite}/></div>
+      </div>)}
+    </div>
+    <div className="px-5 py-4 bg-white/70 border-t border-amber-100">
+      <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Why we don't average this away</div>
+      <p className="text-[13.5px] leading-relaxed text-ink-soft">{c.why}</p>
+    </div>
+  </div>;
+}
+
+function SectionHead({n, title, sub, icon}) {
+  return <div className="flex items-center gap-3 mb-3">
+    <div className="w-7 h-7 rounded-lg bg-slate-100 text-ink-soft grid place-items-center font-bold text-[13px]">{icon||n}</div>
+    <div><div className="font-bold text-[16px] tracking-[-.01em]">{title}</div>{sub && <div className="text-[12px] text-ink-mute">{sub}</div>}</div>
+  </div>;
+}
+
+// Recommendation with a full "Why this recommendation?" reasoning trail. No black boxes.
+function RecommendationCard({rec}) {
+  const [open,setOpen]=useState(false);
+  const e=rec.explain||{};
+  const Block=({title, tone, children})=><div>
+    <div className={cx("text-[10px] font-bold uppercase tracking-wider mb-1.5", tone||"text-ink-faint")}>{title}</div>{children}</div>;
+  return <div className="rounded-2xl border-2 border-slate-200 bg-white shadow-card overflow-hidden">
+    <div className="p-6">
+      <div className="flex items-center gap-2 mb-3"><LayerBadge layer="RECOMMENDATION"/><ConfidenceBadge level={rec.confidence} why={rec.why}/></div>
+      <p className="text-[16px] leading-relaxed text-ink font-medium">{rec.text}</p>
+      <div className="mt-3"><Cites ids={rec.cites}/></div>
+      <button onClick={()=>setOpen(o=>!o)}
+        className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-indigo-700 hover:text-indigo-800 transition">
+        <Icon.shield size={15}/> Why this recommendation?
+        <span className={cx("transition-transform", open&&"rotate-90")}><Icon.chevron size={14}/></span>
+      </button>
+    </div>
+    {open && <div className="border-t border-line bg-slate-50/60 p-6 space-y-5 animate-fadein">
+      <Block title="Reasoning chain">
+        <ol className="space-y-2">{e.reasoning?.map((r,i)=><li key={i} className="flex gap-2.5 text-[13.5px] leading-relaxed text-ink-soft">
+          <span className="shrink-0 w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 grid place-items-center text-[11px] font-bold">{i+1}</span>{r}</li>)}</ol>
+      </Block>
+      <Block title="Supporting evidence">
+        <div className="space-y-1.5">{e.evidence?.map((ev,i)=><div key={i} className="flex items-start gap-2 text-[13.5px] text-ink-soft">
+          <span className="text-emerald-600 mt-0.5 shrink-0"><Icon.check size={14}/></span>
+          <span>{ev.text} <span className="inline-flex ml-1 align-middle"><Cites ids={ev.cites}/></span></span></div>)}</div>
+      </Block>
+      <div className="grid sm:grid-cols-2 gap-5">
+        <Block title="Supporting studies">
+          <div className="space-y-1">{e.studies?.map((s,i)=><div key={i} className="flex items-center gap-2 text-[13px] text-ink-soft"><span className="text-ink-faint"><Icon.doc size={13}/></span>{s}</div>)}</div>
+        </Block>
+        <Block title="Contradictory findings" tone="text-amber-700">
+          <div className="space-y-1.5">{e.contradictions?.map((c,i)=><div key={i} className="flex items-start gap-2 text-[13px] text-ink-soft"><span className="text-amber-600 mt-0.5 shrink-0"><Icon.split size={13}/></span>{c}</div>)}</div>
+        </Block>
+      </div>
+      <Block title="Alternatives considered">
+        <div className="space-y-1.5">{e.alternatives?.map((a,i)=><div key={i} className="flex items-start gap-2 text-[13px] text-ink-soft"><span className="text-ink-faint mt-0.5 shrink-0"><Icon.gap size={13}/></span>{a}</div>)}</div>
+      </Block>
+    </div>}
+  </div>;
+}
+
+// Suggested follow-ups. Clicking appends a concise, cited answer — a conversation, not a search.
+function FollowUps({items}) {
+  const [opened,setOpened]=useState([]);
+  const toggle=(id)=>setOpened(o=>o.includes(id)?o.filter(x=>x!==id):[...o,id]);
+  return <div>
+    <div className="flex flex-wrap gap-2">
+      {items.map(f=>{ const on=opened.includes(f.id);
+        return <button key={f.id} onClick={()=>toggle(f.id)}
+          className={cx("inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13px] font-medium transition",
+            on?"border-indigo-300 bg-indigo-50 text-indigo-700":"border-line bg-white text-ink-soft hover:border-indigo-200 hover:bg-indigo-50/40")}>
+          <span className={on?"text-indigo-600":"text-ink-faint"}>{on? <Icon.check size={14}/> : <Icon.arrow size={14}/>}</span>{f.q}</button>;})}
+    </div>
+    <div className="mt-3 space-y-2.5">
+      {items.filter(f=>opened.includes(f.id)).map(f=><div key={f.id} className="rounded-xl border border-line bg-white p-4 animate-fadeup">
+        <div className="text-[13px] font-semibold text-ink-mute mb-2 flex items-center gap-1.5"><Icon.ask size={14} cls="text-indigo-500"/>{f.q}</div>
+        <div className="flex items-center gap-2 mb-2"><LayerBadge layer={f.a.layer} size="xs"/></div>
+        <p className="text-[14.5px] leading-relaxed text-ink">{f.a.text}</p>
+        <div className="mt-2.5"><Cites ids={f.a.cites}/></div>
+      </div>)}
+    </div>
+  </div>;
+}
+
+function SynthesisView({data, onApprove, published}) {
+  return <div className="max-w-3xl mx-auto pb-40">
+    {/* the question, restated calmly */}
+    <div className="flex items-start gap-3 mb-6 animate-fadeup">
+      <div className="mt-1 w-9 h-9 rounded-xl bg-indigo-600 text-white grid place-items-center shadow-card shrink-0"><Icon.ask size={18}/></div>
+      <div><div className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">Your question</div>
+        <div className="text-[19px] font-bold tracking-[-.02em] text-ink leading-snug">{data.question}</div></div>
+    </div>
+
+    {/* Executive summary — the leadership headline */}
+    <div className="relative rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50/80 via-white to-emerald-50/40 p-6 shadow-card animate-fadeup">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-700 flex items-center gap-1.5"><Icon.sparkles size={14}/>Executive summary</span>
+        <div className="ml-auto flex items-center gap-2"><LayerBadge layer={data.summary.layer}/><ConfidenceBadge level={data.summary.confidence} why={data.summary.why}/></div>
+      </div>
+      <p className="text-[18px] leading-relaxed font-medium text-ink tracking-[-.01em]">{data.summary.text}</p>
+      <div className="mt-4 flex flex-wrap items-center gap-2"><Cites ids={data.summary.cites}/></div>
+      <div className="mt-5 pt-5 border-t border-indigo-100/70"><TrendSparkline {...data.summary.trend}/></div>
+    </div>
+
+    {/* 1 · Agreements */}
+    <div className="mt-8 animate-fadeup">
+      <SectionHead n="1" title="What multiple studies agree on" sub="Findings that hold across methods and suppliers"/>
+      <div className="space-y-3 stagger">
+        {data.agreements.map((a,i)=><TrustLine key={i} {...a} why={a.why}/>)}
+      </div>
+    </div>
+
+    {/* 2 · Contradiction — the money moment */}
+    <div className="mt-8 animate-fadeup">
+      <SectionHead n="2" title="Where the evidence disagrees" sub="Preserved, not averaged — this is the decision to make"/>
+      <ContradictionCard c={data.contradiction}/>
+    </div>
+
+    {/* 3 · Evidence gaps */}
+    <div className="mt-8 animate-fadeup">
+      <SectionHead n="3" title="What we still don't know" sub="Named honestly, with the study that would close it"/>
+      <div className="space-y-3">
+        {data.gaps.map((g,i)=><div key={i} className="rounded-xl border border-line bg-white p-4 flex gap-3">
+          <span className={cx("mt-0.5 shrink-0", g.severity==="high"?"text-rose-600":"text-amber-600")}><Icon.gap size={18}/></span>
+          <div className="flex-1">
+            <p className="text-[14.5px] leading-relaxed text-ink">{g.text}</p>
+            <div className="mt-2.5 flex items-center gap-2 flex-wrap">
+              {g.cites && <Cites ids={g.cites}/>}
+              <button className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg px-2.5 py-1 transition"><Icon.plus size={13}/>{g.action}</button>
+            </div>
+          </div>
+        </div>)}
+      </div>
+    </div>
+
+    {/* 4 · Recommended next action */}
+    <div className="mt-8 animate-fadeup">
+      <SectionHead n="4" title="Recommended next action" sub="Clearly the AI's advice — you decide"/>
+      <RecommendationCard rec={data.recommendation}/>
+    </div>
+
+    {/* Suggested follow-ups — an intelligent strategist, not a search box */}
+    <div className="mt-8 animate-fadeup">
+      <SectionHead title="Keep thinking with it" sub="Where a Brand Director usually goes next" icon={<Icon.sparkles size={15}/>}/>
+      <FollowUps items={data.followups}/>
+    </div>
+
+    {/* trust footer */}
+    <div className="mt-8 flex items-center gap-2 text-[12px] text-ink-mute justify-center">
+      <Icon.shield size={14} cls="text-emerald-600"/> AI-drafted from your governed estate · every statement is labeled, scored, and cited · review before sharing.
+    </div>
+
+    <PublishBar published={published} onReview={onApprove}/>
+  </div>;
+}
+
+/* Sticky bar: turn the synthesis into permanent brand memory. */
+function PublishBar({published, onReview}) {
+  return <div className="fixed bottom-0 left-[248px] right-0 z-30 pointer-events-none">
+    <div className="max-w-3xl mx-auto px-6 pb-5">
+      <div className="pointer-events-auto rounded-2xl bg-ink text-white shadow-pop px-5 py-3.5 flex items-center gap-4 animate-fadeup">
+        {published ? <>
+          <span className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 grid place-items-center shrink-0"><Icon.checkc size={20}/></span>
+          <div className="flex-1"><div className="font-bold text-[14px]">Published to the Brand Brain · v2</div>
+            <div className="text-[12px] text-white/60">Now part of what {BRAND.name} knows — readable by every future answer.</div></div>
+          <Button variant="soft" size="sm" onClick={onReview} iconRight={<Icon.arrow size={15}/>}>View in Brand Brain</Button>
+        </> : <>
+          <span className="w-9 h-9 rounded-xl bg-white/10 grid place-items-center shrink-0"><Icon.brain size={20}/></span>
+          <div className="flex-1"><div className="font-bold text-[14px]">Make this your brand's memory?</div>
+            <div className="text-[12px] text-white/60">Approve it into the Brand Brain — cited, versioned, and governed.</div></div>
+          <Button variant="emerald" size="sm" onClick={onReview} icon={<Icon.check size={15}/>}>Review &amp; publish</Button>
+        </>}
+      </div>
+    </div>
+  </div>;
+}
+
+/* The calm review gate. Human decides; machine checks are shown passing. */
+function ReviewModal({onApprove, onReject, onClose}) {
+  return <div className="fixed inset-0 z-50 grid place-items-center px-4">
+    <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px] animate-fadein" onClick={onClose}/>
+    <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-pop animate-fadeup overflow-hidden">
+      <div className="px-6 pt-5 pb-4 border-b border-line">
+        <div className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">Review before it becomes brand truth</div>
+        <div className="text-[18px] font-bold tracking-[-.01em] mt-1">Publish to “Switching Drivers — What We Know”</div>
+        <div className="text-[13px] text-ink-mute mt-1">You are the reviewer. Nothing enters the Brand Brain until you approve.</div>
+      </div>
+      <div className="px-6 py-5">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-2">What will be written</div>
+        <div className="rounded-xl border border-line divide-y divide-line">
+          <div className="p-3 flex gap-2 items-start"><span className="text-emerald-600 mt-0.5"><Icon.plus size={14}/></span>
+            <span className="text-[13.5px] text-ink">Driver hierarchy is <b>unresolved</b>: stated non-daily preference (54%, quant) vs. weight-gain concern (decisive, qual).</span></div>
+          <div className="p-3 flex gap-2 items-start"><span className="text-emerald-600 mt-0.5"><Icon.plus size={14}/></span>
+            <span className="text-[13.5px] text-ink">Open question added: <b>payer / HEOR-vs-LAI research</b> recommended before strategy locks.</span></div>
+        </div>
+        <div className="mt-4 text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-2">Automatic checks</div>
+        <div className="space-y-1.5">
+          {["Locked-claim guard — 1 locked claim preserved verbatim","Citations preserved — 6 kept · 2 added · none lost","Brand-isolated — NUVEXA only"].map((c,i)=>
+            <div key={i} className="flex items-center gap-2 text-[13px] text-ink-soft"><span className="text-emerald-600"><Icon.checkc size={15}/></span>{c}</div>)}
+        </div>
+      </div>
+      <div className="px-6 py-4 border-t border-line bg-slate-50/60 flex items-center gap-3">
+        <span className="text-[11.5px] text-ink-mute flex-1 flex items-center gap-1.5"><Icon.shield size={13} cls="text-emerald-600"/>Every decision is logged with your name.</span>
+        <Button variant="danger" size="sm" onClick={onReject} icon={<Icon.x size={14}/>}>Reject</Button>
+        <Button variant="emerald" size="sm" onClick={onApprove} icon={<Icon.check size={14}/>}>Approve &amp; publish</Button>
+      </div>
+    </div>
+  </div>;
+}
+
+/* ------------------------------------------------------------------ LIBRARY */
+function ScreenHeader({title, sub, right}) {
+  return <div className="flex items-end justify-between gap-4 mb-7">
+    <div><h1 className="text-[24px] font-extrabold tracking-[-.03em] text-ink">{title}</h1>
+      <p className="text-[14px] text-ink-mute mt-1 max-w-xl leading-relaxed">{sub}</p></div>
+    {right}
+  </div>;
+}
+
+function LibraryScreen({app}) {
+  const [phase,setPhase]=useState(app.uploaded?"added":"idle"); // idle | parsing | detected | added
+  const [pstep,setPstep]=useState(0);
+  const [query,setQuery]=useState("");
+  const [searched,setSearched]=useState(false);
+  const PSTEPS=["Reading the document","Extracting atomic evidence (14 pages)","Detecting study metadata"];
+
+  const startParse=()=>{ setPhase("parsing"); setPstep(0);
+    let i=0; const t=setInterval(()=>{ i++; setPstep(i); if(i>=PSTEPS.length){ clearInterval(t); setTimeout(()=>setPhase("detected"),400);} },780); };
+  const confirm=()=>{ setPhase("added"); app.setUploaded(true); app.toast("Added to the estate · indexed and searchable"); };
+
+  return <div className="max-w-4xl mx-auto pb-24">
+    <ScreenHeader title="Library" sub="Your brand's governed evidence estate. Everything the AI reasons over — and nothing it hasn't."
+      right={<div className="text-[12px] text-ink-mute flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>{DOCUMENTS.length + (phase==="added"?1:0)} studies</div>}/>
+
+    {/* Upload / ingestion */}
+    {phase==="idle" && <button onClick={startParse}
+      className="group w-full rounded-2xl border-2 border-dashed border-line hover:border-indigo-300 hover:bg-indigo-50/30 transition p-8 flex flex-col items-center gap-2 text-center">
+      <span className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 grid place-items-center group-hover:scale-105 transition"><Icon.upload size={22}/></span>
+      <div className="font-bold text-[15px] text-ink mt-1">Drop new research here</div>
+      <div className="text-[13px] text-ink-mute">This morning's Meridian delivery is in your downloads · PDF, PPTX, DOCX, audio</div>
+    </button>}
+
+    {phase==="parsing" && <Card pad="p-6" className="animate-fadeup">
+      <div className="flex items-center gap-3 mb-4"><span className="text-indigo-600"><Icon.file size={18}/></span>
+        <div className="font-bold text-[14.5px]">{UPLOAD_DOC.name}</div>
+        <span className="ml-auto text-[12px] text-ink-mute">{UPLOAD_DOC.sizeMB} MB · {UPLOAD_DOC.pages} pages</span></div>
+      <div className="space-y-2.5">
+        {PSTEPS.map((s,i)=><div key={i} className={cx("flex items-center gap-3 text-[13.5px] transition", i<=pstep?"text-ink":"text-ink-faint")}>
+          <span className="w-4 h-4">{i<pstep?<span className="text-emerald-600"><Icon.check size={16}/></span>
+            :i===pstep?<span className="block w-3.5 h-3.5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"/>
+            :<span className="block w-1.5 h-1.5 rounded-full bg-slate-300 ml-1"/>}</span>
+          <span className={i===pstep?"font-medium":""}>{s}</span></div>)}
+      </div>
+    </Card>}
+
+    {phase==="detected" && <Card pad="p-6" className="animate-fadeup">
+      <div className="flex items-center gap-2 mb-1"><span className="text-emerald-600"><Icon.sparkles size={16}/></span>
+        <div className="font-bold text-[15px]">Detected — please confirm</div></div>
+      <p className="text-[13px] text-ink-mute mb-4">The AI proposes; a human confirms. Nothing enters the estate unreviewed.</p>
+      <div className="grid grid-cols-2 gap-2.5">
+        {Object.entries(UPLOAD_DOC.detected).map(([k,v])=><div key={k} className="rounded-xl border border-line p-3">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint flex items-center gap-1">
+            <span className="text-indigo-500"><Icon.sparkles size={11}/></span>Auto-detected</div>
+          <div className="text-[11px] text-ink-mute mt-1">{k}</div><div className="font-bold text-[14px] text-ink">{v}</div></div>)}
+      </div>
+      <div className="mt-4 flex justify-end gap-2">
+        <Button variant="outline" size="sm" onClick={()=>setPhase("idle")}>Cancel</Button>
+        <Button variant="emerald" size="sm" onClick={confirm} icon={<Icon.check size={15}/>}>Confirm &amp; add to estate</Button>
+      </div>
+    </Card>}
+
+    {phase==="added" && <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 flex items-center gap-3 animate-fadeup">
+      <span className="text-emerald-600"><Icon.checkc size={20}/></span>
+      <div className="flex-1"><div className="font-bold text-[14px] text-ink">{UPLOAD_DOC.name}</div>
+        <div className="text-[12px] text-ink-mute">Indexed · searchable across the estate · passed the metadata gate</div></div>
+      <Button variant="soft" size="sm" onClick={()=>app.go("ask")} iconRight={<Icon.arrow size={14}/>}>Ask a question</Button>
+    </div>}
+
+    {/* Evidence search — Perplexity for internal pharma knowledge */}
+    <div className="mt-9">
+      <div className="flex items-center gap-2 mb-3"><span className="text-ink-soft"><Icon.search size={16}/></span>
+        <div className="font-bold text-[15px]">Search the evidence</div>
+        <span className="ml-auto text-[11px] text-ink-faint">every hit is citation-stamped</span></div>
+      <div className="flex items-center gap-3 bg-white border border-line rounded-xl shadow-card px-4 py-3 focus-within:border-indigo-300 focus-within:ring-4 focus-within:ring-indigo-50 transition">
+        <span className="text-ink-faint"><Icon.search size={18}/></span>
+        <input value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")setSearched(true);}}
+          placeholder="e.g. switching drivers" className="flex-1 bg-transparent outline-none text-[15px] placeholder:text-ink-faint"/>
+        <Button size="sm" onClick={()=>setSearched(true)}>Search</Button>
+      </div>
+      {!searched && <div className="mt-3"><button onClick={()=>{setQuery("switching drivers");setSearched(true);}}
+        className="text-[13px] text-ink-mute hover:text-indigo-700 inline-flex items-center gap-1.5"><Icon.clock size={13}/>Try “switching drivers”</button></div>}
+      {searched && <div className="mt-4 space-y-2.5 stagger">
+        {SEARCH_RESULTS.map(r=><SearchResult key={r.id} r={r}/>)}
+      </div>}
+    </div>
+
+    {/* Estate list */}
+    <div className="mt-9">
+      <div className="font-bold text-[15px] mb-3">In the estate</div>
+      <Card pad="p-2">
+        {DOCUMENTS.map((d,i)=><div key={d.id} className={cx("flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-50 transition", i<DOCUMENTS.length-1&&"border-b border-line")}>
+          <span className={cx("w-9 h-9 rounded-lg grid place-items-center shrink-0",
+            d.color==="indigo"?"bg-indigo-50 text-indigo-600":d.color==="emerald"?"bg-emerald-50 text-emerald-600":"bg-slate-100 text-ink-soft")}><Icon.doc size={17}/></span>
+          <div className="flex-1 min-w-0"><div className="font-semibold text-[14px] text-ink truncate">{d.name}</div>
+            <div className="text-[12px] text-ink-mute">{d.type} · {d.meta}</div></div>
+          <span className="text-[11px] text-emerald-700 bg-emerald-50 rounded-md px-2 py-0.5 font-semibold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>Ready</span>
+        </div>)}
+      </Card>
+    </div>
+  </div>;
+}
+
+function SearchResult({r}) {
+  const src=useSource();
+  const map={ s1:"c1", s2:"c2", s3:"c3", s4:"c4" }; // link snippet -> citation source
+  return <div className="rounded-xl border border-line bg-white p-4 hover:shadow-card transition">
+    <div className="flex items-start gap-3">
+      <span className={cx("mt-0.5 shrink-0", r.color==="indigo"?"text-indigo-600":r.color==="emerald"?"text-emerald-600":"text-ink-soft")}><Icon.quote size={16}/></span>
+      <div className="flex-1">
+        <p className="text-[15px] leading-relaxed text-ink">{r.quote}</p>
+        <div className="mt-2.5 flex items-center gap-2 flex-wrap">
+          <LayerBadge layer={r.type} size="xs"/>
+          <button onClick={()=>src.open(map[r.id])}
+            className="inline-flex items-center gap-1 rounded-md bg-slate-50 border border-line px-2 py-0.5 text-[11px] font-semibold text-ink-mute hover:text-indigo-700 hover:border-indigo-200 transition">
+            <Icon.doc size={11}/> {r.src} · {r.loc}</button>
+        </div>
+      </div>
+    </div>
+  </div>;
+}
+
+/* ------------------------------------------------------------------ BRAND PULSE */
+function PulseScreen({app}) {
+  const toneMap={ amber:{bg:"bg-amber-50",fg:"text-amber-700",dot:"bg-amber-500"}, indigo:{bg:"bg-indigo-50",fg:"text-indigo-700",dot:"bg-indigo-500"}, rose:{bg:"bg-rose-50",fg:"text-rose-600",dot:"bg-rose-600"} };
+  return <div className="max-w-2xl mx-auto pb-24">
+    <ScreenHeader title="Brand Pulse" sub="What changed this week — and whether you should care. Nothing to configure; it just tells you."/>
+    <Card pad="p-6" className="animate-fadeup">
+      <div className="flex items-center gap-2 text-[12px] text-ink-mute font-semibold"><Icon.clock size={14}/>{PULSE.week}</div>
+      <p className="text-[19px] font-bold tracking-[-.02em] text-ink leading-snug mt-3">{PULSE.headline}</p>
+      <div className="mt-5 space-y-3">
+        {PULSE.items.map((it,i)=>{ const t=toneMap[it.tone]; const PIc=Icon[it.icon]; return <div key={i} className="flex gap-3.5 items-start rounded-xl border border-line p-4">
+          <span className={cx("w-9 h-9 rounded-xl grid place-items-center shrink-0", t.bg, t.fg)}><PIc size={18}/></span>
+          <div className="flex-1"><div className="font-bold text-[14.5px] text-ink">{it.title}</div>
+            <div className="text-[13.5px] text-ink-soft leading-relaxed mt-0.5">{it.body}</div>
+            <div className="mt-2"><CitationChip id={it.cite}/></div></div>
+        </div>;})}
+      </div>
+      <div className="mt-5 pt-4 border-t border-line flex items-center gap-3">
+        <span className="text-[12px] text-ink-mute flex-1">The full picture is one question away.</span>
+        <Button size="sm" onClick={()=>app.go("ask")} iconRight={<Icon.arrow size={14}/>}>Ask about switching</Button>
+      </div>
+    </Card>
+  </div>;
+}
+
+/* ------------------------------------------------------------------ BRAND BRAIN */
+// Animated number — used for the confidence lift, so the jump is felt, not just read.
+function CountUp({from, to, dur=1100, suffix="%"}) {
+  const [v,setV]=useState(from); const raf=useRef(null);
+  useEffect(()=>{ const t0=performance.now();
+    const tick=(t)=>{ const p=Math.min(1,(t-t0)/dur); const eased=1-Math.pow(1-p,3);
+      setV(Math.round(from+(to-from)*eased)); if(p<1) raf.current=requestAnimationFrame(tick); };
+    raf.current=requestAnimationFrame(tick); return ()=>cancelAnimationFrame(raf.current);
+  },[from,to,dur]);
+  return <span>{v}{suffix}</span>;
+}
+
+// Shown the instant an insight is published — the Brain visibly evolves.
+function ActivityFeed({onOpenTimeline}) {
+  return <div className="mb-5 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50/80 to-white p-5 shadow-card animate-fadeup">
+    <div className="flex items-center gap-2.5 mb-3">
+      <span className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 grid place-items-center"><Icon.checkc size={18}/></span>
+      <div className="font-bold text-[15px] text-ink">Brand Brain updated</div>
+      <span className="ml-auto text-[11px] text-emerald-700 font-semibold">just now</span>
+    </div>
+    <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2">
+      {ACTIVITY.changes.map((c,i)=>{ const CIc=Icon[c.icon]; return <div key={i} className="flex items-center gap-2 text-[13.5px] text-ink-soft">
+        <span className="text-emerald-600 shrink-0"><Icon.check size={14}/></span><span className="flex-1">{c.text}</span></div>;})}
+      <div className="flex items-center gap-2 text-[13.5px] text-ink-soft">
+        <span className="text-emerald-600 shrink-0"><Icon.trend size={14}/></span>
+        <span>Confidence improved
+          <b className="text-ink"> {ACTIVITY.conf.from}%</b> <span className="text-ink-faint">→</span>
+          <b className="text-emerald-700"> <CountUp from={ACTIVITY.conf.from} to={ACTIVITY.conf.to}/></b></span>
+      </div>
+    </div>
+  </div>;
+}
+
+// A living institutional memory — knowledge accreting month over month, confidence compounding.
+// Honest: the "NOW" month only appears once the user has actually published today's insight.
+function BrainTimeline({published}) {
+  const tonec={ slate:"bg-slate-400", indigo:"bg-indigo-500", amber:"bg-amber-500", emerald:"bg-emerald-600" };
+  const months = BRAIN_TIMELINE.filter(m=>published || !m.live);
+  return <Card pad="p-6" className="mt-8">
+    <div className="flex items-center gap-2 mb-1"><span className="text-ink-soft"><Icon.history size={16}/></span>
+      <div className="font-bold text-[15px]">How this knowledge evolved</div>
+      <span className="ml-auto text-[11px] text-ink-faint">a living memory, not a static file</span></div>
+    <p className="text-[12.5px] text-ink-mute mb-5">Each month, new evidence sharpened what {BRAND.name} knows — and the confidence behind it.</p>
+    <div className="relative pl-6">
+      <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-slate-200 via-amber-200 to-emerald-300"/>
+      {months.map((m,i)=><div key={m.month} className="relative mb-6 last:mb-0">
+        <span className={cx("absolute -left-[22px] top-1 w-4 h-4 rounded-full border-2 border-white shadow", tonec[m.tone], m.live&&"ring-4 ring-emerald-100")}/>
+        <div className="flex items-center gap-2.5">
+          <span className="font-extrabold text-[14px] tracking-[-.01em]">{m.month}</span>
+          <span className={cx("text-[11px] font-bold rounded-md px-2 py-0.5",
+            m.tone==="emerald"?"bg-emerald-50 text-emerald-700":m.tone==="amber"?"bg-amber-50 text-amber-700":m.tone==="indigo"?"bg-indigo-50 text-indigo-700":"bg-slate-100 text-ink-mute")}>
+            confidence {m.conf}%</span>
+          {m.live && <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 rounded px-1.5 py-0.5 flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"/>NOW</span>}
+        </div>
+        <div className="mt-1.5 space-y-1">
+          {m.events.map((e,j)=>{ const EIc=Icon[e.icon]; return <div key={j} className="flex items-center gap-2 text-[13px] text-ink-soft">
+            <span className="text-ink-faint shrink-0"><EIc size={14}/></span>{e.text}</div>;})}
+        </div>
+      </div>)}
+    </div>
+  </Card>;
+}
+
+function BrandBrainScreen({app}) {
+  const [sel,setSel]=useState("bp-switch");
+  const page=BRAIN_PAGES[sel];
+  const isHero = sel==="bp-switch";
+  const published = app.published;
+  // v1 (pre-publish) shows a reduced body; v2 (published) shows the full body incl. the unresolved-driver insight.
+  const body = isHero && !published ? [page.body[0], page.body[2]] : page.body;
+  const version = isHero ? (published?2:1) : page.version;
+
+  return <div className="max-w-5xl mx-auto pb-24">
+    <ScreenHeader title="Brand Brain" sub="Everything your brand has decided is true — curated, cited, versioned. Read by every answer the AI gives."/>
+    <div className="grid grid-cols-[220px_1fr] gap-7">
+      {/* tree */}
+      <div className="space-y-4">
+        {BRAIN_SECTIONS.map(s=><div key={s.name}>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint px-2 mb-1">{s.name}</div>
+          {s.pages.map(pid=>{ const p=BRAIN_PAGES[pid]; const on=pid===sel;
+            return <button key={pid} onClick={()=>setSel(pid)} className={cx("w-full text-left px-2.5 py-2 rounded-lg text-[13px] font-medium transition flex items-center gap-2",
+              on?"bg-indigo-50 text-indigo-700 font-semibold":"text-ink-soft hover:bg-slate-50")}>
+              <span className="flex-1">{p.title}</span>
+              {pid==="bp-switch" && !published && <span className="w-1.5 h-1.5 rounded-full bg-amber-500" title="pending review"/>}
+              {p.thin && <span className="text-[9px] text-rose-600 font-bold">THIN</span>}
+            </button>;})}
+        </div>)}
+      </div>
+
+      {/* page */}
+      <div>
+        {isHero && published && <ActivityFeed/>}
+        {isHero && !published && <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50/70 p-3.5 flex items-center gap-3 animate-fadeup">
+          <span className="text-amber-600"><Icon.sparkles size={18}/></span>
+          <div className="flex-1"><div className="font-bold text-[13.5px] text-ink">1 insight awaiting your review</div>
+            <div className="text-[12px] text-amber-700">A synthesis proposed an update to this page.</div></div>
+          <Button variant="emerald" size="sm" onClick={app.openReview} icon={<Icon.check size={14}/>}>Review</Button>
+        </div>}
+
+        <Card pad="p-6">
+          <div className="flex items-start gap-3 border-b border-line pb-4 mb-4">
+            <div className="flex-1">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">{page.section}</div>
+              <h2 className="text-[20px] font-extrabold tracking-[-.02em] mt-0.5">{page.title}</h2>
+              <div className="text-[12px] text-ink-mute mt-1.5 flex items-center gap-3 flex-wrap">
+                <span className="inline-flex items-center gap-1"><Icon.layers size={13}/>v{version}</span>
+                <span className="inline-flex items-center gap-1"><Icon.clock size={13}/>{isHero?(published?"just now":"Jun 22"):page.updated}</span>
+                <span className="inline-flex items-center gap-1 text-emerald-700"><Icon.shield size={13}/>{body.reduce((n,b)=>n+(b.cites?b.cites.length:0),0)} citations</span>
+                {isHero && <span className={cx("inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-bold", published?"bg-emerald-50 text-emerald-700":"bg-amber-50 text-amber-700")}>
+                  <Icon.trend size={12}/>{published?"82%":"61%"} confidence</span>}
+              </div>
+            </div>
+            {published && isHero && <span className="text-[11px] text-emerald-700 bg-emerald-50 rounded-md px-2 py-1 font-bold flex items-center gap-1"><Icon.checkc size={13}/>Updated just now</span>}
+          </div>
+          <div className="space-y-3">
+            {body.map((b,i)=><TrustLine key={i} layer={b.layer} text={b.text} cites={b.cites}/>)}
+          </div>
+          {page.openQ && (published||!isHero) && <div className="mt-4 rounded-xl border border-dashed border-indigo-200 bg-indigo-50/40 p-4">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 mb-1">Open question</div>
+            <p className="text-[13.5px] text-ink-soft leading-relaxed">{page.openQ}</p></div>}
+        </Card>
+
+        {/* version history — institutional memory */}
+        {isHero && <div className="mt-6">
+          <div className="flex items-center gap-2 mb-3"><span className="text-ink-soft"><Icon.history size={16}/></span><div className="font-bold text-[15px]">Version history</div></div>
+          <div className="relative pl-5">
+            <div className="absolute left-[7px] top-1 bottom-1 w-px bg-line"/>
+            {VERSION_HISTORY.filter(v=>published?true:v.v===1).map(v=><div key={v.v} className="relative mb-4">
+              <span className={cx("absolute -left-[13px] top-1 w-3.5 h-3.5 rounded-full border-2 border-white", v.current&&published?"bg-emerald-600":"bg-slate-300")}/>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-[13.5px]">v{v.v}</span>
+                {v.current&&published && <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 rounded px-1.5 py-0.5">CURRENT</span>}
+                <span className="text-[12px] text-ink-mute">· {v.when} · {v.who}</span>
+              </div>
+              <p className="text-[13px] text-ink-soft mt-0.5 leading-relaxed">{v.note}</p>
+            </div>)}
+          </div>
+        </div>}
+
+        {/* living institutional memory */}
+        {isHero && <BrainTimeline published={published}/>}
+      </div>
+    </div>
+  </div>;
+}
+
+function AskScreen({app}) {
+  const S=app; // phases: 'idle' | 'retrieving' | 'thinking' | 'done'
+  const [q,setQ]=useState("");
+  const [phase,setPhase]=useState(S.synthDone?"done":"idle");
+  const [step,setStep]=useState(0);
+  const [foundN,setFoundN]=useState(0);
+
+  useEffect(()=>{ if(S.synthDone) setPhase("done"); },[S.synthDone]);
+
+  const run=useCallback((question)=>{
+    setQ(question); setPhase("retrieving"); setStep(0); setFoundN(0);
+    // retrieval: count up sources found
+    let n=0; const ri=setInterval(()=>{ n++; setFoundN(n); if(n>=SYNTHESIS.sourcesUsed.length) clearInterval(ri); }, 260);
+    setTimeout(()=>{ setPhase("thinking");
+      let i=0; const ti=setInterval(()=>{ i++; setStep(i); if(i>=SYNTHESIS.thinkSteps.length){ clearInterval(ti);
+        setTimeout(()=>{ setPhase("done"); S.setSynthDone(true); }, 520);
+      }}, 620);
+    }, 1500);
+  },[S]);
+
+  // IDLE — calm centered prompt
+  if(phase==="idle") return <div className="h-full flex flex-col items-center justify-center px-6 -mt-10">
+    <div className="w-full max-w-2xl text-center animate-fadeup">
+      <div className="inline-flex items-center gap-2 text-[12px] font-semibold text-ink-mute bg-white border border-line rounded-full px-3 py-1.5 shadow-card mb-6">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/> {DOCUMENTS.length} studies · governed · ready
+      </div>
+      <h1 className="text-[30px] font-extrabold tracking-[-.03em] text-ink">Ask your brand's memory.</h1>
+      <p className="text-[15px] text-ink-mute mt-3 max-w-lg mx-auto leading-relaxed">
+        A strategic question, answered from everything your brand has ever learned — with every claim labeled, scored, and traceable to its source.</p>
+      <div className="mt-8 relative">
+        <div className="flex items-center gap-3 bg-white border border-line rounded-2xl shadow-lift px-4 py-3.5 focus-within:border-indigo-300 focus-within:ring-4 focus-within:ring-indigo-50 transition">
+          <span className="text-ink-faint"><Icon.search size={20}/></span>
+          <input autoFocus value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&q.trim())run(q);}}
+            placeholder="Ask a strategic question…" className="flex-1 bg-transparent outline-none text-[16px] text-ink placeholder:text-ink-faint"/>
+          <Button size="sm" disabled={!q.trim()} onClick={()=>q.trim()&&run(q)} icon={<Icon.send size={15}/>}>Ask</Button>
+        </div>
+      </div>
+      <div className="mt-6 flex flex-col items-center gap-2">
+        <div className="text-[11px] font-semibold uppercase tracking-wider text-ink-faint">Try</div>
+        <button onClick={()=>run(HERO_QUESTION)}
+          className="group text-left max-w-xl w-full rounded-xl border border-line bg-white hover:border-indigo-200 hover:bg-indigo-50/40 hover:shadow-card px-4 py-3 transition flex items-center gap-3">
+          <span className="text-indigo-500 group-hover:text-indigo-700"><Icon.sparkles size={16}/></span>
+          <span className="text-[14.5px] font-medium text-ink flex-1">{HERO_QUESTION}</span>
+          <span className="text-ink-faint group-hover:text-indigo-600 group-hover:translate-x-0.5 transition"><Icon.arrow size={16}/></span>
+        </button>
+      </div>
+    </div>
+  </div>;
+
+  // RETRIEVING + THINKING — "reads before it speaks"
+  if(phase==="retrieving"||phase==="thinking") return <div className="max-w-2xl mx-auto pt-10 px-2">
+    <div className="flex items-start gap-3 mb-8 animate-fadeup">
+      <div className="mt-1 w-9 h-9 rounded-xl bg-indigo-600 text-white grid place-items-center shadow-card shrink-0"><Icon.ask size={18}/></div>
+      <div className="text-[19px] font-bold tracking-[-.02em] text-ink leading-snug">{q}</div>
+    </div>
+    <Card className="animate-fadeup" pad="p-6">
+      <div className="flex items-center gap-2.5 mb-5">
+        <span className="relative flex h-2.5 w-2.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-60"/><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-600"/></span>
+        <span className="font-bold text-[15px]">{phase==="retrieving"?"Retrieving the evidence":"Reasoning across the evidence"}</span>
+        <span className="ml-auto text-[12px] text-ink-mute font-medium">reads before it speaks</span>
+      </div>
+      {/* retrieval sources */}
+      <div className="space-y-2 mb-5">
+        {SYNTHESIS.sourcesUsed.map((s,i)=><div key={i} className={cx("flex items-center gap-2.5 text-[13.5px] transition-all duration-300",
+          i<foundN?"opacity-100 translate-y-0":"opacity-0 translate-y-1")}>
+          <span className="text-emerald-600"><Icon.checkc size={16}/></span><span className="text-ink-soft font-medium">{s}</span>
+          <span className="ml-auto text-[11px] text-ink-faint">indexed</span>
+        </div>)}
+      </div>
+      {phase==="thinking" && <div className="pt-4 border-t border-line space-y-2.5">
+        {SYNTHESIS.thinkSteps.map((t,i)=><div key={i} className={cx("flex items-center gap-3 text-[13.5px] transition-all duration-300",
+          i<step?"opacity-100":i===step?"opacity-100":"opacity-30")}>
+          <span className="w-4 h-4 shrink-0">{i<step? <span className="text-emerald-600"><Icon.check size={16}/></span>
+            : i===step? <span className="block w-3.5 h-3.5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"/> : <span className="block w-1.5 h-1.5 rounded-full bg-slate-300 ml-1"/>}</span>
+          <span className={cx(i<=step?"text-ink font-medium":"text-ink-faint", i===step&&"caret")}>{t}</span>
+        </div>)}
+      </div>}
+    </Card>
+  </div>;
+
+  // DONE
+  return <div className="pt-8 px-2"><SynthesisView data={SYNTHESIS} published={S.published}
+    onApprove={()=> S.published ? S.go("brand") : S.openReview()}/></div>;
+}
+/* ------------------------------------------------------------------ SHELL */
+const NAV=[
+  { id:"ask", label:"Ask", icon:"ask" },
+  { id:"pulse", label:"Brand Pulse", icon:"pulse" },
+  { id:"library", label:"Library", icon:"library" },
+  { id:"brand", label:"Brand Brain", icon:"brain" },
+];
+const ROADMAP=["Recommendations","MLR review","Audit trail","Settings"];
+
+function Sidebar({app}) {
+  return <aside className="w-[248px] shrink-0 h-screen bg-white border-r border-line flex flex-col">
+    <div className="px-5 pt-5 pb-4">
+      <div className="flex items-center gap-2.5">
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-500 grid place-items-center shadow-card text-white"><Icon.brain size={19}/></div>
+        <div><div className="font-extrabold text-[15px] tracking-[-.02em] leading-none">BrandBrain</div>
+          <div className="text-[10.5px] font-semibold text-ink-faint mt-1 uppercase tracking-wide">Decision Intelligence</div></div>
+      </div>
+    </div>
+    <div className="mx-3 mb-2 rounded-xl bg-slate-50 border border-line px-3 py-2.5 flex items-center gap-2.5">
+      <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white grid place-items-center font-extrabold text-[12px]">N</div>
+      <div className="min-w-0"><div className="font-bold text-[13px] truncate">{BRAND.name}</div><div className="text-[10.5px] text-ink-mute truncate">{BRAND.tag}</div></div>
+      <span className="ml-auto text-ink-faint"><Icon.chevdown size={14}/></span>
+    </div>
+    <nav className="px-3 mt-1 space-y-0.5">
+      {NAV.map(n=>{ const on=app.nav===n.id; const Ico=Icon[n.icon];
+        return <button key={n.id} onClick={()=>app.go(n.id)} className={cx("group w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition text-left relative",
+          on?"bg-indigo-50 text-indigo-700":"text-ink-soft hover:bg-slate-50")}>
+          {on && <span className="absolute left-0 top-2.5 bottom-2.5 w-1 rounded-r-full bg-indigo-600"/>}
+          <span className={on?"text-indigo-600":"text-ink-mute group-hover:text-ink-soft"}><Ico size={19}/></span>
+          <span className="font-semibold text-[14px]">{n.label}</span>
+          {n.id==="brand" && !app.published && app.synthDone && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-500"/>}
+        </button>;})}
+    </nav>
+    <div className="px-3 mt-6">
+      <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint px-3 mb-1.5">On the roadmap</div>
+      {ROADMAP.map(r=><div key={r} className="flex items-center gap-3 px-3 py-2 rounded-xl text-ink-faint cursor-not-allowed">
+        <span className="w-[19px] h-[19px] grid place-items-center"><Icon.lock size={14}/></span><span className="text-[13.5px] font-medium">{r}</span>
+        <span className="ml-auto text-[9px] font-bold bg-slate-100 text-ink-faint rounded px-1.5 py-0.5">SOON</span></div>)}
+    </div>
+    <div className="mt-auto p-3 border-t border-line">
+      <div className="flex items-center gap-3 px-2 py-1.5">
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-700 to-slate-500 text-white grid place-items-center font-bold text-[13px]">AS</div>
+        <div className="min-w-0"><div className="font-bold text-[13px] truncate">{BRAND.owner}</div><div className="text-[10.5px] text-ink-mute truncate">{BRAND.role} · {BRAND.name}</div></div>
+      </div>
+    </div>
+  </aside>;
+}
+
+function Toast({message}) {
+  if(!message) return null;
+  return <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[60] animate-fadeup">
+    <div className="bg-ink text-white rounded-xl shadow-pop px-4 py-3 flex items-center gap-2.5 text-[13.5px] font-medium">
+      <span className="text-emerald-400"><Icon.checkc size={17}/></span>{message}</div>
+  </div>;
+}
+
+function App() {
+  const [nav,setNav]=useState("ask");
+  const [uploaded,setUploaded]=useState(false);
+  const [synthDone,setSynthDone]=useState(false);
+  const [published,setPublished]=useState(false);
+  const [reviewOpen,setReviewOpen]=useState(false);
+  const [source,setSource]=useState(null);       // citation id or null
+  const [toastMsg,setToastMsg]=useState(null);
+  const toastTimer=useRef(null);
+
+  const toast=useCallback((msg)=>{ setToastMsg(msg); clearTimeout(toastTimer.current);
+    toastTimer.current=setTimeout(()=>setToastMsg(null),3200); },[]);
+  const go=useCallback((id)=>{ setNav(id); const el=document.getElementById("scrollmain"); if(el) el.scrollTop=0; },[]);
+
+  const app={ nav, go, uploaded, setUploaded, synthDone, setSynthDone, published,
+              openReview:()=>setReviewOpen(true), toast };
+  const srcApi={ open:(id)=>setSource(id), close:()=>setSource(null) };
+
+  const approve=()=>{ setPublished(true); setReviewOpen(false); toast("Published to the Brand Brain · logged as Dr. Andrew Smith"); go("brand"); };
+  const reject=()=>{ setReviewOpen(false); toast("Draft rejected — kept for audit, never deleted"); };
+
+  const Screen={ ask:AskScreen, pulse:PulseScreen, library:LibraryScreen, brand:BrandBrainScreen }[nav];
+
+  return <SourceCtx.Provider value={srcApi}>
+    <div className="flex h-screen bg-canvas">
+      <Sidebar app={app}/>
+      <main id="scrollmain" className="flex-1 overflow-y-auto">
+        <div className="px-8 py-8 min-h-full"><Screen app={app}/></div>
+      </main>
+    </div>
+    {source && <SourcePanel cite={CITATIONS[source]} onClose={srcApi.close}/>}
+    {reviewOpen && <ReviewModal onApprove={approve} onReject={reject} onClose={()=>setReviewOpen(false)}/>}
+    <Toast message={toastMsg}/>
+  </SourceCtx.Provider>;
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App/>);
+</script>
+</body>
+</html>
