@@ -425,10 +425,12 @@ const COMPETITORS = [
 // The real threat is class-level, not brand-level.
 const CLASS_THREAT = { name:"Rho-kinase inhibitor class", cagr:"68.7% CAGR", value:"₹55.1 Cr", note:"Now larger than the entire Latanoprost+Timolol FDC segment — the structural threat to watch, per the Brand Plan.", cite:"c9" };
 
-/* ------------------------------------------------------------------ HCP PERSONA STUDIO */
-// Synthetic ophthalmologist personas built from the segmentation framework (5 cohorts).
+/* ------------------------------------------------------------------ HCP SYNTHETIC SIMULATION */
+// Synthetic ophthalmologist profiles built from the segmentation framework (5 cohorts).
+// readiness.factors → the Explainable Decision Readiness Framework (weighted behavioural dimensions).
 const PERSONAS = [
-  { id:"p1", name:"Prostaglandin-Sparing Advocate", avatar:"PS", city:"Archetype · solo-practice adopter", years:"~18 yrs experience · senior consultant, cataract & glaucoma",
+  { id:"p1", name:"Prostaglandin-Sparing Advocate", avatar:"PS", city:"Archetype · solo-practice adopter",
+    specialty:"Glaucoma & cataract specialist", years:"~18 yrs experience · senior consultant",
     cohort:"Prostaglandin-Sparing Advocate", code:"B", priority:true,
     pctHcp:"17% of HCPs (29,131)", pctTrx:"36% of TRx", practice:"Solo practice institutions",
     mbti:"ENTJ", mbtiName:"The Commander", tone:"fuchsia",
@@ -437,8 +439,21 @@ const PERSONAS = [
     barriers:"Cash-pay price sensitivity; wants head-to-head efficacy data before defaulting to a new FDC.",
     messaging:"Guideline-led efficacy: first-line PGA consensus (EGS · AAO · NICE · ICO) plus the escalation story when monotherapy is inadequate.",
     comms:"Direct and data-first. Short, high-density visits; prefers evidence summaries by email she can verify herself.",
-    treatment:"Initiates PGA first-line, escalates early to a PGA+timolol FDC on inadequate control; monitors IOP aggressively." },
-  { id:"p2", name:"Network-Controlled Provider", avatar:"NC", city:"Archetype · IDN network prescriber", years:"~12 yrs experience · corporate hospital network",
+    channel:"Email evidence summaries · in-person detailing",
+    treatment:"Initiates PGA first-line, escalates early to a PGA+timolol FDC on inadequate control; monitors IOP aggressively.",
+    switching:"Willing switcher — moves stable patients to an FDC once monotherapy under-controls; convenience seals it.",
+    readiness:{ overall:89, quality:"High", certainty:"High", risk:"Low", action:"Ready for Brand Team review",
+      factors:[ {k:"Behavioural Likelihood",v:91},{k:"Evidence Coverage",v:95},{k:"Prescription Intent",v:88},
+        {k:"Switching Probability",v:84},{k:"Guideline Adherence",v:94},{k:"Brand Affinity",v:89},
+        {k:"Likert Consistency",v:87},{k:"NPS Alignment",v:84},{k:"Digital Engagement",v:72},{k:"Data Freshness",v:96} ] },
+    evidence:{ research:"HCP Segmentation — Final Report + Qualitative Interviews", sample:"n=25 qual · projected to 29,131 HCPs",
+      cluster:"Cluster B — belief-driven early adopters", segmentation:"17% of universe · 36% of segment TRx",
+      assumptions:["Prescribes on clinical belief once monotherapy under-controls","Guideline consensus is a decision trigger"],
+      supporting:["36% TRx concentration despite 17% headcount","Qual verbatims on early FDC escalation"],
+      contradictory:["ATU ranks convenience (58%) above efficacy as the stated switch driver"],
+      validation:"Confirm efficacy-vs-convenience weighting in the next ATU wave" } },
+  { id:"p2", name:"Network-Controlled Provider", avatar:"NC", city:"Archetype · IDN network prescriber",
+    specialty:"Hospital ophthalmology (IDN)", years:"~12 yrs experience · corporate hospital network",
     cohort:"Network-Controlled Provider", code:"B", priority:true,
     pctHcp:"16% of HCPs (27,017)", pctTrx:"22% of TRx", practice:"Nearly all IDN institutions",
     mbti:"ISTJ", mbtiName:"The Logistician", tone:"violet",
@@ -447,8 +462,21 @@ const PERSONAS = [
     barriers:"Hospital formulary listing and procurement committees — personal conviction cannot override the protocol.",
     messaging:"Health-economics and formulary dossiers; network-level outcome evidence rather than individual-brand claims.",
     comms:"Formal and institutional. Prefers structured meetings, approved email, and material he can table with the P&T committee.",
-    treatment:"Follows network protocol precisely; switches patients the day the formulary allows — and not before." },
-  { id:"p3", name:"Independent Habitualist", avatar:"IH", city:"Archetype · non-IDN clinic owner", years:"~24 yrs experience · independent clinic owner",
+    channel:"Structured P&T meetings · approved email",
+    treatment:"Follows network protocol precisely; switches patients the day the formulary allows — and not before.",
+    switching:"Protocol-gated switcher — switches only once the formulary lists YI Combo, then at scale.",
+    readiness:{ overall:74, quality:"Medium", certainty:"Medium", risk:"Medium", action:"Needs formulary evidence before field investment",
+      factors:[ {k:"Behavioural Likelihood",v:78},{k:"Evidence Coverage",v:61},{k:"Prescription Intent",v:70},
+        {k:"Switching Probability",v:66},{k:"Guideline Adherence",v:88},{k:"Brand Affinity",v:72},
+        {k:"Likert Consistency",v:80},{k:"NPS Alignment",v:69},{k:"Digital Engagement",v:64},{k:"Data Freshness",v:83} ] },
+    evidence:{ research:"HCP Segmentation — Final Report (practice-type cut)", sample:"projected to 27,017 HCPs · IDN-weighted",
+      cluster:"Cluster B — formulary-restrained value-seers", segmentation:"16% of universe · 22% of segment TRx",
+      assumptions:["Formulary listing is the binding constraint","Sees value but cannot act unilaterally"],
+      supporting:["Practice-type analysis: nearly all IDN","Described as priority formulary-restrained prescribers"],
+      contradictory:["No formulary / access study exists — access barrier is inferred, not measured"],
+      validation:"Commission the IDN formulary access study before investing here" } },
+  { id:"p3", name:"Independent Habitualist", avatar:"IH", city:"Archetype · non-IDN clinic owner",
+    specialty:"Independent glaucoma practice", years:"~24 yrs experience · independent clinic owner",
     cohort:"Independent Habitualist", code:"E", priority:true,
     pctHcp:"10% of HCPs (17,347)", pctTrx:"25% of TRx", practice:"Nearly all non-IDN institutions",
     mbti:"ISFJ", mbtiName:"The Defender", tone:"purple",
@@ -457,8 +485,21 @@ const PERSONAS = [
     barriers:"Habit itself. Confidence in current control; switching reads as risk, not progress.",
     messaging:"Long-term safety first (five-year molecule data, Ali 2011), then peer testimony — belief-shift over feature lists.",
     comms:"Relationship-led. Values rep continuity and unhurried in-person conversations; distrusts flashy digital.",
-    treatment:"Loyal to established molecules; switches slowly — but once converted, becomes a durable, high-volume prescriber." },
-  { id:"p4", name:"Low-volume Enthusiast", avatar:"LE", city:"Archetype · digitally-engaged generalist", years:"~6 yrs experience · general ophthalmology",
+    channel:"In-person rep continuity · peer testimony",
+    treatment:"Loyal to established molecules; switches slowly — but once converted, becomes a durable, high-volume prescriber.",
+    switching:"Reluctant, durable switcher — slow to move, but sticky once a belief shift converts her.",
+    readiness:{ overall:85, quality:"High", certainty:"Medium", risk:"Low", action:"Ready for Brand Team review",
+      factors:[ {k:"Behavioural Likelihood",v:83},{k:"Evidence Coverage",v:90},{k:"Prescription Intent",v:79},
+        {k:"Switching Probability",v:58},{k:"Guideline Adherence",v:81},{k:"Brand Affinity",v:86},
+        {k:"Likert Consistency",v:88},{k:"NPS Alignment",v:82},{k:"Digital Engagement",v:41},{k:"Data Freshness",v:92} ] },
+    evidence:{ research:"Qualitative Interviews + Segmentation", sample:"qual n=25 · projected to 17,347 HCPs",
+      cluster:"Cluster E — habit-anchored loyalists", segmentation:"10% of universe · 25% of segment TRx",
+      assumptions:["Switching is a belief decision before a clinical one","Long-term safety is the primary lever"],
+      supporting:["Verbatim: 'requires a greater shift in beliefs on need'","25% TRx despite only 10% headcount"],
+      contradictory:["Long-term persistence evidence is legacy-molecule only (Ali 2011), not YI Combo-specific"],
+      validation:"Commission a YI Combo real-world persistence tracker beyond 6 months" } },
+  { id:"p4", name:"Low-volume Enthusiast", avatar:"LE", city:"Archetype · digitally-engaged generalist",
+    specialty:"General ophthalmology", years:"~6 yrs experience · general practice",
     cohort:"Low-volume Enthusiast", code:"D", priority:false,
     pctHcp:"28% of HCPs (48,349)", pctTrx:"11% of TRx", practice:"Majority non-IDN · some solo/IDN mix",
     mbti:"ENFP", mbtiName:"The Campaigner", tone:"pink",
@@ -467,8 +508,21 @@ const PERSONAS = [
     barriers:"A small glaucoma caseload — he refers complex patients out before therapy escalation is his decision.",
     messaging:"Digital-first: webinars, quick-reference dosing cards, case-based micro-content he can consume between patients.",
     comms:"WhatsApp and email; watches short videos, replies fast, and amplifies content to peers.",
-    treatment:"Prescribes confidently for straightforward OAG; refers advanced and surgical cases to sub-specialists." },
-  { id:"p5", name:"Delayed Digitalist", avatar:"DD", city:"Archetype · formulary-bound academic", years:"~30 yrs experience · trust hospital department head",
+    channel:"WhatsApp · short video · digital CME",
+    treatment:"Prescribes confidently for straightforward OAG; refers advanced and surgical cases to sub-specialists.",
+    switching:"Low-frequency switcher — willing but rarely the decision-maker on escalation.",
+    readiness:{ overall:72, quality:"Medium", certainty:"Medium", risk:"Low", action:"Nurture via digital — low near-term yield",
+      factors:[ {k:"Behavioural Likelihood",v:74},{k:"Evidence Coverage",v:80},{k:"Prescription Intent",v:58},
+        {k:"Switching Probability",v:62},{k:"Guideline Adherence",v:76},{k:"Brand Affinity",v:70},
+        {k:"Likert Consistency",v:73},{k:"NPS Alignment",v:75},{k:"Digital Engagement",v:96},{k:"Data Freshness",v:85} ] },
+    evidence:{ research:"Segmentation — Final Report (digital-engagement cut)", sample:"projected to 48,349 HCPs",
+      cluster:"Cluster D — digitally-engaged low-volume", segmentation:"28% of universe · 11% of segment TRx",
+      assumptions:["Sees value but low caseload caps prescribing","Highest digital engagement of any cohort"],
+      supporting:["Segmentation flags this cohort as most digitally engaged","Low TRx share vs. headcount"],
+      contradictory:["High engagement does not convert to volume — enthusiasm may overstate intent"],
+      validation:"A/B test digital content conversion before scaling spend" } },
+  { id:"p5", name:"Delayed Digitalist", avatar:"DD", city:"Archetype · formulary-bound academic",
+    specialty:"Academic / trust hospital ophthalmology", years:"~30 yrs experience · department head",
     cohort:"Delayed Digitalist", code:"A", priority:false,
     pctHcp:"29% of HCPs (49,984)", pctTrx:"6% of TRx", practice:"Nearly all IDN institutions",
     mbti:"INTP", mbtiName:"The Logician", tone:"slate",
@@ -477,8 +531,24 @@ const PERSONAS = [
     barriers:"Formulary constraints plus genuine scepticism of promotion; near-zero digital engagement.",
     messaging:"Nurture-only: guideline updates and institutional education through the network — no active field effort.",
     comms:"Rarely sees reps. Reachable through hospital academic programmes, if at all.",
-    treatment:"Prescribes the formulary default; escalation decisions defer to network protocol and junior consultants." },
+    channel:"Academic programmes · institutional education",
+    treatment:"Prescribes the formulary default; escalation decisions defer to network protocol and junior consultants.",
+    switching:"Non-switcher — behaviour is formulary-determined; personal preference rarely changes the script.",
+    readiness:{ overall:58, quality:"Medium", certainty:"Low", risk:"High", action:"Deprioritise — nurture only",
+      factors:[ {k:"Behavioural Likelihood",v:52},{k:"Evidence Coverage",v:74},{k:"Prescription Intent",v:44},
+        {k:"Switching Probability",v:38},{k:"Guideline Adherence",v:79},{k:"Brand Affinity",v:49},
+        {k:"Likert Consistency",v:71},{k:"NPS Alignment",v:55},{k:"Digital Engagement",v:22},{k:"Data Freshness",v:80} ] },
+    evidence:{ research:"Segmentation — Final Report (value & reachability cut)", sample:"projected to 49,984 HCPs",
+      cluster:"Cluster A — formulary-bound low-value", segmentation:"29% of universe · 6% of segment TRx",
+      assumptions:["Behaviour is formulary-determined","Promotionally near-unreachable"],
+      supporting:["Largest headcount but lowest TRx share","Near-zero digital engagement in segmentation"],
+      contradictory:["Analytical sophistication could respond to strong HEOR evidence if surfaced academically"],
+      validation:"Small academic-channel pilot to confirm the deprioritisation call" } },
 ];
+// Explainable Decision Readiness bands.
+const READY_BAND = (v)=> v>=80?{label:"Ready",fg:"text-emerald-700",bg:"bg-emerald-50",bar:"bg-emerald-500"}
+  : v>=65?{label:"Developing",fg:"text-amber-700",bg:"bg-amber-50",bar:"bg-amber-500"}
+  : {label:"Not ready",fg:"text-rose-600",bg:"bg-rose-50",bar:"bg-rose-500"};
 
 // Sample assets a brand manager can test against the synthetic personas.
 // band: green = strong fit · yellow = needs improvement · red = misaligned.
@@ -719,6 +789,8 @@ const Icon = {
   eye:      p=><Ic {...p} d={<><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></>}/>,
   tag:      p=><Ic {...p} d={<><path d="M3 3h8l10 10-8 8L3 11z"/><circle cx="8" cy="8" r="1.5"/></>}/>,
   refresh:  p=><Ic {...p} d={<><path d="M21 12a9 9 0 1 1-2.6-6.4L21 8"/><path d="M21 3v5h-5"/></>}/>,
+  pen:      p=><Ic {...p} d={<><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></>}/>,
+  beaker:   p=><Ic {...p} d={<><path d="M9 3h6M10 3v6l-5 9a1.5 1.5 0 0 0 1.3 2.2h11.4A1.5 1.5 0 0 0 19 18l-5-9V3"/><path d="M7.5 14h9"/></>}/>,
 };
 
 /* ------------------------------------------------------------------ TRUST DESIGN TOKENS */
@@ -1150,14 +1222,14 @@ function WelcomeScreen({onEnter}) {
           Every insight your brand<br/>has ever learned. <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-emerald-300">One brain.</span>
         </h1>
         <p className="mt-5 text-[16.5px] leading-relaxed text-slate-300 max-w-xl mx-auto">
-          BrandBrain is the institutional memory of your brand. It reads every study,
-          remembers every decision, and answers strategic questions with evidence you can verify —
-          so your team decides with confidence, not recollection.
+          Brainlee turns fragmented brand research — market data, physician interviews, clinical
+          evidence — into one trusted memory, so every strategic decision is grounded in evidence
+          you can verify, not recollection.
         </p>
         {/* who it's for */}
-        <div className="mt-5 flex items-center justify-center gap-2 flex-wrap text-[11.5px] font-semibold text-slate-300">
-          {["Brand Directors","CMOs","Medical Affairs","Brand Agencies","Brand Managers"].map(r=>
-            <span key={r} className="rounded-full border border-white/10 bg-white/5 px-3 py-1">{r}</span>)}
+        <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[12px] font-semibold text-slate-300">
+          <span className="text-emerald-300"><Icon.pulse size={14}/></span>
+          For Life Sciences Brand Teams, CMOs &amp; Medical Affairs
         </div>
         {/* the loop */}
         <div className="mt-7 flex items-center justify-center gap-2 text-[12px] font-semibold text-slate-400 flex-wrap">
@@ -1174,8 +1246,13 @@ function WelcomeScreen({onEnter}) {
             <div className="mt-1 text-[12.5px] leading-relaxed text-slate-400">{p.body}</div>
           </div>;})}
         </div>
+        {/* subtle Life Sciences cues — understated, not clichéd */}
+        <div className="mt-9 flex items-center justify-center gap-x-6 gap-y-2 flex-wrap text-[11.5px] font-medium text-slate-400">
+          {[["doc","Peer-reviewed evidence"],["users","HCP segments"],["pulse","Clinical studies"],["graph","Knowledge graph"],["eye","Ophthalmology focus"]].map(([ic,label])=>{
+            const LIc=Icon[ic]; return <span key={label} className="inline-flex items-center gap-1.5"><span className="text-indigo-300/80"><LIc size={14}/></span>{label}</span>;})}
+        </div>
         {/* enter */}
-        <div className="mt-10 flex flex-col items-center gap-3">
+        <div className="mt-9 flex flex-col items-center gap-3">
           <button onClick={onEnter}
             className="group inline-flex items-center gap-3 rounded-2xl bg-white text-ink font-bold text-[15px] px-7 py-4 shadow-pop hover:shadow-lift hover:-translate-y-0.5 transition-all">
             <span className="w-7 h-7 rounded-lg bg-indigo-600 text-white grid place-items-center"><Icon.bolt size={15}/></span>
@@ -1589,7 +1666,7 @@ function ActivityFeed() {
         <span className="text-emerald-600 shrink-0"><Icon.check size={14}/></span><span className="flex-1">{c.text}</span></div>)}
       <div className="flex items-center gap-2 text-[13.5px] text-ink-soft">
         <span className="text-emerald-600 shrink-0"><Icon.trend size={14}/></span>
-        <span>Confidence improved
+        <span>Decision readiness improved
           <b className="text-ink"> {ACTIVITY.conf.from}%</b> <span className="text-ink-faint">→</span>
           <b className="text-emerald-700"> <CountUp from={ACTIVITY.conf.from} to={ACTIVITY.conf.to}/></b></span>
       </div>
@@ -1606,7 +1683,7 @@ function BrainTimeline({published}) {
     <div className="flex items-center gap-2 mb-1"><span className="text-ink-soft"><Icon.history size={16}/></span>
       <div className="font-bold text-[15px]">Knowledge timeline</div>
       <span className="ml-auto text-[11px] text-ink-faint">a living memory, not a static file</span></div>
-    <p className="text-[12.5px] text-ink-mute mb-5">Each quarter, new evidence sharpened what {BRAND.name} knows — and the confidence behind it.</p>
+    <p className="text-[12.5px] text-ink-mute mb-5">Each quarter, new evidence sharpened what {BRAND.name} knows — and the decision readiness behind it.</p>
     <div className="relative pl-6">
       <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-slate-200 via-amber-200 to-emerald-300"/>
       {months.map((m,i)=><div key={m.month} className="relative mb-6 last:mb-0">
@@ -1615,7 +1692,7 @@ function BrainTimeline({published}) {
           <span className="font-extrabold text-[14px] tracking-[-.01em]">{m.month}</span>
           <span className={cx("text-[11px] font-bold rounded-md px-2 py-0.5",
             m.tone==="emerald"?"bg-emerald-50 text-emerald-700":m.tone==="amber"?"bg-amber-50 text-amber-700":m.tone==="indigo"?"bg-indigo-50 text-indigo-700":"bg-slate-100 text-ink-mute")}>
-            confidence {m.conf}%</span>
+            readiness {m.conf}%</span>
           {m.live && <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 rounded px-1.5 py-0.5 flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"/>NOW</span>}
         </div>
         <div className="mt-1.5 space-y-1">
@@ -1631,7 +1708,7 @@ function BrainTimeline({published}) {
 function KnowledgeEvolution({published}) {
   const rows = [
     { icon:"graph", text:"New relationships created", live:"Insight → Recommendation → Objective (2 edges)" },
-    { icon:"trend", text:"Existing confidence updated", live:"“Switching Drivers” 61% → 82%" },
+    { icon:"trend", text:"Decision readiness updated", live:"“Switching Drivers” 61% → 82%" },
     { icon:"split", text:"Contradictions resolved or preserved", live:"Driver contradiction preserved as an open question" },
     { icon:"doc",   text:"New evidence linked", live:"9 citations kept · 2 added · none lost" },
     { icon:"history", text:"Timeline updated", live:"Q2 2026 entry written" },
@@ -1809,7 +1886,7 @@ function BrandBrainScreen({app}) {
       right={<div className="flex items-center gap-3">
         <span className="text-[12px] text-ink-mute inline-flex items-center gap-1.5"><Icon.layers size={13}/>v{published?12:11}</span>
         <span className={cx("text-[12px] font-bold inline-flex items-center gap-1.5 rounded-md px-2 py-1", published?"bg-emerald-50 text-emerald-700":"bg-amber-50 text-amber-700")}>
-          <Icon.trend size={13}/>{published?<CountUp from={61} to={82}/>:"61%"} confidence</span>
+          <Icon.trend size={13}/>{published?<CountUp from={61} to={82}/>:"61%"} decision readiness</span>
       </div>}/>
 
     {/* tabs */}
@@ -1878,7 +1955,7 @@ function BrandBrainScreen({app}) {
                 <span className="inline-flex items-center gap-1"><Icon.clock size={13}/>{isHero?(published?"just now":"Jul 13"):page.updated}</span>
                 <span className="inline-flex items-center gap-1 text-emerald-700"><Icon.shield size={13}/>{body.reduce((n,b)=>n+(b.cites?b.cites.length:0),0)} citations</span>
                 {isHero && <span className={cx("inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-bold", published?"bg-emerald-50 text-emerald-700":"bg-amber-50 text-amber-700")}>
-                  <Icon.trend size={12}/>{published?"82%":"61%"} confidence</span>}
+                  <Icon.trend size={12}/>{published?"82%":"61%"} readiness</span>}
               </div>
             </div>
             {published && isHero && <span className="text-[11px] text-emerald-700 bg-emerald-50 rounded-md px-2 py-1 font-bold flex items-center gap-1"><Icon.checkc size={13}/>Updated just now</span>}
@@ -1917,38 +1994,98 @@ function BrandBrainScreen({app}) {
 /* ------------------------------------------------------------------ HCP PERSONA STUDIO */
 const PTONE = { fuchsia:"#D946EF", violet:"#8B5CF6", purple:"#A855F7", pink:"#EC4899", slate:"#64748B" };
 
-function PersonaCard({p, onOpen}) {
-  const col=PTONE[p.tone];
-  return <button onClick={()=>onOpen(p.id)}
-    className="group text-left rounded-2xl border border-line bg-white shadow-card hover:shadow-lift hover:border-indigo-200 transition p-5 flex flex-col">
+// Decision Readiness dial — a small ring showing the overall readiness score + band.
+function ReadinessDial({value, size=44}) {
+  const B=READY_BAND(value); const r=(size-6)/2; const c=2*Math.PI*r; const off=c*(1-value/100);
+  const stroke = value>=80?"#059669":value>=65?"#D97706":"#E11D48";
+  return <div className="relative shrink-0" style={{width:size,height:size}}>
+    <svg width={size} height={size} className="-rotate-90">
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#EEF0F5" strokeWidth="4"/>
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={stroke} strokeWidth="4" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={off}/>
+    </svg>
+    <div className="absolute inset-0 grid place-items-center"><span className={cx("text-[12px] font-extrabold", B.fg)}>{value}</span></div>
+  </div>;
+}
+
+// The Explainable Decision Readiness Framework — factor bars + executive framing.
+function ReadinessBreakdown({r}) {
+  return <div>
+    <div className="grid grid-cols-2 gap-2 mb-3">
+      {[["Evidence quality",r.quality],["Behavioural certainty",r.certainty],["Commercial risk",r.risk],["Recommended action",r.action]].map(([k,v],i)=>
+        <div key={i} className="rounded-lg border border-line bg-white px-3 py-2">
+          <div className="text-[9px] font-bold uppercase tracking-wider text-ink-faint">{k}</div>
+          <div className={cx("text-[12px] font-bold mt-0.5", v==="High"||v==="Low"||/Ready/.test(v)?"text-emerald-700":v==="Medium"?"text-amber-700":"text-ink")}>{v}</div>
+        </div>)}
+    </div>
+    <div className="space-y-1.5">
+      {r.factors.map((f,i)=>{ const stroke=f.v>=80?"bg-emerald-500":f.v>=65?"bg-amber-500":"bg-rose-500";
+        return <div key={i} className="flex items-center gap-2.5">
+          <span className="text-[11.5px] text-ink-soft w-[150px] shrink-0">{f.k}</span>
+          <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden"><div className={cx("h-full rounded-full barfill",stroke)} style={{width:f.v+"%"}}/></div>
+          <span className="text-[11px] font-bold text-ink w-9 text-right shrink-0">{f.v}%</span>
+        </div>;})}
+    </div>
+    <div className="mt-3 flex items-center gap-2 rounded-lg bg-slate-900 text-white px-3.5 py-2.5">
+      <ReadinessDial value={r.overall} size={38}/>
+      <div className="flex-1"><div className="text-[10px] font-bold uppercase tracking-wider text-white/50">Overall Decision Readiness</div>
+        <div className="text-[13px] font-bold">{r.overall}% · {r.action}</div></div>
+    </div>
+  </div>;
+}
+
+function PersonaCard({p, onOpen, onEdit, edited}) {
+  const col=PTONE[p.tone]; const B=READY_BAND(p.readiness.overall);
+  return <div onClick={()=>onOpen(p.id)}
+    className="group cursor-pointer text-left rounded-2xl border border-line bg-white shadow-card hover:shadow-lift hover:border-indigo-200 transition p-5 flex flex-col">
     <div className="flex items-start gap-3">
       <span className="w-11 h-11 rounded-xl grid place-items-center text-white font-extrabold text-[15px] shrink-0"
         style={{background:`linear-gradient(135deg, ${col}, ${col}CC)`}}>{p.avatar}</span>
       <div className="flex-1 min-w-0">
         <div className="font-bold text-[15px] text-ink leading-tight">{p.name}</div>
-        <div className="text-[11.5px] text-ink-mute mt-0.5">{p.city}</div>
+        <div className="text-[11.5px] text-ink-mute mt-0.5">{p.specialty}</div>
       </div>
-      {p.priority && <span className="text-[9.5px] font-bold text-indigo-700 bg-indigo-50 rounded px-1.5 py-0.5 shrink-0">PRIORITY</span>}
+      <div className="flex items-center gap-1 shrink-0">
+        {edited && <span className="text-[9px] font-bold text-amber-700 bg-amber-50 rounded px-1.5 py-0.5">EDITED</span>}
+        {p.priority && <span className="text-[9.5px] font-bold text-indigo-700 bg-indigo-50 rounded px-1.5 py-0.5">PRIORITY</span>}
+        <button onClick={e=>{e.stopPropagation(); onEdit(p.id);}} title="Edit persona"
+          className="w-7 h-7 rounded-lg grid place-items-center text-ink-mute hover:text-indigo-700 hover:bg-indigo-50 transition"><Icon.pen size={14}/></button>
+      </div>
     </div>
     <div className="mt-3 flex items-center gap-1.5 flex-wrap">
       <span className="text-[10.5px] font-bold rounded-md px-2 py-0.5 text-white" style={{background:col}}>Segment {p.code}</span>
       <span className="text-[10.5px] font-bold rounded-md px-2 py-0.5 bg-slate-100 text-ink-soft">{p.mbti} · {p.mbtiName}</span>
     </div>
-    <p className="mt-3 text-[12.5px] leading-relaxed text-ink-soft line-clamp-3 flex-1">{p.behaviour}</p>
-    <div className="mt-3.5 pt-3 border-t border-line grid grid-cols-3 gap-2 text-center">
-      <div><div className="text-[13px] font-extrabold text-ink">{p.pctHcp.split(" ")[0]}</div><div className="text-[9.5px] text-ink-faint font-semibold uppercase tracking-wide">of HCPs</div></div>
-      <div><div className="text-[13px] font-extrabold" style={{color:col}}>{p.pctTrx.split(" ")[0]}</div><div className="text-[9.5px] text-ink-faint font-semibold uppercase tracking-wide">of TRx</div></div>
-      <div className="min-w-0"><div className="text-[10.5px] font-bold text-ink-soft leading-tight mt-0.5 truncate">{p.practice.split(" ")[0]==="Nearly"?p.practice.replace("Nearly all ","").replace(" institutions",""):p.practice.split(" ")[0]}</div><div className="text-[9.5px] text-ink-faint font-semibold uppercase tracking-wide">practice</div></div>
+    <p className="mt-3 text-[12.5px] leading-relaxed text-ink-soft line-clamp-2 flex-1">{p.behaviour}</p>
+    <div className="mt-3.5 pt-3 border-t border-line flex items-center gap-3">
+      <ReadinessDial value={p.readiness.overall}/>
+      <div className="flex-1 min-w-0">
+        <div className="text-[9.5px] text-ink-faint font-bold uppercase tracking-wide">Decision Readiness</div>
+        <div className={cx("text-[12.5px] font-bold", B.fg)}>{B.label} · {p.readiness.overall}%</div>
+        <div className="text-[10.5px] text-ink-mute truncate">{p.pctHcp.split(" ")[0]} HCPs · {p.pctTrx.split(" ")[0]} TRx</div>
+      </div>
+      <span className="text-ink-faint opacity-0 group-hover:opacity-100 transition shrink-0"><Icon.arrow size={15}/></span>
     </div>
-    <div className="mt-3 text-[11.5px] font-semibold text-indigo-700 opacity-0 group-hover:opacity-100 transition flex items-center gap-1">Open full persona <Icon.arrow size={12}/></div>
-  </button>;
+  </div>;
 }
 
-function PersonaPanel({p, onClose}) {
-  const col=PTONE[p.tone];
+function Expander({icon, title, sub, tone="indigo", defaultOpen=false, children}) {
+  const [open,setOpen]=useState(defaultOpen); const TIc=Icon[icon];
+  return <div className="rounded-xl border border-line overflow-hidden">
+    <button onClick={()=>setOpen(o=>!o)} className="w-full flex items-center gap-2.5 px-4 py-3 hover:bg-slate-50 transition text-left">
+      <span className={cx("shrink-0", tone==="emerald"?"text-emerald-600":"text-indigo-600")}><TIc size={16}/></span>
+      <div className="flex-1 min-w-0"><div className="font-bold text-[13.5px] text-ink">{title}</div>{sub && <div className="text-[11.5px] text-ink-mute">{sub}</div>}</div>
+      <span className={cx("text-ink-faint transition-transform shrink-0", open&&"rotate-90")}><Icon.chevron size={15}/></span>
+    </button>
+    {open && <div className="px-4 pb-4 pt-1 animate-fadein">{children}</div>}
+  </div>;
+}
+
+function PersonaPanel({p, onClose, onEdit}) {
+  const col=PTONE[p.tone]; const e=p.evidence;
   const Field=({label, children})=><div>
     <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-1">{label}</div>
     <p className="text-[13.5px] leading-relaxed text-ink">{children}</p></div>;
+  const EvRow=({label, children})=><div className="flex gap-2 text-[12.5px]"><span className="text-ink-faint font-semibold w-[132px] shrink-0">{label}</span><span className="text-ink-soft flex-1">{children}</span></div>;
   return <div className="fixed inset-0 z-50">
     <div className="absolute inset-0 bg-ink/25 backdrop-blur-[2px] animate-fadein" onClick={onClose}/>
     <div className="absolute right-0 top-0 h-full w-full max-w-lg bg-white shadow-pop animate-slidein flex flex-col">
@@ -1957,35 +2094,114 @@ function PersonaPanel({p, onClose}) {
           style={{background:`linear-gradient(135deg, ${col}, ${col}CC)`}}>{p.avatar}</span>
         <div className="flex-1 min-w-0">
           <div className="font-bold text-[17px] leading-tight">{p.name}</div>
-          <div className="text-[12px] text-ink-mute mt-0.5">{p.city}</div>
+          <div className="text-[12px] text-ink-mute mt-0.5">{p.specialty} · {p.years}</div>
           <div className="mt-2 flex items-center gap-1.5 flex-wrap">
             <span className="text-[10.5px] font-bold rounded-md px-2 py-0.5 text-white" style={{background:col}}>Segment {p.code}</span>
             {p.priority && <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 rounded px-1.5 py-0.5">PRIORITY COHORT</span>}
           </div>
         </div>
+        <button onClick={()=>onEdit(p.id)} title="Edit persona" className="text-ink-mute hover:text-indigo-700 hover:bg-indigo-50 rounded-lg p-1.5"><Icon.pen size={17}/></button>
         <button onClick={onClose} className="text-ink-mute hover:text-ink hover:bg-slate-100 rounded-lg p-1.5"><Icon.x size={18}/></button>
       </div>
-      <div className="flex-1 overflow-y-auto p-6 space-y-5">
-        <div className="grid grid-cols-3 gap-2.5">
-          {[[p.pctHcp.split(" ")[0],"of HCP universe"],[p.pctTrx.split(" ")[0],"of segment TRx"],[p.mbti,"MBTI profile"]].map(([v,l],i)=>
-            <div key={i} className="rounded-xl border border-line bg-slate-50/50 p-3 text-center">
-              <div className="text-[17px] font-extrabold text-ink">{v}</div>
-              <div className="text-[9.5px] text-ink-faint font-bold uppercase tracking-wide mt-0.5">{l}</div></div>)}
+      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        {/* Decision Readiness headline */}
+        <div className="rounded-xl border-2 border-slate-200 bg-slate-50/50 p-4 flex items-center gap-3.5">
+          <ReadinessDial value={p.readiness.overall} size={54}/>
+          <div className="flex-1"><div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">Decision Readiness</div>
+            <div className="font-extrabold text-[16px] text-ink">{READY_BAND(p.readiness.overall).label} — {p.readiness.overall}%</div>
+            <div className="text-[12px] text-ink-mute">{p.readiness.action}</div></div>
         </div>
+
         <div className="rounded-xl border p-4" style={{borderColor:col+"55", background:col+"0D"}}>
           <div className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{color:col}}>MBTI · {p.mbti} — {p.mbtiName}</div>
           <p className="text-[13px] leading-relaxed text-ink-soft">{p.behaviour}</p>
         </div>
-        <Field label="Experience">{p.years} · {p.practice}</Field>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Field label="Specialty">{p.specialty}</Field>
+          <Field label="Experience">{p.years}</Field>
+          <Field label="Behavioural segment">{p.cohort} (Segment {p.code})</Field>
+          <Field label="Preferred channel">{p.channel}</Field>
+        </div>
         <Field label="Motivations">{p.motivations}</Field>
         <Field label="Barriers">{p.barriers}</Field>
         <Field label="Preferred messaging">{p.messaging}</Field>
         <Field label="Communication style">{p.comms}</Field>
         <Field label="Treatment behaviour">{p.treatment}</Field>
+        <Field label="Therapy switching behaviour">{p.switching}</Field>
+
+        {/* Why this score? — Explainable Decision Readiness Framework */}
+        <Expander icon="bolt" title="Why this score?" sub="Explainable Decision Readiness — weighted behavioural factors" defaultOpen={true}>
+          <ReadinessBreakdown r={p.readiness}/>
+        </Expander>
+
+        {/* Why this persona? — evidence provenance */}
+        <Expander icon="shield" title="Why this persona?" sub="Research provenance & assumptions" tone="emerald">
+          <div className="space-y-2 mb-3">
+            <EvRow label="Supporting research">{e.research}</EvRow>
+            <EvRow label="Survey / sample size">{e.sample}</EvRow>
+            <EvRow label="Behavioural cluster">{e.cluster}</EvRow>
+            <EvRow label="Commercial segmentation">{e.segmentation}</EvRow>
+          </div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-1.5">Key assumptions</div>
+          <div className="space-y-1 mb-3">{e.assumptions.map((a,i)=><div key={i} className="flex gap-2 text-[12.5px] text-ink-soft"><span className="text-indigo-500 shrink-0">·</span>{a}</div>)}</div>
+          <div className="grid sm:grid-cols-2 gap-3 mb-3">
+            <div><div className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1.5">Supporting evidence</div>
+              <div className="space-y-1">{e.supporting.map((s,i)=><div key={i} className="flex gap-1.5 text-[12px] text-ink-soft"><span className="text-emerald-600 mt-0.5 shrink-0"><Icon.check size={12}/></span>{s}</div>)}</div></div>
+            <div><div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1.5">Contradictory evidence</div>
+              <div className="space-y-1">{e.contradictory.map((s,i)=><div key={i} className="flex gap-1.5 text-[12px] text-ink-soft"><span className="text-amber-600 mt-0.5 shrink-0"><Icon.split size={12}/></span>{s}</div>)}</div></div>
+          </div>
+          <div className="rounded-lg border border-dashed border-indigo-200 bg-indigo-50/40 px-3 py-2 text-[12px] text-ink-soft">
+            <span className="font-bold text-indigo-700">Recommended validation: </span>{e.validation}</div>
+          <div className="mt-3"><CitationChip id="c3"/></div>
+        </Expander>
+
         <div className="rounded-xl border border-line bg-slate-50/60 p-3.5 text-[11.5px] text-ink-mute flex items-start gap-2">
           <Icon.shield size={13} cls="text-emerald-600 mt-0.5 shrink-0"/>
-          <span>Synthetic persona generated from the HCP segmentation framework <CitationChip id="c3"/> — no real physician data.</span>
+          <span>Synthetic profile generated from the HCP segmentation framework — no real physician data. Scores are transparent and adjustable.</span>
         </div>
+      </div>
+    </div>
+  </div>;
+}
+
+// Edit a persona's behavioural assumptions — human oversight over the synthetic model.
+function PersonaEditModal({p, onSave, onClose}) {
+  const col=PTONE[p.tone];
+  const MBTIS=["ENTJ","ISTJ","ISFJ","ENFP","INTP","ESTJ","INFJ","ENTP","ISTP","ESFJ","INTJ","ENFJ"];
+  const [f,setF]=useState({ mbti:p.mbti, motivations:p.motivations, behaviour:p.behaviour, messaging:p.messaging, barriers:p.barriers });
+  const set=(k,v)=>setF(s=>({...s,[k]:v}));
+  const TA=({label, k, rows=2})=><div>
+    <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-1">{label}</div>
+    <textarea value={f[k]} onChange={e=>set(k,e.target.value)} rows={rows}
+      className="w-full rounded-xl border border-line bg-white px-3 py-2 text-[13px] leading-relaxed outline-none focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50 resize-none"/>
+  </div>;
+  return <div className="fixed inset-0 z-[55] grid place-items-center px-4 py-8">
+    <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px] animate-fadein" onClick={onClose}/>
+    <div className="relative w-full max-w-lg max-h-full overflow-y-auto bg-white rounded-2xl shadow-pop animate-fadeup">
+      <div className="px-6 pt-5 pb-4 border-b border-line flex items-center gap-3 sticky top-0 bg-white z-10">
+        <span className="w-9 h-9 rounded-xl grid place-items-center text-white font-extrabold text-[13px] shrink-0" style={{background:`linear-gradient(135deg, ${col}, ${col}CC)`}}>{p.avatar}</span>
+        <div className="flex-1"><div className="font-bold text-[15px] text-ink">Edit persona — {p.name}</div>
+          <div className="text-[12px] text-ink-mute">Human oversight over the synthetic model. Changes are attributed and logged.</div></div>
+        <button onClick={onClose} className="text-ink-mute hover:text-ink hover:bg-slate-100 rounded-lg p-1.5"><Icon.x size={18}/></button>
+      </div>
+      <div className="px-6 py-5 space-y-4">
+        <div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-1.5">MBTI profile</div>
+          <div className="flex flex-wrap gap-1.5">
+            {MBTIS.map(m=><button key={m} onClick={()=>set("mbti",m)}
+              className={cx("text-[12px] font-bold rounded-lg px-2.5 py-1.5 transition", f.mbti===m?"bg-indigo-600 text-white":"bg-slate-100 text-ink-soft hover:bg-slate-200")}>{m}</button>)}
+          </div>
+        </div>
+        <TA label="Behavioural assumptions" k="behaviour" rows={3}/>
+        <TA label="Motivations" k="motivations"/>
+        <TA label="Barriers" k="barriers"/>
+        <TA label="Preferred messaging" k="messaging" rows={3}/>
+      </div>
+      <div className="px-6 py-4 border-t border-line bg-slate-50/60 flex items-center gap-3">
+        <span className="text-[11.5px] text-ink-mute flex-1 flex items-center gap-1.5"><Icon.shield size={13} cls="text-emerald-600"/>Recalibrates this persona's simulation.</span>
+        <Button variant="outline" size="sm" onClick={onClose}>Cancel</Button>
+        <Button variant="emerald" size="sm" icon={<Icon.check size={14}/>} onClick={()=>onSave(p.id,f)}>Save changes</Button>
       </div>
     </div>
   </div>;
@@ -2082,25 +2298,7 @@ function AssetTestPanel({onClose}) {
           </span>
         </div>
         <div className="space-y-2.5">
-          {order.map(p=>{ const s=asset.scores[p.id]; const B=BAND[s.band];
-            return <div key={p.id} className={cx("rounded-xl border p-3.5", B.ring, B.bg)}>
-              <div className="flex items-center gap-3">
-                <span className="w-8 h-8 rounded-lg grid place-items-center text-white font-extrabold text-[11px] shrink-0"
-                  style={{background:`linear-gradient(135deg, ${PTONE[p.tone]}, ${PTONE[p.tone]}CC)`}}>{p.avatar}</span>
-                <div className="min-w-0 flex-1">
-                  <div className="font-bold text-[13px] text-ink truncate">{p.name}</div>
-                  <div className={cx("text-[11px] font-semibold", B.fg)}>{s.emotion}</div>
-                </div>
-                <div className="text-right shrink-0">
-                  <div className={cx("text-[16px] font-extrabold", B.fg)}>{s.pct}%</div>
-                  <div className="text-[9px] font-bold uppercase tracking-wide text-ink-faint">relevant</div>
-                </div>
-              </div>
-              <div className="mt-2 h-1.5 rounded-full bg-white/70 overflow-hidden">
-                <div className={cx("h-full rounded-full barfill", B.bar)} style={{width:s.pct+"%"}}/>
-              </div>
-              <div className="mt-2 text-[12px] text-ink-soft leading-snug">{s.note}</div>
-            </div>;})}
+          {order.map(p=><AssetScoreRow key={p.id} p={p} s={asset.scores[p.id]}/>)}
         </div>
 
         <div className="mt-4 flex items-center gap-2">
@@ -2112,12 +2310,57 @@ function AssetTestPanel({onClose}) {
   </div>;
 }
 
-function PersonasScreen() {
+// One row of the asset heat-map, with a transparent "why this score?" breakdown.
+function AssetScoreRow({p, s}) {
+  const B=BAND[s.band]; const [open,setOpen]=useState(false);
+  const clamp=(n)=>Math.max(20,Math.min(99,Math.round(n)));
+  const factors=[ {k:"Message–belief fit",v:clamp(s.pct+ (s.band==="green"?4:s.band==="red"?-6:0))},
+    {k:"Channel fit",v:clamp(s.pct-3)},
+    {k:"Evidence strength",v:clamp(s.pct+7)},
+    {k:"Behavioural receptivity",v:clamp(s.pct- (s.band==="red"?4:-2))} ];
+  return <div className={cx("rounded-xl border p-3.5", B.ring, B.bg)}>
+    <div className="flex items-center gap-3">
+      <span className="w-8 h-8 rounded-lg grid place-items-center text-white font-extrabold text-[11px] shrink-0"
+        style={{background:`linear-gradient(135deg, ${PTONE[p.tone]}, ${PTONE[p.tone]}CC)`}}>{p.avatar}</span>
+      <div className="min-w-0 flex-1">
+        <div className="font-bold text-[13px] text-ink truncate">{p.name}</div>
+        <div className={cx("text-[11px] font-semibold", B.fg)}>{s.emotion}</div>
+      </div>
+      <div className="text-right shrink-0">
+        <div className={cx("text-[16px] font-extrabold", B.fg)}>{s.pct}%</div>
+        <div className="text-[9px] font-bold uppercase tracking-wide text-ink-faint">relevant</div>
+      </div>
+    </div>
+    <div className="mt-2 h-1.5 rounded-full bg-white/70 overflow-hidden">
+      <div className={cx("h-full rounded-full barfill", B.bar)} style={{width:s.pct+"%"}}/>
+    </div>
+    <div className="mt-2 text-[12px] text-ink-soft leading-snug">{s.note}</div>
+    <button onClick={()=>setOpen(o=>!o)} className={cx("mt-2 inline-flex items-center gap-1 text-[11px] font-semibold transition", B.fg)}>
+      Why this score?<span className={cx("transition-transform", open&&"rotate-90")}><Icon.chevron size={12}/></span></button>
+    {open && <div className="mt-2 space-y-1.5 animate-fadein">
+      {factors.map((f,i)=><div key={i} className="flex items-center gap-2.5">
+        <span className="text-[11px] text-ink-soft w-[140px] shrink-0">{f.k}</span>
+        <div className="flex-1 h-1.5 rounded-full bg-white/70 overflow-hidden"><div className={cx("h-full rounded-full",B.bar)} style={{width:f.v+"%"}}/></div>
+        <span className="text-[10.5px] font-bold text-ink w-8 text-right shrink-0">{f.v}%</span>
+      </div>)}
+    </div>}
+  </div>;
+}
+
+function PersonasScreen({app}) {
   const [open,setOpen]=useState(null);
+  const [editId,setEditId]=useState(null);
   const [test,setTest]=useState(false);
-  const p = PERSONAS.find(x=>x.id===open);
+  const [edits,setEdits]=useState({});   // id -> {mbti,motivations,behaviour,messaging,barriers}
+  const merged = (x)=> edits[x.id] ? {...x, ...edits[x.id]} : x;
+  const list = PERSONAS.map(merged);
+  const p = list.find(x=>x.id===open);
+  const ep = list.find(x=>x.id===editId);
+  const save=(id,f)=>{ setEdits(s=>({...s,[id]:f})); setEditId(null);
+    app && app.toast("Persona recalibrated · change logged to the audit trail");
+    app && app.log && app.log("Recalibrated synthetic persona “"+PERSONAS.find(x=>x.id===id).name+"” — MBTI/assumptions updated", [], null, "Verified", "indigo"); };
   return <div className="max-w-5xl mx-auto pb-24">
-    <ScreenHeader title="HCP Persona Studio" sub="Five synthetic ophthalmologists — one for each segmentation cohort. Test messaging and assets against how each actually decides."
+    <ScreenHeader title="HCP Synthetic Simulation" sub="Five synthetic ophthalmologists — one per segmentation cohort. Simulate how each decides, and test messaging and assets against them."
       right={<Button size="sm" onClick={()=>setTest(true)} icon={<Icon.eye size={15}/>}>Test an asset</Button>}/>
     <div className="mb-5 rounded-xl border border-line bg-white shadow-card px-4 py-3 flex items-center gap-3 text-[12.5px] text-ink-soft">
       <span className="text-indigo-600"><Icon.users size={17}/></span>
@@ -2125,9 +2368,10 @@ function PersonasScreen() {
       <span className="ml-auto text-[11px] text-ink-faint hidden sm:flex items-center gap-1.5 shrink-0"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>172,828-HCP universe</span>
     </div>
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
-      {PERSONAS.map(x=><PersonaCard key={x.id} p={x} onOpen={setOpen}/>)}
+      {list.map(x=><PersonaCard key={x.id} p={x} onOpen={setOpen} onEdit={setEditId} edited={!!edits[x.id]}/>)}
     </div>
-    {p && <PersonaPanel p={p} onClose={()=>setOpen(null)}/>}
+    {p && <PersonaPanel p={p} onClose={()=>setOpen(null)} onEdit={(id)=>{setOpen(null);setEditId(id);}}/>}
+    {ep && <PersonaEditModal p={ep} onSave={save} onClose={()=>setEditId(null)}/>}
     {test && <AssetTestPanel onClose={()=>setTest(false)}/>}
   </div>;
 }
@@ -2292,11 +2536,11 @@ const NAV=[
   { id:"pulse", label:"Brand Pulse", icon:"pulse" },
   { id:"library", label:"Library", icon:"library" },
   { id:"brand", label:"Brand Brain", icon:"brain" },
-  { id:"personas", label:"HCP Personas", icon:"users" },
+  { id:"personas", label:"HCP Synthetic Simulation", icon:"users" },
   { id:"mlr", label:"MLR Review", icon:"stamp" },
   { id:"audit", label:"Audit Trail", icon:"list" },
 ];
-const ROADMAP=["Recommendations","Field Copilot"];
+const ROADMAP=["Brand Launchpad","Concept AI"];
 
 function BrandSwitcher({app}) {
   const [open,setOpen]=useState(false);
@@ -2377,7 +2621,7 @@ function Toast({message}) {
   </div>;
 }
 
-const NAV_TITLES={ ask:"Ask", pulse:"Brand Pulse", library:"Library", brand:"Brand Brain", personas:"HCP Personas", mlr:"MLR Review", audit:"Audit Trail" };
+const NAV_TITLES={ ask:"Ask", pulse:"Brand Pulse", library:"Library", brand:"Brand Brain", personas:"HCP Synthetic Simulation", mlr:"MLR Review", audit:"Audit Trail" };
 
 // Slim top bar with browser-style back / forward arrows — present on every screen.
 function TopBar({app}) {
@@ -2397,53 +2641,200 @@ function TopBar({app}) {
 }
 
 // A small always-available assistant, docked bottom-right on every screen.
+/* ------------------------------------------------------------------ RAG ASSISTANT */
+// The retrieval sources the assistant visibly searches before answering.
+const RAG_SOURCES = [
+  { label:"Brand Plan", doc:"YI Combo Brand Plan 2025" },
+  { label:"Market Research", doc:"Ophthal Market Sizing — IQVIA" },
+  { label:"Physician Interviews", doc:"Qualitative Interviews — Ophthalmologists" },
+  { label:"Clinical Studies", doc:"Ali et al. 2011 — Five-Year Safety Study" },
+  { label:"Competitive Intelligence", doc:"Ophthal Market Sizing — IQVIA · Sheet 2–3" },
+  { label:"Commercial Insights", doc:"HCP Segmentation — Final Report" },
+];
+// Grounded, structured answers retrieved from the estate. readiness replaces raw "confidence".
+const RAG_ANSWERS = {
+  switching:{ match:/switch|driver|why.*prescrib|move.*patient/,
+    summary:"Ophthalmologists are switching to YI Combo faster than any brand in the Latanoprost+Timolol segment — 42.3% value share within three years — but the evidence disagrees on what actually triggers the switch.",
+    insights:[
+      { text:"Value share rose 21.7% → 33.1% → 42.3% (FY24–26), making YI Combo the #1 brand by MAT 2026.", cites:["c1","c2"] },
+      { text:"Stated switch driver is once-daily convenience (58%, ATU); interviews say belief in IOP control decides in practice.", cites:["c5","c4"] },
+    ],
+    sources:["Ophthal Market Sizing — IQVIA","Qualitative Interviews — Ophthalmologists","YI Combo ATU Analysis"],
+    readiness:{ score:89, quality:"High", certainty:"High", risk:"Low", action:"Ready for Brand Team review" },
+    contradiction:"ATU (stated convenience, 58%) vs. qualitative (behavioural belief in control). Preserved, not averaged.",
+    next:"Lead belief-shift messaging on guideline-backed IOP control, reinforced by once-daily convenience." },
+  adherence:{ match:/adherence|persist|barrier|compliance/,
+    summary:"Multi-bottle regimen complexity is the recurring adherence barrier; the once-daily FDC directly answers it, with 97% persistence at 6 months — but longer-term evidence is legacy-molecule only.",
+    insights:[
+      { text:"97% of patients persisted with YI Combo over 6 months (approved claim, CL-022).", cites:["c8"] },
+      { text:"Beyond 6 months, persistence evidence is Xalacom-era only (Ali 2011) — a YI Combo-specific tracker is flagged.", cites:["c6"] },
+    ],
+    sources:["HCP Email — Once-Daily Glaucoma Control","Ali et al. 2011 — Five-Year Safety Study"],
+    readiness:{ score:78, quality:"Medium", certainty:"Medium", risk:"Medium", action:"Commission real-world persistence tracker" },
+    contradiction:"6-month brand data vs. 5-year legacy-molecule data — do not conflate the two horizons.",
+    next:"Scope persistence claims to 6 months; commission a YI Combo real-world persistence study." },
+  objections:{ match:/objection|concern|pushback|resist/,
+    summary:"Three physician objections recur: comfort with familiar monotherapy, beta-blocker caution, and price versus older generic FDCs.",
+    insights:[
+      { text:"Habit is the strongest brake among Independent Habitualists — switching reads as risk, not progress.", cites:["c4"] },
+      { text:"Beta-blocker caution (asthma/COPD, bradycardia) is the standing safety objection; approved responses exist.", cites:["c8"] },
+      { text:"Price sensitivity at a ₹321 net pack price versus established generics.", cites:["c2"] },
+    ],
+    sources:["Qualitative Interviews — Ophthalmologists","HCP Email — Once-Daily Glaucoma Control"],
+    readiness:{ score:82, quality:"High", certainty:"Medium", risk:"Low", action:"Ready for Brand Team review" },
+    contradiction:null,
+    next:"Equip the field with approved objection responses; lead Habitualists on long-term safety." },
+  competitor:{ match:/competitor|competitive|market|share|xalacom|rival|landscape/,
+    summary:"YI Combo is #1 in the Lat/Tim FDC segment (42.3%), ahead of Xalacom (19.1%) and Latocom (16.6%) — but the real threat is class-level: rho-kinase inhibitors compounding at 68.7%.",
+    insights:[
+      { text:"Xalacom growth slowed to +2.7% as YI Combo took segment leadership.", cites:["c1"] },
+      { text:"Rho-kinase inhibitor class now ₹55.1 Cr — larger than the entire Lat/Tim FDC segment.", cites:["c9"] },
+    ],
+    sources:["Ophthal Market Sizing — IQVIA","YI Combo Brand Plan 2025"],
+    readiness:{ score:86, quality:"High", certainty:"High", risk:"Medium", action:"Monitor class-level threat quarterly" },
+    contradiction:null,
+    next:"Defend segment leadership; brief the team on the rho-kinase class trajectory." },
+  segments:{ match:/segment|cohort|persona|prioriti|target|which.*hcp/,
+    summary:"Three of five cohorts are priority — Prostaglandin-Sparing Advocates, Network-Controlled Providers and Independent Habitualists — together 43% of HCPs but 83% of segment TRx.",
+    insights:[
+      { text:"Advocates (17%/36% TRx) and Habitualists (10%/25%) are the highest-yield audiences.", cites:["c3"] },
+      { text:"Network-Controlled Providers (16%/22%) are attractive but formulary-gated.", cites:["c11"] },
+    ],
+    sources:["HCP Segmentation — Final Report"],
+    readiness:{ score:84, quality:"High", certainty:"High", risk:"Low", action:"Ready for Brand Team review" },
+    contradiction:null,
+    next:"Concentrate field effort on Advocates + Habitualists; commission the IDN access study first." },
+  changed:{ match:/chang|last quarter|since|trend|recent/,
+    summary:"YI Combo's MAT value accelerated to +56.5% YoY (₹6.9 → 10.8 Cr) and the prescriber base added 260 physicians — segment rank moved to #1, passing Xalacom.",
+    insights:[
+      { text:"MAT value ₹6.9 → 10.8 Cr (+56.5%); prescriber base 690 → 950.", cites:["c2"] },
+      { text:"Segment rank moved to #1; Xalacom growth slowed to +2.7%.", cites:["c1"] },
+    ],
+    sources:["Ophthal Market Sizing — IQVIA"],
+    readiness:{ score:90, quality:"High", certainty:"High", risk:"Low", action:"Ready for Brand Team review" },
+    contradiction:null,
+    next:"Sustain the trajectory — expand the prescriber base toward the 2,000 Brand Plan target." },
+};
+const RAG_DEFAULT = {
+  summary:"I searched the governed estate for relevant evidence. Here's what YI Combo currently knows on that topic — grounded in the market sizing, segmentation and clinical sources.",
+  insights:[
+    { text:"YI Combo is the #1 Latanoprost+Timolol FDC brand at 42.3% value share, MAT 2026.", cites:["c1"] },
+    { text:"Growth is prescriber-concentrated: 950 prescribers carry the full ₹10.8 Cr.", cites:["c2","c3"] },
+  ],
+  sources:["Ophthal Market Sizing — IQVIA","HCP Segmentation — Final Report"],
+  readiness:{ score:76, quality:"Medium", certainty:"Medium", risk:"Low", action:"Refine the question for a sharper answer" },
+  contradiction:null,
+  next:"Try a specific strategic question — e.g. switch drivers, objections, competitors or segments." };
+
+function ragRetrieve(q){ const t=q.toLowerCase();
+  for(const k in RAG_ANSWERS){ if(RAG_ANSWERS[k].match.test(t)) return RAG_ANSWERS[k]; }
+  return RAG_DEFAULT; }
+
+// A structured, cited RAG answer bubble — Executive Summary → Insights → Sources → Decision Readiness → Contradiction → Next action.
+function RagAnswer({data}) {
+  const B=READY_BAND(data.readiness.score);
+  return <div className="rounded-2xl border border-line bg-white overflow-hidden">
+    <div className="px-3.5 pt-3 pb-2 border-b border-line bg-slate-50/60">
+      <div className="text-[9px] font-bold uppercase tracking-wider text-ink-faint mb-1">Executive summary</div>
+      <p className="text-[12.5px] leading-relaxed text-ink">{data.summary}</p>
+    </div>
+    <div className="px-3.5 py-2.5 space-y-2">
+      <div className="text-[9px] font-bold uppercase tracking-wider text-ink-faint">Evidence-backed insights</div>
+      {data.insights.map((ins,i)=><div key={i} className="text-[12px] leading-relaxed text-ink-soft">
+        <span className="text-emerald-600 mr-1">•</span>{ins.text} <span className="inline-flex align-middle ml-0.5"><Cites ids={ins.cites}/></span>
+      </div>)}
+    </div>
+    {data.contradiction && <div className="mx-3.5 mb-2.5 rounded-lg border border-amber-200 bg-amber-50/60 px-3 py-2">
+      <div className="text-[9px] font-bold uppercase tracking-wider text-amber-700 mb-0.5 flex items-center gap-1"><Icon.split size={11}/>Contradictory findings</div>
+      <p className="text-[11.5px] leading-snug text-ink-soft">{data.contradiction}</p></div>}
+    <div className="px-3.5 pb-2.5">
+      <div className="text-[9px] font-bold uppercase tracking-wider text-ink-faint mb-1">Source documents</div>
+      <div className="flex flex-wrap gap-1">{data.sources.map((s,i)=><span key={i} className="inline-flex items-center gap-1 text-[10.5px] font-semibold text-ink-soft bg-slate-100 rounded px-1.5 py-0.5"><Icon.doc size={10}/>{s}</span>)}</div>
+    </div>
+    <div className="px-3.5 py-2.5 border-t border-line bg-slate-900 text-white">
+      <div className="flex items-center gap-2">
+        <ReadinessDial value={data.readiness.score} size={34}/>
+        <div className="flex-1"><div className="text-[9px] font-bold uppercase tracking-wider text-white/50">Decision Readiness</div>
+          <div className="text-[12px] font-bold">{READY_BAND(data.readiness.score).label} · {data.readiness.score}%</div></div>
+      </div>
+      <div className="mt-2 grid grid-cols-3 gap-1.5 text-center">
+        {[["Evidence",data.readiness.quality],["Certainty",data.readiness.certainty],["Risk",data.readiness.risk]].map(([k,v],i)=>
+          <div key={i} className="rounded bg-white/10 px-1 py-1"><div className="text-[8px] font-bold uppercase tracking-wide text-white/45">{k}</div><div className="text-[10.5px] font-bold">{v}</div></div>)}
+      </div>
+    </div>
+    <div className="px-3.5 py-2.5 border-t border-line flex items-start gap-1.5">
+      <span className="text-indigo-600 mt-0.5 shrink-0"><Icon.bolt size={12}/></span>
+      <div><div className="text-[9px] font-bold uppercase tracking-wider text-ink-faint">Recommended next action</div>
+        <p className="text-[12px] leading-snug text-ink">{data.next}</p></div>
+    </div>
+  </div>;
+}
+
 function ChatDock({app}) {
   const [open,setOpen]=useState(false);
-  const [msgs,setMsgs]=useState([{ from:"bot", text:"Hi — I'm your BrandBrain copilot. Ask me anything about YI Combo, or tell me where to go." }]);
+  const [msgs,setMsgs]=useState([{ from:"bot", kind:"text", text:"Hi — I'm your Brand Intelligence Assistant. Ask a strategic question and I'll retrieve the evidence from your Library before answering." }]);
   const [val,setVal]=useState("");
+  const [busy,setBusy]=useState(false);
+  const [retr,setRetr]=useState({active:false, step:0});
   const endRef=useRef(null);
-  useEffect(()=>{ if(endRef.current) endRef.current.scrollIntoView({behavior:"smooth"}); },[msgs,open]);
-  const reply=(q)=>{
-    const t=q.toLowerCase(); let text, action=null;
-    if(/graph|knowledge/.test(t)){ text="Opening the Semantic Knowledge Graph — YI Combo sits at the centre with every study, segment and claim wired around it."; action=()=>{app.setBrainTab("graph");app.go("brand");}; }
-    else if(/persona|hcp/.test(t)){ text="Taking you to the HCP Persona Studio — five synthetic ophthalmologists you can test assets against."; action=()=>app.go("personas"); }
-    else if(/mlr|review|approv/.test(t)){ text="Here's the live MLR review queue — automated checks plus a named reviewer."; action=()=>app.go("mlr"); }
-    else if(/pulse|competitor|market|share/.test(t)){ text="Opening Brand Pulse — KPIs, competitor moves and the weekly briefing from the IQVIA workbook."; action=()=>app.go("pulse"); }
-    else if(/switch|driver|adherence|objection/.test(t)){ text="Best answered in Ask, where the synthesis cites the IQVIA data, segmentation and interviews — routing you there."; action=()=>app.go("ask"); }
-    else if(/library|document|connector|upload/.test(t)){ text="Opening the Library — 9 governed sources plus your SharePoint, Outlook, CRM and Veeva connectors."; action=()=>app.go("library"); }
-    else if(/audit|trail|log/.test(t)){ text="Here's the Audit Trail — every action timestamped, named and cited."; action=()=>app.go("audit"); }
-    else { text="I can point you to the Brand Brain graph, HCP personas, MLR review, Brand Pulse, the Library, or a cited answer in Ask. What are you after?"; }
-    setMsgs(m=>[...m,{from:"bot",text}]); if(action) setTimeout(action,600);
+  useEffect(()=>{ if(endRef.current) endRef.current.scrollIntoView({behavior:"smooth"}); },[msgs,open,retr]);
+
+  const ask=(q)=>{
+    if(busy) return;
+    setMsgs(m=>[...m,{from:"me",kind:"text",text:q}]); setBusy(true); setRetr({active:true, step:0});
+    const total=RAG_SOURCES.length+1; // +1 for synthesizing
+    let i=0; const t=setInterval(()=>{ i++; setRetr({active:true, step:i});
+      if(i>=total){ clearInterval(t);
+        setTimeout(()=>{ const data=ragRetrieve(q); setRetr({active:false, step:0}); setBusy(false);
+          setMsgs(m=>[...m,{from:"bot", kind:"rag", data}]); }, 500);
+      } }, 520);
   };
-  const send=()=>{ const q=val.trim(); if(!q) return; setMsgs(m=>[...m,{from:"me",text:q}]); setVal(""); setTimeout(()=>reply(q),350); };
+  const send=()=>{ const q=val.trim(); if(!q||busy) return; setVal(""); ask(q); };
+
   return <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-3">
-    {open && <div className="w-[340px] rounded-2xl bg-white border border-line shadow-pop overflow-hidden animate-fadeup flex flex-col" style={{height:"440px"}}>
+    {open && <div className="w-[380px] rounded-2xl bg-white border border-line shadow-pop overflow-hidden animate-fadeup flex flex-col" style={{height:"560px"}}>
       <div className="px-4 py-3 border-b border-line flex items-center gap-2.5 bg-gradient-to-r from-fuchsia-50/60 to-indigo-50/60">
         <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-fuchsia-600 to-indigo-600 text-white grid place-items-center"><Icon.sparkles size={16}/></span>
-        <div className="flex-1"><div className="font-bold text-[13.5px] text-ink">BrandBrain Copilot</div>
-          <div className="text-[10.5px] text-ink-mute flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>Grounded in your estate</div></div>
+        <div className="flex-1"><div className="font-bold text-[13.5px] text-ink">Brand Intelligence Assistant</div>
+          <div className="text-[10.5px] text-ink-mute flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>RAG · grounded in your Library</div></div>
         <button onClick={()=>setOpen(false)} className="text-ink-mute hover:text-ink hover:bg-white/60 rounded-lg p-1"><Icon.x size={16}/></button>
       </div>
       <div className="flex-1 overflow-y-auto p-3.5 space-y-2.5">
-        {msgs.map((m,i)=><div key={i} className={cx("flex", m.from==="me"?"justify-end":"justify-start")}>
-          <div className={cx("max-w-[80%] rounded-2xl px-3.5 py-2 text-[12.5px] leading-relaxed",
-            m.from==="me"?"bg-indigo-600 text-white rounded-br-sm":"bg-slate-100 text-ink rounded-bl-sm")}>{m.text}</div>
-        </div>)}
+        {msgs.map((m,i)=>{
+          if(m.from==="me") return <div key={i} className="flex justify-end"><div className="max-w-[82%] rounded-2xl rounded-br-sm bg-indigo-600 text-white px-3.5 py-2 text-[12.5px] leading-relaxed">{m.text}</div></div>;
+          if(m.kind==="rag") return <div key={i} className="flex justify-start"><div className="max-w-[92%] w-full">{<RagAnswer data={m.data}/>}</div></div>;
+          return <div key={i} className="flex justify-start"><div className="max-w-[82%] rounded-2xl rounded-bl-sm bg-slate-100 text-ink px-3.5 py-2 text-[12.5px] leading-relaxed">{m.text}</div></div>;
+        })}
+        {retr.active && <div className="flex justify-start"><div className="max-w-[92%] w-full rounded-2xl border border-line bg-white p-3">
+          <div className="flex items-center gap-2 mb-2.5">
+            <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-60"/><span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600"/></span>
+            <span className="text-[11.5px] font-bold text-ink">Retrieving evidence…</span></div>
+          <div className="space-y-1.5">
+            {RAG_SOURCES.map((s,j)=><div key={j} className={cx("flex items-center gap-2 text-[11.5px] transition-all duration-300", j<retr.step?"text-ink-soft":j===retr.step?"text-ink":"text-ink-faint opacity-40")}>
+              <span className="w-3.5 h-3.5 shrink-0">{j<retr.step?<span className="text-emerald-600"><Icon.check size={13}/></span>
+                :j===retr.step?<span className="block w-3 h-3 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"/>
+                :<span className="block w-1 h-1 rounded-full bg-slate-300 ml-1.5"/>}</span>
+              Searching {s.label}…</div>)}
+            <div className={cx("flex items-center gap-2 text-[11.5px] pt-1 border-t border-line mt-1", retr.step>=RAG_SOURCES.length?"text-ink font-semibold":"text-ink-faint opacity-40")}>
+              <span className="w-3.5 h-3.5 shrink-0">{retr.step>RAG_SOURCES.length?<span className="text-emerald-600"><Icon.check size={13}/></span>:retr.step===RAG_SOURCES.length?<span className="block w-3 h-3 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"/>:<span className="block w-1 h-1 rounded-full bg-slate-300 ml-1.5"/>}</span>
+              Synthesizing evidence…</div>
+          </div>
+        </div></div>}
         <div ref={endRef}/>
       </div>
       <div className="px-3 pb-2 flex flex-wrap gap-1.5">
-        {["Show the graph","Open personas","Competitors?"].map(s=><button key={s} onClick={()=>{setMsgs(m=>[...m,{from:"me",text:s}]);setTimeout(()=>reply(s),350);}}
-          className="text-[11px] font-medium text-ink-soft border border-line rounded-full px-2.5 py-1 hover:border-indigo-200 hover:text-indigo-700 transition">{s}</button>)}
+        {["Switch drivers?","Physician objections?","Competitors?","What changed?"].map(s=><button key={s} disabled={busy} onClick={()=>ask(s)}
+          className="text-[11px] font-medium text-ink-soft border border-line rounded-full px-2.5 py-1 hover:border-indigo-200 hover:text-indigo-700 transition disabled:opacity-40">{s}</button>)}
       </div>
       <div className="p-3 border-t border-line flex items-center gap-2">
-        <input value={val} onChange={e=>setVal(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")send();}}
-          placeholder="Ask the copilot…" className="flex-1 bg-slate-50 border border-line rounded-xl px-3 py-2 text-[13px] outline-none focus:border-indigo-300"/>
-        <button onClick={send} className="w-9 h-9 rounded-xl bg-indigo-600 text-white grid place-items-center hover:bg-indigo-700 transition shrink-0"><Icon.send size={15}/></button>
+        <input value={val} onChange={e=>setVal(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")send();}} disabled={busy}
+          placeholder={busy?"Retrieving…":"Ask a strategic question…"} className="flex-1 bg-slate-50 border border-line rounded-xl px-3 py-2 text-[13px] outline-none focus:border-indigo-300 disabled:opacity-50"/>
+        <button onClick={send} disabled={busy} className="w-9 h-9 rounded-xl bg-indigo-600 text-white grid place-items-center hover:bg-indigo-700 transition shrink-0 disabled:opacity-40"><Icon.send size={15}/></button>
       </div>
     </div>}
     <button onClick={()=>setOpen(o=>!o)}
-      className="w-13 h-13 rounded-2xl bg-gradient-to-br from-fuchsia-600 to-indigo-600 text-white shadow-pop grid place-items-center hover:scale-105 transition-transform"
-      style={{width:"52px",height:"52px"}} title="BrandBrain Copilot">
+      className="rounded-2xl bg-gradient-to-br from-fuchsia-600 to-indigo-600 text-white shadow-pop grid place-items-center hover:scale-105 transition-transform"
+      style={{width:"52px",height:"52px"}} title="Brand Intelligence Assistant">
       {open? <Icon.chevdown size={22}/> : <Icon.sparkles size={22}/>}
     </button>
   </div>;
