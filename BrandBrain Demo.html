@@ -573,6 +573,105 @@ const TEST_ASSETS = [
     } },
 ];
 
+// Deeper behavioural depth per persona — radar axes (0–100) + narrative profile + a
+// confidence interval. Merged onto PERSONAS at render so the base array stays readable.
+const PERSONA_DEPTH = {
+  p1:{ ci:"±4", radar:{ Innovation:88, "Evidence orientation":90, "Brand loyalty":58, "Digital fluency":70, "Risk tolerance":76, "Commercial influence":82 },
+    profile:{ decisionStyle:"Decisive and evidence-led — forms a view quickly, then defends it with data.", riskTolerance:"Moderate-high — will adopt early once a guideline or head-to-head signal exists.",
+      innovation:"Early adopter — among the first to escalate to a new fixed combination.", brandLoyalty:"Low-moderate — loyal to the best-evidenced option, not the brand.",
+      competitive:"Low susceptibility — hard to unseat once convinced, but wins on superior data.", evidencePref:"Peer-reviewed RCTs, guidelines and head-to-head efficacy.",
+      drivers:"Rational-dominant: efficacy, IOP control, guideline alignment. Emotional pull: being seen as ahead of peers.", goals:"Best-in-class outcomes and a reputation for clinical leadership.",
+      influence:"High — a local KOL whose adoption pulls peers along.", digital:"Selective — verifies claims online, engages with evidence emails." } },
+  p2:{ ci:"±7", radar:{ Innovation:60, "Evidence orientation":72, "Brand loyalty":66, "Digital fluency":64, "Risk tolerance":48, "Commercial influence":74 },
+    profile:{ decisionStyle:"Methodical and consensus-bound — defers final say to protocol and committee.", riskTolerance:"Low — avoids anything the network hasn't sanctioned.",
+      innovation:"Late-majority within the institution — adopts once the formulary moves.", brandLoyalty:"Moderate — loyal to the protocol-listed option.",
+      competitive:"Moderate — switchable at the formulary level, not the individual level.", evidencePref:"Health-economic dossiers and network-level outcome data.",
+      drivers:"Rational: defensibility, protocol fit, cost-effectiveness. Emotional: standing within clinical governance.", goals:"Consistent, defensible outcomes across the network.",
+      influence:"High but indirect — shapes formulary, not individual scripts.", digital:"Moderate — institutional portals and approved email." } },
+  p3:{ ci:"±5", radar:{ Innovation:34, "Evidence orientation":74, "Brand loyalty":90, "Digital fluency":38, "Risk tolerance":30, "Commercial influence":66 },
+    profile:{ decisionStyle:"Deliberate and relationship-anchored — changes only after a genuine belief shift.", riskTolerance:"Low — protects a decades-long patient-trust relationship.",
+      innovation:"Late adopter — needs long-term proof and peer precedent.", brandLoyalty:"Very high — deeply sticky once converted.",
+      competitive:"Low once loyal; high before conversion (inertia favours the incumbent).", evidencePref:"Long-term real-world safety and trusted-peer testimony.",
+      drivers:"Emotional-dominant: patient trust, safety, avoiding regret. Rational: five-year evidence.", goals:"Never harm a stable patient; steady, reliable control.",
+      influence:"Moderate — respected locally, quietly influential.", digital:"Low — prefers in-person rep continuity." } },
+  p4:{ ci:"±9", radar:{ Innovation:72, "Evidence orientation":66, "Brand loyalty":50, "Digital fluency":96, "Risk tolerance":64, "Commercial influence":40 },
+    profile:{ decisionStyle:"Curious and fast-moving, but rarely the final escalation decision-maker.", riskTolerance:"Moderate — willing to try, low stakes given small caseload.",
+      innovation:"Early adopter of information, not always of therapy.", brandLoyalty:"Low-moderate — follows the freshest evidence and best content.",
+      competitive:"Moderate-high — easily re-engaged by better digital experiences.", evidencePref:"Digestible, case-based, visually rich evidence.",
+      drivers:"Emotional-rational blend: curiosity, staying current, sharing with peers.", goals:"Be visibly up-to-date and a trusted referrer.",
+      influence:"Low individually, but amplifies content across networks.", digital:"Very high — WhatsApp, short video, digital CME." } },
+  p5:{ ci:"±11", radar:{ Innovation:26, "Evidence orientation":70, "Brand loyalty":72, "Digital fluency":22, "Risk tolerance":24, "Commercial influence":58 },
+    profile:{ decisionStyle:"Analytical but inertial — sharp reasoning, behaviour fixed by formulary.", riskTolerance:"Very low — defaults to the established standard.",
+      innovation:"Laggard commercially — could respond to strong academic HEOR if surfaced.", brandLoyalty:"Moderate-high to the formulary default.",
+      competitive:"Low — promotionally near-unreachable.", evidencePref:"Rigorous academic literature and HEOR.",
+      drivers:"Rational-dominant: departmental stability, teaching, status quo.", goals:"Stability and academic credibility over commercial novelty.",
+      influence:"Moderate — teaches junior consultants who prescribe.", digital:"Very low — reachable only through academic channels." } },
+};
+
+// ---- Multi-dimensional asset evaluation (Test Asset intelligence) ----
+// 14 commercial dimensions each persona scores an asset on.
+const ASSET_DIMS = [
+  { k:"Scientific credibility", axis:"Evidence orientation" },
+  { k:"Message clarity",        axis:null },
+  { k:"Clinical relevance",     axis:"Evidence orientation" },
+  { k:"Emotional resonance",    axis:"Brand loyalty" },
+  { k:"Trust",                  axis:"Brand loyalty" },
+  { k:"Memorability",           axis:"Digital fluency" },
+  { k:"Call-to-action",         axis:"Digital fluency" },
+  { k:"Brand differentiation",  axis:"Commercial influence" },
+  { k:"Competitive positioning",axis:"Innovation" },
+  { k:"Compliance perception",  axis:"Evidence orientation" },
+  { k:"Visual hierarchy",       axis:"Digital fluency" },
+  { k:"Information balance",    axis:null },
+  { k:"Evidence strength",      axis:"Evidence orientation" },
+  { k:"Patient-benefit clarity",axis:null },
+];
+// Per-asset bias for each dimension (how the asset itself plays to that dimension).
+const ASSET_BIAS = {
+  t1:{ "Scientific credibility":6,"Message clarity":8,"Clinical relevance":4,"Emotional resonance":10,"Trust":14,"Memorability":-4,"Call-to-action":-16,"Brand differentiation":-2,"Competitive positioning":-6,"Compliance perception":10,"Visual hierarchy":4,"Information balance":6,"Evidence strength":-8,"Patient-benefit clarity":-6 },
+  t2:{ "Scientific credibility":12,"Message clarity":10,"Clinical relevance":10,"Emotional resonance":-6,"Trust":8,"Memorability":2,"Call-to-action":-4,"Brand differentiation":8,"Competitive positioning":6,"Compliance perception":8,"Visual hierarchy":6,"Information balance":4,"Evidence strength":6,"Patient-benefit clarity":-2 },
+};
+// Deterministic per-(asset,persona,dimension) score — grounded in the persona's overall
+// relevance, the asset's dimension bias, and the persona's matching radar axis. No RNG.
+function assetDimScore(assetId, persona, dim){
+  const base = TEST_ASSETS.find(a=>a.id===assetId).scores[persona.id].pct;
+  const bias = (ASSET_BIAS[assetId]||{})[dim.k] || 0;
+  const axisV = dim.axis ? (PERSONA_DEPTH[persona.id].radar[dim.axis]||60) : 60;
+  const axisAdj = (axisV-60)/4;                        // stronger axis → higher dim score
+  const h = (assetId.charCodeAt(1)*7 + persona.id.charCodeAt(1)*13 + dim.k.length*5) % 9 - 4; // stable jitter −4..4
+  return Math.max(18, Math.min(99, Math.round(base + bias + axisAdj + h)));
+}
+function dimBand(v){ return v>=78?"green":v>=60?"yellow":"red"; }
+
+// Consensus + prioritized recommendations per asset (authored, brand-plan grounded).
+const ASSET_CONSENSUS = {
+  t1:{ agree:[
+      "All five personas find the five-year safety claim credible and trust-building — Trust and Compliance perception score highest across the cohort.",
+      "Consensus that the once-daily message is clear and clinically relevant to open-angle glaucoma.",
+      "Every persona flags a weak call-to-action and thin on-asset evidence (no study N, comparator or next step).",
+    ], disagree:[
+      { a:"Evidence-driven personas", b:"Belief-driven persona", text:"Prostaglandin-Sparing Advocate and Network-Controlled Provider want the study N and comparator on the asset; the Independent Habitualist is already reassured by the safety framing alone. The split is driven by evidence-orientation vs. relationship-anchored trust." },
+      { a:"Digital-native persona", b:"Relationship-led personas", text:"The Low-volume Enthusiast rates the static banner low on memorability and CTA; the Habitualist and Delayed Digitalist are indifferent to format. Digital fluency, not the message, drives the gap." },
+    ], recs:[
+      { p:"High", text:"Add the trial name, N and comparator beneath the tolerability claim to satisfy evidence-driven prescribers before MLR." },
+      { p:"High", text:"Introduce an explicit patient-benefit line and a clear next step (QR / URL) to lift the weak call-to-action." },
+      { p:"Medium", text:"Add a one-line efficacy or guideline anchor so the asset does not read as safety-only." },
+      { p:"Medium", text:"Offer a short-video or interactive variant for digitally-engaged, low-volume prescribers." },
+    ] },
+  t2:{ agree:[
+      "All personas rate the four-guideline endorsement (EGS · AAO · NICE · ICO) as highly credible and differentiating.",
+      "Message clarity, clinical relevance and scientific credibility score strongly across the cohort.",
+      "Personas agree emotional resonance and patient-benefit communication are the weakest dimensions.",
+    ], disagree:[
+      { a:"Habit-driven persona", b:"Evidence-led persona", text:"The Independent Habitualist wants long-term safety alongside the guideline claim; the Prostaglandin-Sparing Advocate is fully converted by the consensus alone. Innovation adoption style explains the difference." },
+      { a:"Network-Controlled persona", b:"Academic persona", text:"The Network-Controlled Provider flags a missing formulary / value framing that the Delayed Digitalist does not prioritise — institutional vs. academic decision context." },
+    ], recs:[
+      { p:"High", text:"Pair the guideline consensus with a one-line long-term safety proof point for habit-driven prescribers." },
+      { p:"Medium", text:"Add a formulary / value cue for IDN-controlled prescribers to raise commercial relevance." },
+      { p:"Medium", text:"Include a patient-benefit outcome to lift the low emotional-resonance dimension." },
+    ] },
+};
+
 /* ------------------------------------------------------------------ MLR REVIEW */
 const MLR_CHECKS = [
   { name:"Claims validation", detail:"2 claims matched to the approved claim library (CL-014 · IOP control, CL-022 · long-term tolerability)" },
@@ -1991,8 +2090,31 @@ function BrandBrainScreen({app}) {
   </div>;
 }
 
-/* ------------------------------------------------------------------ HCP PERSONA STUDIO */
+/* ------------------------------------------------------------------ HCP SYNTHETIC SIMULATION */
 const PTONE = { fuchsia:"#D946EF", violet:"#8B5CF6", purple:"#A855F7", pink:"#EC4899", slate:"#64748B" };
+const dimTone = (b)=> b==="green"?{fg:"text-emerald-700",bg:"bg-emerald-100",solid:"#059669"}:b==="yellow"?{fg:"text-amber-700",bg:"bg-amber-100",solid:"#D97706"}:{fg:"text-rose-600",bg:"bg-rose-100",solid:"#E11D48"};
+
+// Behaviour radar — a compact polar chart of a persona's behavioural axes.
+const RADAR_SHORT = { "Innovation":"Innovation", "Evidence orientation":"Evidence", "Brand loyalty":"Loyalty", "Digital fluency":"Digital", "Risk tolerance":"Risk", "Commercial influence":"Influence" };
+function BehaviourRadar({data, color="#4F46E5", size=200}) {
+  const axes=Object.keys(data); const n=axes.length; const cx0=size/2, cy0=size/2, R=size/2-24;
+  const pad=54; // horizontal room for labels
+  const pt=(i,val)=>{ const ang=-Math.PI/2 + i*2*Math.PI/n; const r=R*val/100;
+    return [cx0+Math.cos(ang)*r, cy0+Math.sin(ang)*r]; };
+  const ring=(val)=>axes.map((_,i)=>pt(i,val).join(",")).join(" ");
+  const poly=axes.map((a,i)=>pt(i,data[a]).join(",")).join(" ");
+  return <svg width={size+pad*2} height={size+16} viewBox={`${-pad} -8 ${size+pad*2} ${size+16}`} className="mx-auto max-w-full">
+    {[25,50,75,100].map(v=><polygon key={v} points={ring(v)} fill="none" stroke="#E7EAF0" strokeWidth="1"/>)}
+    {axes.map((a,i)=>{ const [x,y]=pt(i,100); return <line key={i} x1={cx0} y1={cy0} x2={x} y2={y} stroke="#EEF0F5" strokeWidth="1"/>;})}
+    <polygon points={poly} fill={color+"26"} stroke={color} strokeWidth="2"/>
+    {axes.map((a,i)=>{ const [x,y]=pt(i,data[a]); return <circle key={i} cx={x} cy={y} r="2.6" fill={color}/>;})}
+    {axes.map((a,i)=>{ const [x,y]=pt(i,112); const anchor=Math.abs(x-cx0)<6?"middle":x>cx0?"start":"end";
+      return <g key={i}>
+        <text x={x} y={y+2} textAnchor={anchor} fontSize="9" fontWeight="700" fill="#334155" fontFamily="Inter">{RADAR_SHORT[a]||a}</text>
+        <text x={x} y={y+12} textAnchor={anchor} fontSize="8.5" fontWeight="700" fill={color} fontFamily="Inter">{data[a]}</text>
+      </g>;})}
+  </svg>;
+}
 
 // Decision Readiness dial — a small ring showing the overall readiness score + band.
 function ReadinessDial({value, size=44}) {
@@ -2117,12 +2239,32 @@ function PersonaPanel({p, onClose, onEdit}) {
           <p className="text-[13px] leading-relaxed text-ink-soft">{p.behaviour}</p>
         </div>
 
+        {/* Behaviour radar */}
+        {p.radar && <div className="rounded-xl border border-line bg-white p-4">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-1">Behavioural profile</div>
+          <BehaviourRadar data={p.radar} color={col}/>
+        </div>}
+
         <div className="grid sm:grid-cols-2 gap-4">
           <Field label="Specialty">{p.specialty}</Field>
           <Field label="Experience">{p.years}</Field>
           <Field label="Behavioural segment">{p.cohort} (Segment {p.code})</Field>
           <Field label="Preferred channel">{p.channel}</Field>
         </div>
+
+        {/* Deep behavioural profile */}
+        {p.profile && <Expander icon="beaker" title="Behavioural &amp; psychological profile" sub="Decision-making, adoption, loyalty & drivers" defaultOpen={true}>
+          <div className="grid sm:grid-cols-2 gap-x-4 gap-y-2.5">
+            {[["Decision-making style",p.profile.decisionStyle],["Risk tolerance",p.profile.riskTolerance],
+              ["Innovation adoption",p.profile.innovation],["Brand loyalty",p.profile.brandLoyalty],
+              ["Competitive susceptibility",p.profile.competitive],["Scientific evidence preference",p.profile.evidencePref],
+              ["Emotional vs rational drivers",p.profile.drivers],["Professional goals",p.profile.goals],
+              ["Commercial influence",p.profile.influence],["Digital engagement",p.profile.digital]].map(([k,v],i)=>
+              <div key={i}><div className="text-[9.5px] font-bold uppercase tracking-wider text-ink-faint mb-0.5">{k}</div>
+                <p className="text-[12.5px] leading-snug text-ink-soft">{v}</p></div>)}
+          </div>
+        </Expander>}
+
         <Field label="Motivations">{p.motivations}</Field>
         <Field label="Barriers">{p.barriers}</Field>
         <Field label="Preferred messaging">{p.messaging}</Field>
@@ -2131,7 +2273,7 @@ function PersonaPanel({p, onClose, onEdit}) {
         <Field label="Therapy switching behaviour">{p.switching}</Field>
 
         {/* Why this score? — Explainable Decision Readiness Framework */}
-        <Expander icon="bolt" title="Why this score?" sub="Explainable Decision Readiness — weighted behavioural factors" defaultOpen={true}>
+        <Expander icon="bolt" title="Why this score?" sub={"Explainable Decision Readiness — weighted factors · "+(p.ci?"CI "+p.ci:"")} defaultOpen={true}>
           <ReadinessBreakdown r={p.readiness}/>
         </Expander>
 
@@ -2216,22 +2358,23 @@ function AssetTestPanel({onClose}) {
   const [phase,setPhase]=useState("pick");  // pick | analyzing | result
   const [asset,setAsset]=useState(null);
   const [astep,setAstep]=useState(0);
-  const ASTEPS=["Reading the asset — claims, tone, visual","Scoring against each persona's beliefs & barriers","Mapping emotional response","Building the relevance heat-map"];
+  const [tab,setTab]=useState("reactions"); // reactions | matrix | consensus | recs
+  const ASTEPS=["Reading the asset — claims, tone, visual hierarchy","Scoring 14 commercial dimensions per persona","Modelling each persona's emotional & rational response","Detecting agreement and disagreement across the cohort","Generating prioritized recommendations"];
 
-  const run=(a)=>{ setAsset(a); setPhase("analyzing"); setAstep(0);
-    let i=0; const t=setInterval(()=>{ i++; setAstep(i); if(i>=ASTEPS.length){ clearInterval(t); setTimeout(()=>setPhase("result"),450);} },720); };
+  const run=(a)=>{ setAsset(a); setPhase("analyzing"); setAstep(0); setTab("reactions");
+    let i=0; const t=setInterval(()=>{ i++; setAstep(i); if(i>=ASTEPS.length){ clearInterval(t); setTimeout(()=>setPhase("result"),450);} },680); };
 
   const order = asset ? [...PERSONAS].sort((a,b)=>asset.scores[b.id].pct-asset.scores[a.id].pct) : PERSONAS;
   const best = order[0], worst = order[order.length-1];
 
   return <div className="fixed inset-0 z-50 grid place-items-center px-4 py-8">
     <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px] animate-fadein" onClick={onClose}/>
-    <div className="relative w-full max-w-2xl max-h-full overflow-y-auto bg-white rounded-2xl shadow-pop animate-fadeup">
+    <div className="relative w-full max-w-3xl max-h-full overflow-y-auto bg-white rounded-2xl shadow-pop animate-fadeup">
       <div className="px-6 pt-5 pb-4 border-b border-line flex items-start gap-3 sticky top-0 bg-white z-10">
         <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-fuchsia-600 to-indigo-600 text-white grid place-items-center shrink-0"><Icon.eye size={19}/></span>
         <div className="flex-1">
-          <div className="font-bold text-[16px] text-ink">Test an asset against the personas</div>
-          <div className="text-[12.5px] text-ink-mute mt-0.5">Upload an approved banner, emailer, image or video — see how each synthetic HCP reacts before it goes live.</div>
+          <div className="font-bold text-[16px] text-ink">Test an asset — commercial simulation</div>
+          <div className="text-[12.5px] text-ink-mute mt-0.5">Upload a banner, emailer, visual aid or campaign asset — each synthetic HCP evaluates it across 14 commercial dimensions before it goes live.</div>
         </div>
         <button onClick={onClose} className="text-ink-mute hover:text-ink hover:bg-slate-100 rounded-lg p-1.5"><Icon.x size={18}/></button>
       </div>
@@ -2274,52 +2417,102 @@ function AssetTestPanel({onClose}) {
           <div className="w-16 h-11 rounded-lg bg-gradient-to-br from-emerald-50 to-indigo-50 border border-line grid place-items-center text-[8px] font-bold text-ink-faint text-center leading-tight shrink-0">ONCE DAILY<br/>YI COMBO</div>
           <div className="min-w-0 flex-1"><div className="font-semibold text-[13.5px] text-ink">{asset.name}</div>
             <div className="text-[11.5px] text-ink-mute italic">{asset.hero}</div></div>
+          <div className="text-right shrink-0"><div className="text-[9px] font-bold uppercase tracking-wide text-ink-faint">Cohort mean</div>
+            <div className="text-[18px] font-extrabold text-ink">{Math.round(order.reduce((n,p)=>n+asset.scores[p.id].pct,0)/order.length)}%</div></div>
         </div>
 
-        {/* summary */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Best fit</div>
-            <div className="font-bold text-[13.5px] text-ink">{best.name}</div>
-            <div className="text-[18px] font-extrabold text-emerald-700 mt-0.5">{asset.scores[best.id].pct}% relevant</div>
+        {/* tabs */}
+        <div className="flex items-center gap-1 mb-4 bg-slate-100/70 border border-line rounded-xl p-1">
+          {[["reactions","Persona reactions","users"],["matrix","Dimension matrix","grid"],["consensus","Consensus","split"],["recs","Recommendations","bolt"]].map(([id,label,ic])=>{ const TIc=Icon[ic]; const on=tab===id;
+            return <button key={id} onClick={()=>setTab(id)} className={cx("flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[11.5px] font-semibold transition", on?"bg-white text-ink shadow-card":"text-ink-mute hover:text-ink-soft")}>
+              <TIc size={13}/>{label}</button>;})}
+        </div>
+
+        {tab==="reactions" && <div className="animate-fadein">
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Strongest reaction</div>
+              <div className="font-bold text-[13.5px] text-ink">{best.name}</div>
+              <div className="text-[18px] font-extrabold text-emerald-700 mt-0.5">{asset.scores[best.id].pct}% relevant</div></div>
+            <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-3">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-rose-600 mb-1">Weakest reaction</div>
+              <div className="font-bold text-[13.5px] text-ink">{worst.name}</div>
+              <div className="text-[18px] font-extrabold text-rose-600 mt-0.5">{asset.scores[worst.id].pct}% relevant</div></div>
           </div>
-          <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-3">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-rose-600 mb-1">Weakest fit</div>
-            <div className="font-bold text-[13.5px] text-ink">{worst.name}</div>
-            <div className="text-[18px] font-extrabold text-rose-600 mt-0.5">{asset.scores[worst.id].pct}% relevant</div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-2 flex items-center justify-between">
+            <span>Reaction by persona · click a row for the 14-dimension read</span>
+            <span className="flex items-center gap-2.5 normal-case tracking-normal font-medium">
+              {["green","yellow","red"].map(b=><span key={b} className="flex items-center gap-1"><span className={cx("w-2 h-2 rounded-full", BAND[b].dot)}/>{BAND[b].label}</span>)}</span>
           </div>
-        </div>
+          <div className="space-y-2.5">{order.map(p=><AssetScoreRow key={p.id} p={p} s={asset.scores[p.id]} asset={asset}/>)}</div>
+        </div>}
 
-        {/* heat-map */}
-        <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-2 flex items-center justify-between">
-          <span>Relevance heat-map · by persona</span>
-          <span className="flex items-center gap-2.5 normal-case tracking-normal font-medium">
-            {["green","yellow","red"].map(b=><span key={b} className="flex items-center gap-1"><span className={cx("w-2 h-2 rounded-full", BAND[b].dot)}/>{BAND[b].label}</span>)}
-          </span>
-        </div>
-        <div className="space-y-2.5">
-          {order.map(p=><AssetScoreRow key={p.id} p={p} s={asset.scores[p.id]}/>)}
-        </div>
+        {tab==="matrix" && <div className="animate-fadein">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-2">Commercial evaluation matrix · persona × dimension</div>
+          <div className="overflow-x-auto rounded-xl border border-line">
+            <table className="w-full border-collapse">
+              <thead><tr className="bg-slate-50">
+                <th className="text-left text-[10px] font-bold text-ink-mute px-2 py-2 sticky left-0 bg-slate-50 z-10">Dimension</th>
+                {order.map(p=><th key={p.id} className="px-1 py-2">
+                  <div className="w-7 h-7 mx-auto rounded-lg grid place-items-center text-white font-extrabold text-[10px]" style={{background:`linear-gradient(135deg, ${PTONE[p.tone]}, ${PTONE[p.tone]}CC)`}} title={p.name}>{p.avatar}</div></th>)}
+              </tr></thead>
+              <tbody>
+                {ASSET_DIMS.map((dim,ri)=><tr key={dim.k} className={ri%2?"bg-slate-50/40":""}>
+                  <td className="text-[11px] font-medium text-ink-soft px-2 py-1.5 sticky left-0 bg-inherit whitespace-nowrap">{dim.k}</td>
+                  {order.map(p=>{ const v=assetDimScore(asset.id,p,dim); const T=dimTone(dimBand(v));
+                    return <td key={p.id} className="px-1 py-1.5 text-center">
+                      <span className={cx("inline-grid place-items-center w-8 h-6 rounded text-[10.5px] font-bold", T.bg, T.fg)}>{v}</span></td>;})}
+                </tr>)}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-2 text-[11px] text-ink-mute">Each cell = that persona's predicted score on the dimension, from the asset's content and the persona's behavioural profile.</div>
+        </div>}
 
-        <div className="mt-4 flex items-center gap-2">
-          <span className="text-[11.5px] text-ink-mute flex-1 flex items-center gap-1.5"><Icon.shield size={13} cls="text-emerald-600"/>Scored against the segmentation framework — directional, for concept testing.</span>
-          <Button variant="outline" size="sm" onClick={()=>setPhase("pick")}>Test another</Button>
+        {tab==="consensus" && <div className="animate-fadein space-y-4">
+          <div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-2 flex items-center gap-1.5"><Icon.check size={13}/>Where personas agree</div>
+            <div className="space-y-2">{ASSET_CONSENSUS[asset.id].agree.map((t,i)=><div key={i} className="flex gap-2 rounded-xl border border-emerald-100 bg-emerald-50/40 px-3.5 py-2.5 text-[12.5px] text-ink-soft leading-snug">
+              <span className="text-emerald-600 shrink-0 mt-0.5"><Icon.check size={13}/></span>{t}</div>)}</div>
+          </div>
+          <div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-2 flex items-center gap-1.5"><Icon.split size={13}/>Where personas disagree — and why</div>
+            <div className="space-y-2">{ASSET_CONSENSUS[asset.id].disagree.map((d,i)=><div key={i} className="rounded-xl border border-amber-200 bg-amber-50/40 px-3.5 py-2.5">
+              <div className="flex items-center gap-1.5 mb-1"><span className="text-[10px] font-bold text-amber-700 bg-white border border-amber-200 rounded px-1.5 py-0.5">{d.a}</span>
+                <span className="text-[10px] text-ink-faint">vs</span><span className="text-[10px] font-bold text-amber-700 bg-white border border-amber-200 rounded px-1.5 py-0.5">{d.b}</span></div>
+              <p className="text-[12.5px] text-ink-soft leading-snug">{d.text}</p></div>)}</div>
+          </div>
+        </div>}
+
+        {tab==="recs" && <div className="animate-fadein">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-2">Prioritized recommendations · before MLR &amp; launch</div>
+          <div className="space-y-2.5">{ASSET_CONSENSUS[asset.id].recs.map((r,i)=><div key={i} className="flex gap-3 rounded-xl border border-line bg-white p-3.5">
+            <span className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 grid place-items-center text-[11px] font-extrabold shrink-0">{i+1}</span>
+            <div className="flex-1"><p className="text-[12.5px] text-ink leading-snug">{r.text}</p></div>
+            <span className={cx("text-[9.5px] font-bold rounded px-1.5 py-0.5 h-fit shrink-0", r.p==="High"?"text-rose-600 bg-rose-50":"text-amber-700 bg-amber-50")}>{r.p} priority</span>
+          </div>)}</div>
+          <div className="mt-3 rounded-xl border border-indigo-100 bg-indigo-50/40 px-3.5 py-2.5 text-[12px] text-ink-soft flex items-start gap-2">
+            <span className="text-indigo-600 shrink-0 mt-0.5"><Icon.sparkles size={13}/></span>
+            Applying the High-priority changes is projected to lift the cohort mean from <b className="text-ink">{Math.round(order.reduce((n,p)=>n+asset.scores[p.id].pct,0)/order.length)}%</b> toward <b className="text-emerald-700">{Math.min(96,Math.round(order.reduce((n,p)=>n+asset.scores[p.id].pct,0)/order.length)+14)}%</b> and reduce evidence-driven objections at MLR.
+          </div>
+        </div>}
+
+        <div className="mt-4 pt-3 border-t border-line flex items-center gap-2">
+          <span className="text-[11.5px] text-ink-mute flex-1 flex items-center gap-1.5"><Icon.shield size={13} cls="text-emerald-600"/>Simulated against the behavioural framework — directional, for concept testing before MLR.</span>
+          <Button variant="outline" size="sm" onClick={()=>{setPhase("pick");setTab("reactions");}}>Test another</Button>
         </div>
       </div>}
     </div>
   </div>;
 }
 
-// One row of the asset heat-map, with a transparent "why this score?" breakdown.
-function AssetScoreRow({p, s}) {
+// One row of the asset reaction list, expandable into the 14-dimension read.
+function AssetScoreRow({p, s, asset}) {
   const B=BAND[s.band]; const [open,setOpen]=useState(false);
-  const clamp=(n)=>Math.max(20,Math.min(99,Math.round(n)));
-  const factors=[ {k:"Message–belief fit",v:clamp(s.pct+ (s.band==="green"?4:s.band==="red"?-6:0))},
-    {k:"Channel fit",v:clamp(s.pct-3)},
-    {k:"Evidence strength",v:clamp(s.pct+7)},
-    {k:"Behavioural receptivity",v:clamp(s.pct- (s.band==="red"?4:-2))} ];
+  const dims = asset ? ASSET_DIMS.map(d=>({k:d.k, v:assetDimScore(asset.id,p,d)})) : [];
+  const top = [...dims].sort((a,b)=>b.v-a.v)[0], low=[...dims].sort((a,b)=>a.v-b.v)[0];
   return <div className={cx("rounded-xl border p-3.5", B.ring, B.bg)}>
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 cursor-pointer" onClick={()=>setOpen(o=>!o)}>
       <span className="w-8 h-8 rounded-lg grid place-items-center text-white font-extrabold text-[11px] shrink-0"
         style={{background:`linear-gradient(135deg, ${PTONE[p.tone]}, ${PTONE[p.tone]}CC)`}}>{p.avatar}</span>
       <div className="min-w-0 flex-1">
@@ -2330,20 +2523,65 @@ function AssetScoreRow({p, s}) {
         <div className={cx("text-[16px] font-extrabold", B.fg)}>{s.pct}%</div>
         <div className="text-[9px] font-bold uppercase tracking-wide text-ink-faint">relevant</div>
       </div>
+      <span className={cx("text-ink-faint transition-transform shrink-0", open&&"rotate-90")}><Icon.chevron size={13}/></span>
     </div>
     <div className="mt-2 h-1.5 rounded-full bg-white/70 overflow-hidden">
       <div className={cx("h-full rounded-full barfill", B.bar)} style={{width:s.pct+"%"}}/>
     </div>
     <div className="mt-2 text-[12px] text-ink-soft leading-snug">{s.note}</div>
-    <button onClick={()=>setOpen(o=>!o)} className={cx("mt-2 inline-flex items-center gap-1 text-[11px] font-semibold transition", B.fg)}>
-      Why this score?<span className={cx("transition-transform", open&&"rotate-90")}><Icon.chevron size={12}/></span></button>
-    {open && <div className="mt-2 space-y-1.5 animate-fadein">
-      {factors.map((f,i)=><div key={i} className="flex items-center gap-2.5">
-        <span className="text-[11px] text-ink-soft w-[140px] shrink-0">{f.k}</span>
-        <div className="flex-1 h-1.5 rounded-full bg-white/70 overflow-hidden"><div className={cx("h-full rounded-full",B.bar)} style={{width:f.v+"%"}}/></div>
-        <span className="text-[10.5px] font-bold text-ink w-8 text-right shrink-0">{f.v}%</span>
-      </div>)}
+    {top && <div className="mt-1.5 flex items-center gap-3 text-[10.5px]">
+      <span className="text-emerald-700">▲ Strongest: <b>{top.k}</b> {top.v}%</span>
+      <span className="text-rose-600">▼ Weakest: <b>{low.k}</b> {low.v}%</span></div>}
+    {open && dims.length>0 && <div className="mt-2.5 pt-2.5 border-t border-white/60 animate-fadein">
+      <div className="text-[9.5px] font-bold uppercase tracking-wider text-ink-faint mb-1.5">14-dimension commercial read</div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
+        {dims.map((f,i)=>{ const T=dimTone(dimBand(f.v)); return <div key={i} className="flex items-center gap-2">
+          <span className="text-[10.5px] text-ink-soft w-[128px] shrink-0 truncate">{f.k}</span>
+          <div className="flex-1 h-1.5 rounded-full bg-white/70 overflow-hidden"><div className="h-full rounded-full" style={{width:f.v+"%",background:T.solid}}/></div>
+          <span className="text-[10px] font-bold text-ink w-7 text-right shrink-0">{f.v}</span>
+        </div>;})}
+      </div>
     </div>}
+  </div>;
+}
+
+// Persona comparison — a behavioural decision matrix (persona × dimension) heat-map.
+const COMPARE_DIMS = [
+  { k:"Decision readiness", get:p=>p.readiness.overall },
+  { k:"Innovation", get:p=>p.radar.Innovation },
+  { k:"Evidence orientation", get:p=>p.radar["Evidence orientation"] },
+  { k:"Brand loyalty", get:p=>p.radar["Brand loyalty"] },
+  { k:"Digital fluency", get:p=>p.radar["Digital fluency"] },
+  { k:"Risk tolerance", get:p=>p.radar["Risk tolerance"] },
+  { k:"Commercial influence", get:p=>p.radar["Commercial influence"] },
+];
+function PersonaCompare({list, onOpen}) {
+  return <div className="rounded-2xl border border-line bg-white shadow-card overflow-hidden">
+    <div className="px-4 py-3 border-b border-line flex items-center gap-2">
+      <span className="text-indigo-600"><Icon.grid size={16}/></span>
+      <div className="font-bold text-[14px]">Behavioural decision matrix</div>
+      <span className="ml-auto text-[11px] text-ink-faint">all five personas · higher = stronger</span>
+    </div>
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse">
+        <thead><tr className="bg-slate-50/70">
+          <th className="text-left text-[10px] font-bold text-ink-mute px-3 py-2.5 sticky left-0 bg-slate-50/70">Dimension</th>
+          {list.map(p=><th key={p.id} className="px-2 py-2.5">
+            <button onClick={()=>onOpen(p.id)} className="flex flex-col items-center gap-1 group">
+              <span className="w-8 h-8 rounded-lg grid place-items-center text-white font-extrabold text-[11px] group-hover:scale-105 transition" style={{background:`linear-gradient(135deg, ${PTONE[p.tone]}, ${PTONE[p.tone]}CC)`}} title={p.name}>{p.avatar}</span>
+              <span className="text-[9px] font-semibold text-ink-mute max-w-[76px] leading-tight">{p.name}</span></button></th>)}
+        </tr></thead>
+        <tbody>
+          {COMPARE_DIMS.map((dim,ri)=><tr key={dim.k} className={ri%2?"bg-slate-50/40":""}>
+            <td className="text-[11.5px] font-medium text-ink-soft px-3 py-2 sticky left-0 bg-inherit whitespace-nowrap">{dim.k}</td>
+            {list.map(p=>{ const v=dim.get(p); const T=dimTone(dimBand(v));
+              return <td key={p.id} className="px-2 py-2 text-center">
+                <div className="mx-auto w-14"><div className="h-1.5 rounded-full bg-slate-100 overflow-hidden mb-0.5"><div className="h-full rounded-full" style={{width:v+"%",background:T.solid}}/></div>
+                  <span className={cx("text-[10.5px] font-bold", T.fg)}>{v}</span></div></td>;})}
+          </tr>)}
+        </tbody>
+      </table>
+    </div>
   </div>;
 }
 
@@ -2351,8 +2589,9 @@ function PersonasScreen({app}) {
   const [open,setOpen]=useState(null);
   const [editId,setEditId]=useState(null);
   const [test,setTest]=useState(false);
+  const [view,setView]=useState("cards"); // cards | compare
   const [edits,setEdits]=useState({});   // id -> {mbti,motivations,behaviour,messaging,barriers}
-  const merged = (x)=> edits[x.id] ? {...x, ...edits[x.id]} : x;
+  const merged = (x)=> ({...x, ...(PERSONA_DEPTH[x.id]||{}), ...(edits[x.id]||{})});
   const list = PERSONAS.map(merged);
   const p = list.find(x=>x.id===open);
   const ep = list.find(x=>x.id===editId);
@@ -2361,15 +2600,21 @@ function PersonasScreen({app}) {
     app && app.log && app.log("Recalibrated synthetic persona “"+PERSONAS.find(x=>x.id===id).name+"” — MBTI/assumptions updated", [], null, "Verified", "indigo"); };
   return <div className="max-w-5xl mx-auto pb-24">
     <ScreenHeader title="HCP Synthetic Simulation" sub="Five synthetic ophthalmologists — one per segmentation cohort. Simulate how each decides, and test messaging and assets against them."
-      right={<Button size="sm" onClick={()=>setTest(true)} icon={<Icon.eye size={15}/>}>Test an asset</Button>}/>
+      right={<div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 bg-slate-100/70 border border-line rounded-lg p-0.5">
+          {[["cards","Cards","users"],["compare","Compare","grid"]].map(([id,label,ic])=>{ const TIc=Icon[ic]; const on=view===id;
+            return <button key={id} onClick={()=>setView(id)} className={cx("inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[12px] font-semibold transition", on?"bg-white text-ink shadow-card":"text-ink-mute hover:text-ink-soft")}><TIc size={13}/>{label}</button>;})}
+        </div>
+        <Button size="sm" onClick={()=>setTest(true)} icon={<Icon.eye size={15}/>}>Test an asset</Button>
+      </div>}/>
     <div className="mb-5 rounded-xl border border-line bg-white shadow-card px-4 py-3 flex items-center gap-3 text-[12.5px] text-ink-soft">
       <span className="text-indigo-600"><Icon.users size={17}/></span>
       Grounded in the segmentation study — IQVIA HCP universe analysis, ATU, and qualitative interviews (n=25). <CitationChip id="c3"/>
       <span className="ml-auto text-[11px] text-ink-faint hidden sm:flex items-center gap-1.5 shrink-0"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>172,828-HCP universe</span>
     </div>
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+    {view==="cards" ? <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
       {list.map(x=><PersonaCard key={x.id} p={x} onOpen={setOpen} onEdit={setEditId} edited={!!edits[x.id]}/>)}
-    </div>
+    </div> : <PersonaCompare list={list} onOpen={setOpen}/>}
     {p && <PersonaPanel p={p} onClose={()=>setOpen(null)} onEdit={(id)=>{setOpen(null);setEditId(id);}}/>}
     {ep && <PersonaEditModal p={ep} onSave={save} onClose={()=>setEditId(null)}/>}
     {test && <AssetTestPanel onClose={()=>setTest(false)}/>}
