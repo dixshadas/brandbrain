@@ -3256,20 +3256,30 @@ function ChatDock({app}) {
 
 /* ------------------------------------------------------------------ LANDING PAGE */
 const LP_STEPS = [
-  { icon:"upload",   title:"Knowledge Ingestion",      body:"Every market study, deck, transcript and MLR asset becomes governed, searchable evidence." },
-  { icon:"search",   title:"Evidence Retrieval",       body:"Answers are grounded in your estate — each pulled from the exact source passage." },
-  { icon:"sparkles", title:"Insight Synthesis",        body:"Findings are labeled, scored and cited, with contradictions preserved, never averaged." },
-  { icon:"users",    title:"HCP Synthetic Simulation", body:"Simulate how each physician cohort reacts to messaging and assets before you spend." },
-  { icon:"bolt",     title:"Campaign Intelligence",    body:"Test concepts against behavioural personas and prioritise fixes ahead of launch." },
-  { icon:"stamp",    title:"MLR Review",               body:"Automated claims, safety and compliance checks with a named human approver." },
-  { icon:"brain",    title:"Brand Brain",              body:"A living, versioned semantic memory every future answer reads from." },
-  { icon:"pulse",    title:"Brand Pulse",              body:"What changed this week in your market — and whether it should change your plan." },
+  { icon:"upload",   title:"Knowledge Ingestion",      body:"Stop losing insights in scattered decks — every study, transcript and asset becomes one searchable source of truth." },
+  { icon:"search",   title:"Evidence Retrieval",       body:"Answer strategic questions in minutes, with every claim traceable to the exact source passage." },
+  { icon:"sparkles", title:"Insight Synthesis",        body:"Decide with clarity — findings are scored, cited, and disagreements surfaced instead of averaged away." },
+  { icon:"users",    title:"HCP Synthetic Simulation", body:"Know how each physician segment will react to your message before a single dollar is spent." },
+  { icon:"bolt",     title:"Campaign Intelligence",    body:"Pressure-test creative and concepts against real behavioural profiles ahead of launch." },
+  { icon:"stamp",    title:"MLR Review",               body:"Move assets through medical, legal and regulatory faster, with a named human approving every claim." },
+  { icon:"brain",    title:"Brand Brain",              body:"Never re-learn what your team already knows — a living memory every future decision draws on." },
+  { icon:"pulse",    title:"Brand Pulse",              body:"See what changed in your market this week, and whether it should change your plan." },
 ];
 const LP_TRUST = [["shield","Evidence-backed"],["checkc","Human Approved"],["stamp","MLR Aware"],["brain","Institutional Memory"]];
 const DEMO_ROLES = ["Brand Manager","Brand Director","Chief Marketing Officer","Medical Affairs","Commercial Excellence","Market Access","Other"];
+// Enterprise readiness — only capabilities true in the product today.
+const LP_GOV = [
+  { icon:"shield", title:"Explainable AI",            body:"Every score and recommendation opens into the weighted factors and reasoning behind it." },
+  { icon:"checkc", title:"Human approval workflow",   body:"Nothing enters the Brand Brain until a named reviewer approves it." },
+  { icon:"stamp",  title:"MLR-aware reviews",         body:"Automated claims, safety and compliance checks route to a human before anything ships." },
+  { icon:"history",title:"Append-only audit trail",  body:"Every question, decision and approval is timestamped, attributed and immutable." },
+  { icon:"quote",  title:"Evidence-backed responses",body:"Each answer cites its source passage — no unattributed AI claims." },
+  { icon:"lock",   title:"Brand-isolated memory",    body:"Each brand's evidence and memory stays its own — nothing crosses brands." },
+];
+const LP_ROADMAP = ["SSO","RBAC","Private deployment","Data residency controls"];
 
 function RequestDemoModal({onClose, toast}) {
-  const [f,setF]=useState({ first:"", last:"", email:"", company:"", role:"", phone:"", useCase:"" });
+  const [f,setF]=useState({ first:"", last:"", email:"", company:"", jobTitle:"", phone:"", useCase:"" });
   const [err,setErr]=useState({});
   const [state,setState]=useState("form"); // form | sending | done
   const firstRef=useRef(null);
@@ -3282,7 +3292,7 @@ function RequestDemoModal({onClose, toast}) {
     if(!f.last.trim()) e.last="Required";
     if(!f.email.trim()) e.email="Required"; else if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email)) e.email="Enter a valid work email";
     if(!f.company.trim()) e.company="Required";
-    if(!f.role) e.role="Required";
+    if(!f.jobTitle) e.jobTitle="Required";
     setErr(e); return Object.keys(e).length===0; };
   const submit=(ev)=>{ ev.preventDefault(); if(!validate()) return; setState("sending");
     const payload={ ...f, submittedAt:new Date().toISOString(), source:"brainlee-landing" };
@@ -3321,19 +3331,19 @@ function RequestDemoModal({onClose, toast}) {
           <Field label="Work email" k="email" type="email" req ph="you@company.com" full/>
           <Field label="Company" k="company" req ph="NovaVision Pharma"/>
           <div>
-            <label htmlFor="df-role" className="block text-[11px] font-bold uppercase tracking-wider text-ink-faint mb-1">Role<span className="text-rose-500"> *</span></label>
-            <select id="df-role" value={f.role} onChange={e=>set("role",e.target.value)} aria-required="true" aria-invalid={!!err.role}
-              className={cx("w-full rounded-xl border bg-white px-3.5 py-2.5 text-[14px] outline-none transition focus:ring-4 focus:ring-indigo-50", err.role?"border-rose-300":"border-line focus:border-indigo-300", !f.role&&"text-ink-faint")}>
+            <label htmlFor="df-jobTitle" className="block text-[11px] font-bold uppercase tracking-wider text-ink-faint mb-1">Job title<span className="text-rose-500"> *</span></label>
+            <select id="df-jobTitle" value={f.jobTitle} onChange={e=>set("jobTitle",e.target.value)} aria-required="true" aria-invalid={!!err.jobTitle}
+              className={cx("w-full rounded-xl border bg-white px-3.5 py-2.5 text-[14px] outline-none transition focus:ring-4 focus:ring-indigo-50", err.jobTitle?"border-rose-300":"border-line focus:border-indigo-300", !f.jobTitle&&"text-ink-faint")}>
               <option value="">Select…</option>
               {DEMO_ROLES.map(r=><option key={r} value={r} className="text-ink">{r}</option>)}
             </select>
-            {err.role && <div className="text-[11px] font-semibold text-rose-600 mt-1">{err.role}</div>}
+            {err.jobTitle && <div className="text-[11px] font-semibold text-rose-600 mt-1">{err.jobTitle}</div>}
           </div>
           <Field label="Phone (optional)" k="phone" type="tel" ph="+91 …"/>
           <div className="sm:col-span-2">
-            <label htmlFor="df-useCase" className="block text-[11px] font-bold uppercase tracking-wider text-ink-faint mb-1">Use case (optional)</label>
+            <label htmlFor="df-useCase" className="block text-[11px] font-bold uppercase tracking-wider text-ink-faint mb-1">What would you like Brainlee to help you with? (optional)</label>
             <textarea id="df-useCase" value={f.useCase} onChange={e=>set("useCase",e.target.value)} rows={2}
-              placeholder="What would you want your Brand Brain to answer first?"
+              placeholder="e.g. what your Brand Brain should answer first"
               className="w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-[14px] leading-relaxed outline-none focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50 resize-none"/>
           </div>
         </div>
@@ -3427,6 +3437,9 @@ function LandingPage({onLaunch}) {
           {LP_TRUST.map(([ic,label])=>{ const TIc=Icon[ic]; return <span key={label} className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-slate-300">
             <span className="text-emerald-300/90"><TIc size={15}/></span>{label}</span>;})}
         </div>
+        <p className="mt-8 text-[14px] sm:text-[15px] font-medium text-slate-400 max-w-2xl mx-auto">
+          From weeks of scattered PowerPoints and PDFs to <span className="text-slate-200">evidence-backed commercial decisions in minutes.</span>
+        </p>
       </div>
     </section>
 
@@ -3455,6 +3468,55 @@ function LandingPage({onLaunch}) {
             <div className="font-bold text-[15px] text-ink mt-3.5">{s.title}</div>
             <div className="text-[13px] text-ink-mute leading-relaxed mt-1.5">{s.body}</div>
           </div>;})}
+        </div>
+      </div>
+    </section>
+
+    {/* ---- COMPETITIVE ADVANTAGE — why it compounds ---- */}
+    <section className="max-w-5xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
+      <div className="text-center max-w-2xl mx-auto mb-9">
+        <div className="text-[11px] font-bold uppercase tracking-[.16em] text-indigo-600">Why Brainlee compounds</div>
+        <h2 className="text-[26px] sm:text-[30px] font-extrabold tracking-[-.02em] mt-2">Your advantage grows with every decision</h2>
+        <p className="text-[15px] text-ink-mute mt-3 leading-relaxed">Every approved insight strengthens the Brand Brain — building institutional memory that competitors can't copy and your team never has to re-learn.</p>
+      </div>
+      <div className="grid sm:grid-cols-3 gap-4">
+        {[["brain","Reusable organizational knowledge","What one team learns, the whole brand keeps — decisions stop starting from zero."],
+          ["shield","Explainable, evidence-backed","Every answer is traceable to its source, so confidence rises as the evidence base grows."],
+          ["trend","Compounding decision intelligence","The more you approve, the sharper the next recommendation — a data asset that appreciates."]].map(([ic,t,b],i)=>{
+          const CIc=Icon[ic]; return <div key={i} className="rounded-2xl border border-line bg-white shadow-card p-5">
+            <span className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 grid place-items-center"><CIc size={21}/></span>
+            <div className="font-bold text-[15px] text-ink mt-3.5">{t}</div>
+            <div className="text-[13px] text-ink-mute leading-relaxed mt-1.5">{b}</div>
+          </div>;})}
+      </div>
+      <div className="mt-6 rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50/70 to-emerald-50/40 px-6 py-5 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+        <span className="w-11 h-11 rounded-xl bg-white border border-indigo-100 text-indigo-600 grid place-items-center shrink-0"><Icon.bolt size={20}/></span>
+        <p className="text-[14.5px] text-ink-soft leading-relaxed flex-1"><b className="text-ink">The flywheel:</b> evidence in → cited answers → human approval → living memory. Each turn makes the next decision faster, better-evidenced and cheaper to reach.</p>
+      </div>
+    </section>
+
+    {/* ---- ENTERPRISE TRUST & GOVERNANCE ---- */}
+    <section className="bg-white border-y border-line">
+      <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <div className="text-[11px] font-bold uppercase tracking-[.16em] text-indigo-600">Enterprise trust &amp; governance</div>
+          <h2 className="text-[26px] sm:text-[30px] font-extrabold tracking-[-.02em] mt-2">Built for regulated commercial teams</h2>
+          <p className="text-[15px] text-ink-mute mt-3 leading-relaxed">Human oversight and traceability are the product — not an afterthought. Every capability below is live today.</p>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {LP_GOV.map((g,i)=>{ const GIc=Icon[g.icon]; return <div key={i} className="rounded-2xl border border-line bg-canvas p-5 flex gap-3.5">
+            <span className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 grid place-items-center shrink-0"><GIc size={19}/></span>
+            <div><div className="font-bold text-[14px] text-ink">{g.title}</div>
+              <div className="text-[12.5px] text-ink-mute leading-relaxed mt-1">{g.body}</div></div>
+          </div>;})}
+        </div>
+        <div className="mt-6 rounded-2xl border border-dashed border-line bg-slate-50/60 px-6 py-4 flex flex-col sm:flex-row items-center gap-3">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-ink-faint shrink-0">Enterprise roadmap</span>
+          <div className="flex flex-wrap items-center gap-2 flex-1">
+            {LP_ROADMAP.map(r=><span key={r} className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-ink-soft bg-white border border-line rounded-full px-3 py-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400"/>{r}</span>)}
+          </div>
+          <span className="text-[11.5px] text-ink-faint sm:ml-auto">On the roadmap — not yet available</span>
         </div>
       </div>
     </section>

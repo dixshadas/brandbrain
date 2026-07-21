@@ -36,12 +36,12 @@ of `index.html`:
    function doPost(e) {
      const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Sheet1');
      const d = JSON.parse(e.postData.contents);
-     sheet.appendRow([new Date(), d.first, d.last, d.email, d.company, d.role, d.phone, d.useCase]);
+     sheet.appendRow([new Date(), d.first, d.last, d.email, d.company, d.jobTitle, d.phone, d.useCase]);
      return ContentService.createTextOutput(JSON.stringify({ok:true}))
        .setMimeType(ContentService.MimeType.JSON);
    }
    ```
-   (Add a header row: `Timestamp | First | Last | Email | Company | Role | Phone | Use case`.)
+   (Add a header row: `Timestamp | First | Last | Email | Company | Job title | Phone | Use case`.)
 
 2. **Deploy → New deployment → Web app**, Execute as *Me*, Access *Anyone*. Copy the `/exec` URL.
 3. In `index.html`, set `window.__DEMO_ENDPOINT = "https://script.google.com/…/exec";`
