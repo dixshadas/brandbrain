@@ -1,0 +1,16 @@
+# BrandBrain deploys only the static frontend in web/ to Vercel.
+# The FastAPI backend, docs, tests and tooling are not part of the static deploy.
+src/
+tests/
+migrations/
+contracts/
+docs/
+scripts/
+alembic.ini
+pyproject.toml
+Dockerfile
+docker-compose.yml
+Makefile
+setup-github.sh
+*.py
+.DS_Store
