@@ -82,5 +82,6 @@ Upload this whole bundle into the new workspace, then hand the new Claude this o
 - Backend deps (FastAPI etc.) were never installed/run in the originating session — verification
   was `py_compile` + import-resolution + contract-schema validation. Expect to `pip install -e
   ".[dev,llm]"` and iterate.
-- All data (NUVEXA HIV brand, switching-drivers story, studies, quotes) is **illustrative and
-  anonymized** — no real brand, supplier, or study is implied.
+- All data (YI Combo glaucoma brand, switching-drivers story, studies, quotes) is **illustrative
+  and synthetic** — built from the uploaded IQVIA-style market sizing and HCP segmentation
+  materials; no real prescriber or panel data is implied.
