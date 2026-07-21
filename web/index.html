@@ -3,7 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BrandBrain by Brainlee — Ophthalmology Brand Intelligence</title>
+<title>Brainlee — The AI Brand Brain for Life Sciences Commercial Teams</title>
+<meta name="description" content="Brainlee transforms fragmented market research, physician interviews, clinical evidence and commercial knowledge into one trusted AI memory that powers evidence-backed decisions for Life Sciences brand teams.">
+<meta name="theme-color" content="#0F172A">
+<meta name="robots" content="index,follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Brainlee — Every commercial insight your brand has ever learned. One Brain.">
+<meta property="og:description" content="One trusted AI memory for Life Sciences brand teams, commercial leaders and medical affairs. Evidence-backed, human-approved, MLR-aware.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Brainlee — The AI Brand Brain for Life Sciences">
+<meta name="twitter:description" content="Turn fragmented research, physician interviews and clinical evidence into one trusted, evidence-backed AI memory.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%234F46E5'/%3E%3Cpath d='M9 5a3 3 0 0 0-3 3 3 3 0 0 0-1 5.7A3 3 0 0 0 6 18a3 3 0 0 0 6 .5 3 3 0 0 0 6-.5 3 3 0 0 0 1-5.3A3 3 0 0 0 18 8a3 3 0 0 0-3-3 3 3 0 0 0-6 0z' fill='none' stroke='white' stroke-width='1.6'/%3E%3C/svg%3E">
+<script>
+  /* Paste a Google Apps Script Web-App URL here to persist Request-a-Demo submissions
+     to the connected Google Sheet. Leave blank to run the form in demo mode (validates,
+     shows the success state, and keeps a local copy). See the Apps Script snippet in README. */
+  window.__DEMO_ENDPOINT = "";
+</script>
 <!-- Zero-build React prototype: React 18 + Babel(TSX) + Tailwind. Opens in any browser.
      Trust is the product. Calm. Executive-cognition. -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
@@ -89,6 +105,16 @@
   .wstagger>*:nth-child(1){animation-delay:.05s}.wstagger>*:nth-child(2){animation-delay:.18s}
   .wstagger>*:nth-child(3){animation-delay:.32s}.wstagger>*:nth-child(4){animation-delay:.46s}
   .wstagger>*:nth-child(5){animation-delay:.60s}.wstagger>*:nth-child(6){animation-delay:.74s}
+
+  /* --- Landing page --- */
+  .lp-scroll{height:100%;overflow-y:auto;scroll-behavior:smooth}
+  .lp-card{transition:transform .25s cubic-bezier(.16,1,.3,1), box-shadow .25s ease, border-color .25s ease}
+  .lp-card:hover{transform:translateY(-4px)}
+  @keyframes sheen{0%{transform:translateX(-120%)}60%,100%{transform:translateX(120%)}}
+  .lp-sheen::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.06) 50%,transparent 60%);animation:sheen 6s ease-in-out infinite}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}
+  }
 </style>
 </head>
 <body>
@@ -3228,7 +3254,243 @@ function ChatDock({app}) {
   </div>;
 }
 
+/* ------------------------------------------------------------------ LANDING PAGE */
+const LP_STEPS = [
+  { icon:"upload",   title:"Knowledge Ingestion",      body:"Every market study, deck, transcript and MLR asset becomes governed, searchable evidence." },
+  { icon:"search",   title:"Evidence Retrieval",       body:"Answers are grounded in your estate — each pulled from the exact source passage." },
+  { icon:"sparkles", title:"Insight Synthesis",        body:"Findings are labeled, scored and cited, with contradictions preserved, never averaged." },
+  { icon:"users",    title:"HCP Synthetic Simulation", body:"Simulate how each physician cohort reacts to messaging and assets before you spend." },
+  { icon:"bolt",     title:"Campaign Intelligence",    body:"Test concepts against behavioural personas and prioritise fixes ahead of launch." },
+  { icon:"stamp",    title:"MLR Review",               body:"Automated claims, safety and compliance checks with a named human approver." },
+  { icon:"brain",    title:"Brand Brain",              body:"A living, versioned semantic memory every future answer reads from." },
+  { icon:"pulse",    title:"Brand Pulse",              body:"What changed this week in your market — and whether it should change your plan." },
+];
+const LP_TRUST = [["shield","Evidence-backed"],["checkc","Human Approved"],["stamp","MLR Aware"],["brain","Institutional Memory"]];
+const DEMO_ROLES = ["Brand Manager","Brand Director","Chief Marketing Officer","Medical Affairs","Commercial Excellence","Market Access","Other"];
+
+function RequestDemoModal({onClose, toast}) {
+  const [f,setF]=useState({ first:"", last:"", email:"", company:"", role:"", phone:"", useCase:"" });
+  const [err,setErr]=useState({});
+  const [state,setState]=useState("form"); // form | sending | done
+  const firstRef=useRef(null);
+  useEffect(()=>{ if(firstRef.current) firstRef.current.focus();
+    const onKey=(e)=>{ if(e.key==="Escape") onClose(); };
+    document.addEventListener("keydown",onKey); return ()=>document.removeEventListener("keydown",onKey); },[onClose]);
+  const set=(k,v)=>{ setF(s=>({...s,[k]:v})); if(err[k]) setErr(e=>({...e,[k]:null})); };
+  const validate=()=>{ const e={};
+    if(!f.first.trim()) e.first="Required";
+    if(!f.last.trim()) e.last="Required";
+    if(!f.email.trim()) e.email="Required"; else if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email)) e.email="Enter a valid work email";
+    if(!f.company.trim()) e.company="Required";
+    if(!f.role) e.role="Required";
+    setErr(e); return Object.keys(e).length===0; };
+  const submit=(ev)=>{ ev.preventDefault(); if(!validate()) return; setState("sending");
+    const payload={ ...f, submittedAt:new Date().toISOString(), source:"brainlee-landing" };
+    // Persist a local copy so nothing is lost even without a backend.
+    try{ const all=JSON.parse(localStorage.getItem("brainlee_demo_requests")||"[]"); all.push(payload);
+      localStorage.setItem("brainlee_demo_requests", JSON.stringify(all)); }catch(_){}
+    const endpoint = (typeof window!=="undefined" && window.__DEMO_ENDPOINT) || "";
+    const finish=()=>{ setState("done"); toast && toast("Demo request received — we'll be in touch shortly"); };
+    if(endpoint){ // POST to a Google Apps Script Web App → appends a row to the Sheet
+      fetch(endpoint,{ method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload) })
+        .then(finish).catch(finish); setTimeout(finish, 1400);
+    } else { setTimeout(finish, 900); }
+  };
+  const Field=({label, k, type="text", req, ph, full})=>(
+    <div className={full?"sm:col-span-2":""}>
+      <label htmlFor={"df-"+k} className="block text-[11px] font-bold uppercase tracking-wider text-ink-faint mb-1">{label}{req && <span className="text-rose-500"> *</span>}</label>
+      <input id={"df-"+k} ref={k==="first"?firstRef:null} type={type} value={f[k]} onChange={e=>set(k,e.target.value)}
+        placeholder={ph} aria-required={!!req} aria-invalid={!!err[k]} aria-describedby={err[k]?"e-"+k:undefined}
+        className={cx("w-full rounded-xl border bg-white px-3.5 py-2.5 text-[14px] outline-none transition focus:ring-4 focus:ring-indigo-50",
+          err[k]?"border-rose-300 focus:border-rose-400":"border-line focus:border-indigo-300")}/>
+      {err[k] && <div id={"e-"+k} className="text-[11px] font-semibold text-rose-600 mt-1">{err[k]}</div>}
+    </div>);
+  return <div className="fixed inset-0 z-[80] grid place-items-center px-4 py-8" role="dialog" aria-modal="true" aria-labelledby="demo-title">
+    <div className="absolute inset-0 bg-ink/50 backdrop-blur-[3px] animate-fadein" onClick={onClose}/>
+    <div className="relative w-full max-w-lg max-h-full overflow-y-auto bg-white rounded-2xl shadow-pop animate-fadeup">
+      {state!=="done" ? <form onSubmit={submit}>
+        <div className="px-6 pt-5 pb-4 border-b border-line flex items-start gap-3 sticky top-0 bg-white z-10">
+          <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-500 text-white grid place-items-center shrink-0"><Icon.brain size={20}/></span>
+          <div className="flex-1"><div id="demo-title" className="font-bold text-[17px] text-ink">Request a demo</div>
+            <div className="text-[12.5px] text-ink-mute mt-0.5">See Brainlee on your brand's evidence. We'll reach out within one business day.</div></div>
+          <button type="button" onClick={onClose} aria-label="Close" className="text-ink-mute hover:text-ink hover:bg-slate-100 rounded-lg p-1.5"><Icon.x size={18}/></button>
+        </div>
+        <div className="px-6 py-5 grid sm:grid-cols-2 gap-3.5">
+          <Field label="First name" k="first" req ph="Ananya"/>
+          <Field label="Last name" k="last" req ph="Rao"/>
+          <Field label="Work email" k="email" type="email" req ph="you@company.com" full/>
+          <Field label="Company" k="company" req ph="NovaVision Pharma"/>
+          <div>
+            <label htmlFor="df-role" className="block text-[11px] font-bold uppercase tracking-wider text-ink-faint mb-1">Role<span className="text-rose-500"> *</span></label>
+            <select id="df-role" value={f.role} onChange={e=>set("role",e.target.value)} aria-required="true" aria-invalid={!!err.role}
+              className={cx("w-full rounded-xl border bg-white px-3.5 py-2.5 text-[14px] outline-none transition focus:ring-4 focus:ring-indigo-50", err.role?"border-rose-300":"border-line focus:border-indigo-300", !f.role&&"text-ink-faint")}>
+              <option value="">Select…</option>
+              {DEMO_ROLES.map(r=><option key={r} value={r} className="text-ink">{r}</option>)}
+            </select>
+            {err.role && <div className="text-[11px] font-semibold text-rose-600 mt-1">{err.role}</div>}
+          </div>
+          <Field label="Phone (optional)" k="phone" type="tel" ph="+91 …"/>
+          <div className="sm:col-span-2">
+            <label htmlFor="df-useCase" className="block text-[11px] font-bold uppercase tracking-wider text-ink-faint mb-1">Use case (optional)</label>
+            <textarea id="df-useCase" value={f.useCase} onChange={e=>set("useCase",e.target.value)} rows={2}
+              placeholder="What would you want your Brand Brain to answer first?"
+              className="w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-[14px] leading-relaxed outline-none focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50 resize-none"/>
+          </div>
+        </div>
+        <div className="px-6 py-4 border-t border-line bg-slate-50/60 flex items-center gap-3">
+          <span className="text-[11px] text-ink-mute flex-1 flex items-center gap-1.5"><Icon.lock size={13}/>We'll only use this to arrange your demo.</span>
+          <Button variant="outline" size="sm" onClick={onClose} type="button">Cancel</Button>
+          <Button variant="primary" size="sm" type="submit" disabled={state==="sending"} icon={state==="sending"?null:<Icon.arrow size={15}/>}>
+            {state==="sending"?"Sending…":"Request Demo"}</Button>
+        </div>
+      </form> : <div className="p-8 text-center animate-fadein">
+        <span className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 grid place-items-center mx-auto"><Icon.checkc size={30}/></span>
+        <div className="font-extrabold text-[19px] text-ink mt-4">Request received</div>
+        <p className="text-[14px] text-ink-mute mt-2 max-w-sm mx-auto leading-relaxed">Thanks, {f.first}. A member of the Brainlee team will reach out to {f.email} within one business day to schedule your demo.</p>
+        <div className="mt-6"><Button variant="primary" size="md" onClick={onClose}>Done</Button></div>
+      </div>}
+    </div>
+  </div>;
+}
+
+// Large, premium autoplaying demo-video placeholder (muted, looping constellation) with a play affordance.
+function DemoVideo({onPlay}) {
+  return <div className="relative w-full rounded-3xl overflow-hidden border border-white/10 shadow-pop lp-sheen"
+    style={{aspectRatio:"16 / 9", background:"radial-gradient(1000px 500px at 50% 0%, #1E1B4B 0%, #0F172A 60%, #0B1120 100%)"}}>
+    <div className="absolute inset-0"><WelcomeConstellation/></div>
+    {/* faux product chrome */}
+    <div className="absolute top-0 left-0 right-0 h-9 bg-white/[.04] border-b border-white/10 flex items-center gap-1.5 px-4">
+      <span className="w-2.5 h-2.5 rounded-full bg-white/20"/><span className="w-2.5 h-2.5 rounded-full bg-white/20"/><span className="w-2.5 h-2.5 rounded-full bg-white/20"/>
+      <span className="ml-3 text-[11px] font-semibold text-white/40">brainlee · YI Combo · Brand Brain</span>
+    </div>
+    <div className="absolute inset-0 grid place-items-center">
+      <button onClick={onPlay} aria-label="Play product demo"
+        className="group w-20 h-20 rounded-full bg-white/95 grid place-items-center shadow-pop hover:scale-105 transition-transform">
+        <svg width="26" height="26" viewBox="0 0 24 24" className="translate-x-0.5" fill="#4F46E5"><path d="M6 4l14 8-14 8z"/></svg>
+        <span className="absolute inset-0 rounded-full ring-4 ring-white/20 animate-ping opacity-60"/>
+      </button>
+    </div>
+    <div className="absolute bottom-0 left-0 right-0 p-4 flex items-center justify-between">
+      <span className="inline-flex items-center gap-2 text-[12px] font-semibold text-white/70"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"/>Product walkthrough · 2 min</span>
+      <span className="text-[11px] font-medium text-white/40">Muted · autoplay</span>
+    </div>
+  </div>;
+}
+
+function LandingPage({onLaunch}) {
+  const [demo,setDemo]=useState(false);
+  const [toastMsg,setToastMsg]=useState(null);
+  const tRef=useRef(null);
+  const toast=(m)=>{ setToastMsg(m); clearTimeout(tRef.current); tRef.current=setTimeout(()=>setToastMsg(null),3200); };
+  const scrollTo=(id)=>{ const el=document.getElementById(id); if(el) el.scrollIntoView({behavior:"smooth", block:"start"}); };
+  return <div className="lp-scroll bg-canvas text-ink">
+    {/* ---- sticky top nav ---- */}
+    <header className="sticky top-0 z-40 bg-canvas/85 backdrop-blur border-b border-line">
+      <div className="max-w-6xl mx-auto px-5 sm:px-8 h-14 flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-500 grid place-items-center text-white shadow-card"><Icon.brain size={17}/></div>
+          <div className="leading-none"><div className="font-extrabold text-[15px] tracking-[-.02em]">Brainlee</div>
+            <div className="text-[9px] font-bold uppercase tracking-[.16em] text-ink-faint mt-0.5">Brand Brain</div></div>
+        </div>
+        <nav className="ml-auto hidden md:flex items-center gap-1 text-[13px] font-semibold text-ink-mute">
+          <button onClick={()=>scrollTo("lp-demo")} className="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-ink transition">Product</button>
+          <button onClick={()=>scrollTo("lp-how")} className="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-ink transition">How it works</button>
+          <button onClick={onLaunch} className="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-ink transition">Launch demo</button>
+        </nav>
+        <div className="ml-auto md:ml-3"><Button variant="primary" size="sm" onClick={()=>setDemo(true)}>Request a Demo</Button></div>
+      </div>
+    </header>
+
+    {/* ---- 1 · HERO ---- */}
+    <section className="relative overflow-hidden" style={{background:"radial-gradient(1200px 700px at 50% -10%, #1E1B4B 0%, #0F172A 55%, #0B1120 100%)"}}>
+      <WelcomeConstellation/>
+      <div className="relative max-w-4xl mx-auto px-5 sm:px-8 pt-20 pb-24 text-center wstagger">
+        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-[12px] font-semibold text-slate-300">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"/>For Life Sciences Brand Teams, CMOs &amp; Medical Affairs
+        </div>
+        <h1 className="mt-7 text-[38px] sm:text-[52px] leading-[1.05] font-extrabold tracking-[-.035em] text-white">
+          Every commercial insight your brand<br className="hidden sm:block"/> has ever learned. <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-emerald-300">One Brain.</span>
+        </h1>
+        <p className="mt-5 text-[16px] sm:text-[17px] leading-relaxed text-slate-300 max-w-2xl mx-auto">
+          Brainlee transforms fragmented market research, physician interviews, clinical evidence and commercial
+          knowledge into one trusted AI memory that powers evidence-backed decisions.
+        </p>
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button onClick={()=>setDemo(true)}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-2xl bg-white text-ink font-bold text-[15px] px-6 py-3.5 shadow-pop hover:shadow-lift hover:-translate-y-0.5 transition-all">
+            <span className="w-6 h-6 rounded-lg bg-indigo-600 text-white grid place-items-center"><Icon.brain size={14}/></span>Request a Demo</button>
+          <button onClick={()=>scrollTo("lp-demo")}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 text-white font-semibold text-[15px] px-6 py-3.5 hover:bg-white/10 transition">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8z"/></svg>Watch Product Demo</button>
+        </div>
+        <div className="mt-9 flex items-center justify-center gap-x-6 gap-y-2 flex-wrap">
+          {LP_TRUST.map(([ic,label])=>{ const TIc=Icon[ic]; return <span key={label} className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-slate-300">
+            <span className="text-emerald-300/90"><TIc size={15}/></span>{label}</span>;})}
+        </div>
+      </div>
+    </section>
+
+    {/* ---- 2 · PRODUCT DEMO ---- */}
+    <section id="lp-demo" className="max-w-5xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
+      <div className="text-center max-w-2xl mx-auto mb-8">
+        <div className="text-[11px] font-bold uppercase tracking-[.16em] text-indigo-600">See it in motion</div>
+        <h2 className="text-[26px] sm:text-[30px] font-extrabold tracking-[-.02em] mt-2">Watch Brainlee turn evidence into decisions</h2>
+        <p className="text-[15px] text-ink-mute mt-3 leading-relaxed">A two-minute walkthrough of ingesting research, asking a strategic question, and publishing a cited insight into your Brand Brain.</p>
+      </div>
+      <DemoVideo onPlay={()=>toast("Product walkthrough — full video coming soon")}/>
+    </section>
+
+    {/* ---- 3 · HOW BRAINLEE WORKS ---- */}
+    <section id="lp-how" className="bg-white border-y border-line">
+      <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <div className="text-[11px] font-bold uppercase tracking-[.16em] text-indigo-600">The orchestration layer</div>
+          <h2 className="text-[26px] sm:text-[30px] font-extrabold tracking-[-.02em] mt-2">How Brainlee works</h2>
+          <p className="text-[15px] text-ink-mute mt-3 leading-relaxed">Eight capabilities, one connected intelligence — from raw research to a governed decision.</p>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {LP_STEPS.map((s,i)=>{ const SIc=Icon[s.icon]; return <div key={i}
+            className="lp-card rounded-2xl border border-line bg-white shadow-card p-5 hover:shadow-lift hover:border-indigo-200">
+            <span className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 grid place-items-center"><SIc size={21}/></span>
+            <div className="font-bold text-[15px] text-ink mt-3.5">{s.title}</div>
+            <div className="text-[13px] text-ink-mute leading-relaxed mt-1.5">{s.body}</div>
+          </div>;})}
+        </div>
+      </div>
+    </section>
+
+    {/* ---- 4 · REQUEST DEMO ---- */}
+    <section className="relative overflow-hidden" style={{background:"radial-gradient(900px 500px at 50% 120%, #1E1B4B 0%, #0F172A 55%, #0B1120 100%)"}}>
+      <WelcomeConstellation/>
+      <div className="relative max-w-3xl mx-auto px-5 sm:px-8 py-20 text-center">
+        <h2 className="text-[30px] sm:text-[38px] font-extrabold tracking-[-.03em] text-white leading-tight">Ready to build your Brand Brain?</h2>
+        <p className="mt-4 text-[16px] text-slate-300 max-w-xl mx-auto leading-relaxed">Bring your evidence. We'll show you the decisions it can power — in a demo tailored to your brand.</p>
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button onClick={()=>setDemo(true)}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-2xl bg-white text-ink font-bold text-[15px] px-7 py-4 shadow-pop hover:shadow-lift hover:-translate-y-0.5 transition-all">
+            <span className="w-6 h-6 rounded-lg bg-indigo-600 text-white grid place-items-center"><Icon.brain size={14}/></span>Request a Demo</button>
+          <button onClick={onLaunch}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 text-white font-semibold text-[15px] px-7 py-4 hover:bg-white/10 transition">
+            Explore the live demo<Icon.arrow size={16}/></button>
+        </div>
+      </div>
+      {/* footer */}
+      <div className="relative border-t border-white/10">
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-6 flex flex-col sm:flex-row items-center gap-3 text-[12px] text-slate-400">
+          <div className="flex items-center gap-2"><div className="w-6 h-6 rounded-lg bg-gradient-to-br from-indigo-600 to-indigo-500 grid place-items-center text-white"><Icon.brain size={13}/></div><span className="font-semibold text-slate-300">Brainlee</span></div>
+          <span className="sm:ml-2">The AI Brand Brain for Life Sciences commercial teams.</span>
+          <span className="sm:ml-auto inline-flex items-center gap-1.5"><Icon.shield size={13} cls="text-emerald-400"/>Evidence-backed · MLR-aware · human-approved</span>
+        </div>
+      </div>
+    </section>
+
+    {demo && <RequestDemoModal onClose={()=>setDemo(false)} toast={toast}/>}
+    <Toast message={toastMsg}/>
+  </div>;
+}
+
 function App() {
+  const [stage,setStage]=useState("landing");  // landing | welcome | app
   const [entered,setEntered]=useState(false);
   const [histState,setHistState]=useState({stack:["ask"], i:0});
   const nav=histState.stack[histState.i];
@@ -3272,7 +3534,8 @@ function App() {
   const Screen={ ask:AskScreen, pulse:PulseScreen, library:LibraryScreen, brand:BrandBrainScreen,
                  personas:PersonasScreen, mlr:MLRScreen, audit:AuditScreen }[nav];
 
-  if(!entered) return <WelcomeScreen onEnter={()=>{ setEntered(true); toast("YI Combo loaded · 9 sources · governed · ready"); }}/>;
+  if(stage==="landing") return <LandingPage onLaunch={()=>setStage("welcome")}/>;
+  if(stage==="welcome") return <WelcomeScreen onEnter={()=>{ setStage("app"); setEntered(true); toast("YI Combo loaded · 9 sources · governed · ready"); }}/>;
 
   return <SourceCtx.Provider value={srcApi}>
     <div className="flex h-screen bg-canvas">
