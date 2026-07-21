@@ -608,6 +608,55 @@ const PERSONA_DEPTH = {
       influence:"Moderate — teaches junior consultants who prescribe.", digital:"Very low — reachable only through academic channels." } },
 };
 
+// Cognitive-function name lookup for the MBTI layer.
+const COGFN = { Te:"Extraverted Thinking", Ti:"Introverted Thinking", Fe:"Extraverted Feeling", Fi:"Introverted Feeling",
+  Ne:"Extraverted Intuition", Ni:"Introverted Intuition", Se:"Extraverted Sensing", Si:"Introverted Sensing" };
+
+// Enriched persona schema — MBTI cognitive layers, behavioural-pattern schema, and
+// messaging resonance. Merged onto PERSONAS at render (HCP module only).
+const PERSONA_SCHEMA = {
+  p1:{ mbti4:[{l:"E",r:"I",pick:"E",strength:72},{l:"S",r:"N",pick:"N",strength:64},{l:"T",r:"F",pick:"T",strength:80},{l:"J",r:"P",pick:"J",strength:76}],
+    functions:[{c:"Te",role:"Dominant"},{c:"Ni",role:"Auxiliary"},{c:"Se",role:"Tertiary"},{c:"Fi",role:"Inferior"}],
+    cognition:"Leads with extraverted Thinking — organises evidence into decisive action; auxiliary intuition keeps her ahead of guideline shifts.",
+    traits:["Fast convergent decisions","Low ambiguity tolerance","Persuades with structured logic"],
+    patterns:[{t:"New guideline or head-to-head data",r:"Evaluates within days and escalates early"},{t:"Ambiguous or unsupported claim",r:"Rejects; asks for the study N and comparator"},{t:"Peer KOL adopts",r:"Reinforces conviction, accelerates rollout"}],
+    drivers:[{n:"Efficacy & IOP control",d:"The clinical result is the decision — magnitude and durability of IOP lowering."},{n:"Guideline alignment",d:"First-line PGA consensus underwrites the escalation story."},{n:"Regimen simplification",d:"Once-daily FDC as a cleaner path than stacking bottles."}],
+    tiebreakers:["Head-to-head superiority","Reputation for clinical leadership"],
+    resonance:{ lands:["Guideline-first efficacy framing","Being ahead of peers","Clear escalation logic"], fails:["Safety-only messaging with no efficacy","Vague claims without N / CI"], voice:"Confident, data-forward, peer-to-peer.", proof:["Head-to-head RCT summaries","Guideline citations","KOL endorsement"] } },
+  p2:{ mbti4:[{l:"E",r:"I",pick:"I",strength:64},{l:"S",r:"N",pick:"S",strength:70},{l:"T",r:"F",pick:"T",strength:66},{l:"J",r:"P",pick:"J",strength:82}],
+    functions:[{c:"Si",role:"Dominant"},{c:"Te",role:"Auxiliary"},{c:"Fi",role:"Tertiary"},{c:"Ne",role:"Inferior"}],
+    cognition:"Anchored in introverted Sensing — trusts precedent and protocol; extraverted Thinking enforces consistency across the network.",
+    traits:["Precedent-driven","Risk-averse to deviation","Documents every decision"],
+    patterns:[{t:"Formulary lists the product",r:"Switches patients at scale, precisely to protocol"},{t:"Off-protocol request",r:"Declines regardless of personal view"},{t:"HEOR / network outcome data",r:"Escalates to the P&T committee"}],
+    drivers:[{n:"Protocol & formulary fit",d:"Nothing happens until the network sanctions it."},{n:"Defensible outcomes",d:"Decisions must be auditable and consistent."},{n:"Cost-effectiveness",d:"Value case for the institution, not the individual."}],
+    tiebreakers:["Committee consensus","Health-economic dossier"],
+    resonance:{ lands:["Formulary / HEOR framing","Network-level outcomes","Consistency & defensibility"], fails:["Individual-brand hype","Emotional appeals","Anything off-protocol"], voice:"Formal, institutional, evidence-of-record.", proof:["HEOR dossiers","Network outcome data","Guideline + label alignment"] } },
+  p3:{ mbti4:[{l:"E",r:"I",pick:"I",strength:58},{l:"S",r:"N",pick:"S",strength:64},{l:"T",r:"F",pick:"F",strength:62},{l:"J",r:"P",pick:"J",strength:70}],
+    functions:[{c:"Si",role:"Dominant"},{c:"Fe",role:"Auxiliary"},{c:"Ti",role:"Tertiary"},{c:"Ne",role:"Inferior"}],
+    cognition:"Introverted Sensing with extraverted Feeling — protects trusted routines and patient relationships; change must feel safe for people.",
+    traits:["Loyalty to what works","Harm-avoidant","Sensitive to peer trust"],
+    patterns:[{t:"Long-term safety proof + peer precedent",r:"Gradually converts, then stays loyal"},{t:"Pressure to switch quickly",r:"Resists — reads as risk to patients"},{t:"Trusted colleague's positive experience",r:"Opens to reconsider"}],
+    drivers:[{n:"Long-term safety",d:"Five-year tolerability is the belief-shift lever."},{n:"Patient trust",d:"Decades of relationship must not be jeopardised."},{n:"Peer precedent",d:"Respected colleagues switching changes the frame."}],
+    tiebreakers:["Five-year safety evidence","Respected peer testimony"],
+    resonance:{ lands:["Long-term safety reassurance","Peer stories","Continuity of care"], fails:["Novelty for its own sake","Aggressive switching asks","Flashy digital"], voice:"Warm, reassuring, relationship-led.", proof:["Five-year safety data","Peer case narratives","Real-world persistence"] } },
+  p4:{ mbti4:[{l:"E",r:"I",pick:"E",strength:70},{l:"S",r:"N",pick:"N",strength:74},{l:"T",r:"F",pick:"F",strength:58},{l:"J",r:"P",pick:"P",strength:64}],
+    functions:[{c:"Ne",role:"Dominant"},{c:"Fi",role:"Auxiliary"},{c:"Te",role:"Tertiary"},{c:"Si",role:"Inferior"}],
+    cognition:"Extraverted Intuition-led — energised by new ideas and connections; shares enthusiastically, follows through selectively.",
+    traits:["Idea-driven","Highly shareable","Selective follow-through"],
+    patterns:[{t:"Novel, well-designed digital content",r:"Engages fast and amplifies to peers"},{t:"Dense clinical detail",r:"Skims; loses attention"},{t:"Complex escalation case",r:"Refers out to a sub-specialist"}],
+    drivers:[{n:"Novelty & learning",d:"Being visibly current with the field."},{n:"Digital experience",d:"Content quality and format decide engagement."},{n:"Peer sharing",d:"Amplifying what he learns to his network."}],
+    tiebreakers:["Best content experience","Social proof"],
+    resonance:{ lands:["Case-based micro-content","Visual MOA","Shareability"], fails:["Text-heavy prescribing info","Static banners","Slow-loading assets"], voice:"Energetic, visual, conversational.", proof:["Short video","Interactive case cards","Infographics"] } },
+  p5:{ mbti4:[{l:"E",r:"I",pick:"I",strength:72},{l:"S",r:"N",pick:"N",strength:68},{l:"T",r:"F",pick:"T",strength:70},{l:"J",r:"P",pick:"P",strength:66}],
+    functions:[{c:"Ti",role:"Dominant"},{c:"Ne",role:"Auxiliary"},{c:"Si",role:"Tertiary"},{c:"Fe",role:"Inferior"}],
+    cognition:"Introverted Thinking — dissects logic and evidence rigorously; behaviour nonetheless fixed by formulary and status quo.",
+    traits:["Analytically demanding","Skeptical of promotion","Inertial in practice"],
+    patterns:[{t:"Rigorous academic HEOR",r:"Intellectually engages (rarely acts)"},{t:"Promotional messaging",r:"Discounts it"},{t:"Formulary default",r:"Prescribes it by inertia"}],
+    drivers:[{n:"Analytical rigor",d:"Only defensible, mechanism-level evidence moves him."},{n:"Departmental stability",d:"The status quo has served patients for decades."},{n:"Academic credibility",d:"Standing among peers over commercial novelty."}],
+    tiebreakers:["Peer-reviewed HEOR","Academic endorsement"],
+    resonance:{ lands:["Rigorous data via academic channels","Mechanistic depth"], fails:["Sales tone","Oversimplified claims"], voice:"Precise, academic, non-promotional.", proof:["Peer-reviewed literature","HEOR models","Congress data"] } },
+};
+
 // ---- Multi-dimensional asset evaluation (Test Asset intelligence) ----
 // 14 commercial dimensions each persona scores an asset on.
 const ASSET_DIMS = [
@@ -2202,6 +2251,86 @@ function Expander({icon, title, sub, tone="indigo", defaultOpen=false, children}
   </div>;
 }
 
+// Enriched MBTI / cognitive layer — dichotomy sliders + cognitive-function stack + traits.
+function MBTIProfile({p, col}) {
+  return <div className="space-y-3.5">
+    <p className="text-[13px] leading-relaxed text-ink-soft">{p.behaviour}</p>
+    {p.mbti4 && <div>
+      <div className="text-[9.5px] font-bold uppercase tracking-wider text-ink-faint mb-2">Preference axes</div>
+      <div className="space-y-2">
+        {p.mbti4.map((ax,i)=>{ const pos = ax.pick===ax.l ? (50-ax.strength/2) : (50+ax.strength/2);
+          return <div key={i} className="flex items-center gap-2">
+            <span className={cx("text-[11px] font-bold w-4 text-right", ax.pick===ax.l?"text-ink":"text-ink-faint")}>{ax.l}</span>
+            <div className="flex-1 relative h-1.5 rounded-full bg-slate-100">
+              <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2 border-white shadow" style={{left:`calc(${pos}% - 6px)`, background:col}}/>
+            </div>
+            <span className={cx("text-[11px] font-bold w-4", ax.pick===ax.r?"text-ink":"text-ink-faint")}>{ax.r}</span>
+            <span className="text-[10px] font-semibold text-ink-mute w-24 shrink-0">{ax.strength}% {ax.pick===ax.l?ax.l:ax.r}</span>
+          </div>;})}
+      </div>
+    </div>}
+    {p.functions && <div>
+      <div className="text-[9.5px] font-bold uppercase tracking-wider text-ink-faint mb-2">Cognitive function stack</div>
+      <div className="grid grid-cols-2 gap-2">
+        {p.functions.map((f,i)=><div key={i} className="rounded-lg border border-line bg-white px-2.5 py-1.5 flex items-center gap-2">
+          <span className="w-8 h-8 rounded-lg grid place-items-center font-extrabold text-[12px] text-white shrink-0" style={{background:col, opacity:1-i*0.18}}>{f.c}</span>
+          <div className="min-w-0"><div className="text-[9px] font-bold uppercase tracking-wide text-ink-faint">{f.role}</div>
+            <div className="text-[11px] font-semibold text-ink leading-tight">{COGFN[f.c]}</div></div>
+        </div>)}
+      </div>
+    </div>}
+    {p.cognition && <p className="text-[12.5px] leading-relaxed text-ink-soft">{p.cognition}</p>}
+    {p.traits && <div className="flex flex-wrap gap-1.5">
+      {p.traits.map((t,i)=><span key={i} className="text-[11px] font-semibold rounded-md px-2 py-0.5" style={{background:col+"14", color:col}}>{t}</span>)}
+    </div>}
+  </div>;
+}
+
+// Behavioural pattern schema — trigger→response patterns, ranked decision drivers, tie-breakers.
+function BehaviourSchema({p}) {
+  return <div className="space-y-4">
+    {p.patterns && <div>
+      <div className="text-[9.5px] font-bold uppercase tracking-wider text-ink-faint mb-2">Trigger → response patterns</div>
+      <div className="space-y-1.5">
+        {p.patterns.map((pt,i)=><div key={i} className="flex items-stretch gap-2">
+          <div className="flex-1 rounded-lg border border-line bg-slate-50/60 px-3 py-2 text-[12px] text-ink-soft">{pt.t}</div>
+          <div className="grid place-items-center text-ink-faint shrink-0"><Icon.arrow size={15}/></div>
+          <div className="flex-1 rounded-lg border border-indigo-100 bg-indigo-50/50 px-3 py-2 text-[12px] text-ink font-medium">{pt.r}</div>
+        </div>)}
+      </div>
+    </div>}
+    {p.drivers && Array.isArray(p.drivers) && <div>
+      <div className="text-[9.5px] font-bold uppercase tracking-wider text-ink-faint mb-2">Ranked decision drivers</div>
+      <div className="space-y-1.5">
+        {p.drivers.map((d,i)=><div key={i} className="flex gap-2.5 rounded-lg border border-line bg-white px-3 py-2">
+          <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 grid place-items-center text-[11px] font-extrabold shrink-0">{i+1}</span>
+          <div className="min-w-0"><div className="text-[12.5px] font-bold text-ink">{d.n}</div><div className="text-[11.5px] text-ink-mute leading-snug">{d.d}</div></div>
+        </div>)}
+      </div>
+    </div>}
+    {p.tiebreakers && <div>
+      <div className="text-[9.5px] font-bold uppercase tracking-wider text-ink-faint mb-1.5">Tie-breakers</div>
+      <div className="space-y-1">{p.tiebreakers.map((t,i)=><div key={i} className="flex gap-1.5 text-[12px] text-ink-soft"><span className="text-indigo-500 shrink-0">·</span>{t}</div>)}</div>
+    </div>}
+  </div>;
+}
+
+// Messaging resonance — what lands, what fails, preferred voice & proof format.
+function MessagingResonance({m}) {
+  return <div className="space-y-3">
+    <div className="grid sm:grid-cols-2 gap-3">
+      <div><div className="text-[9.5px] font-bold uppercase tracking-wider text-emerald-700 mb-1.5">What lands</div>
+        <div className="space-y-1">{m.lands.map((s,i)=><div key={i} className="flex gap-1.5 text-[12px] text-ink-soft"><span className="text-emerald-600 mt-0.5 shrink-0"><Icon.check size={12}/></span>{s}</div>)}</div></div>
+      <div><div className="text-[9.5px] font-bold uppercase tracking-wider text-rose-600 mb-1.5">What fails</div>
+        <div className="space-y-1">{m.fails.map((s,i)=><div key={i} className="flex gap-1.5 text-[12px] text-ink-soft"><span className="text-rose-500 mt-0.5 shrink-0"><Icon.x size={12}/></span>{s}</div>)}</div></div>
+    </div>
+    <div><div className="text-[9.5px] font-bold uppercase tracking-wider text-ink-faint mb-1">Preferred voice</div>
+      <p className="text-[12.5px] text-ink-soft">{m.voice}</p></div>
+    <div><div className="text-[9.5px] font-bold uppercase tracking-wider text-ink-faint mb-1.5">Preferred proof format</div>
+      <div className="flex flex-wrap gap-1.5">{m.proof.map((s,i)=><span key={i} className="text-[11px] font-semibold bg-slate-100 text-ink-soft rounded-md px-2 py-0.5">{s}</span>)}</div></div>
+  </div>;
+}
+
 function PersonaPanel({p, onClose, onEdit}) {
   const col=PTONE[p.tone]; const e=p.evidence;
   const Field=({label, children})=><div>
@@ -2234,16 +2363,30 @@ function PersonaPanel({p, onClose, onEdit}) {
             <div className="text-[12px] text-ink-mute">{p.readiness.action}</div></div>
         </div>
 
+        {/* MBTI & cognitive profile — enriched, multi-layer */}
         <div className="rounded-xl border p-4" style={{borderColor:col+"55", background:col+"0D"}}>
-          <div className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{color:col}}>MBTI · {p.mbti} — {p.mbtiName}</div>
-          <p className="text-[13px] leading-relaxed text-ink-soft">{p.behaviour}</p>
+          <div className="flex items-center gap-2 mb-2.5">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider" style={{color:col}}>MBTI &amp; cognitive profile</span>
+            <span className="text-[11px] font-bold rounded-md px-2 py-0.5 text-white" style={{background:col}}>{p.mbti} · {p.mbtiName}</span>
+          </div>
+          <MBTIProfile p={p} col={col}/>
         </div>
 
         {/* Behaviour radar */}
         {p.radar && <div className="rounded-xl border border-line bg-white p-4">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-1">Behavioural profile</div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-1">Behavioural profile radar</div>
           <BehaviourRadar data={p.radar} color={col}/>
         </div>}
+
+        {/* Behavioural pattern schema — the missing layer */}
+        {p.patterns && <Expander icon="graph" title="Behavioural pattern schema" sub="Trigger → response · ranked drivers · tie-breakers" defaultOpen={true}>
+          <BehaviourSchema p={p}/>
+        </Expander>}
+
+        {/* Messaging resonance */}
+        {p.resonance && <Expander icon="ask" title="Messaging resonance" sub="What lands, what fails, voice & proof format">
+          <MessagingResonance m={p.resonance}/>
+        </Expander>}
 
         <div className="grid sm:grid-cols-2 gap-4">
           <Field label="Specialty">{p.specialty}</Field>
@@ -2591,7 +2734,7 @@ function PersonasScreen({app}) {
   const [test,setTest]=useState(false);
   const [view,setView]=useState("cards"); // cards | compare
   const [edits,setEdits]=useState({});   // id -> {mbti,motivations,behaviour,messaging,barriers}
-  const merged = (x)=> ({...x, ...(PERSONA_DEPTH[x.id]||{}), ...(edits[x.id]||{})});
+  const merged = (x)=> ({...x, ...(PERSONA_DEPTH[x.id]||{}), ...(PERSONA_SCHEMA[x.id]||{}), ...(edits[x.id]||{})});
   const list = PERSONAS.map(merged);
   const p = list.find(x=>x.id===open);
   const ep = list.find(x=>x.id===editId);
