@@ -132,12 +132,12 @@ const { useState, useEffect, useRef, useCallback, useMemo, createContext, useCon
 
 /* ------------------------------------------------------------------ BRAND & PEOPLE */
 const BRAND = { name: "YI Combo", tag: "Glaucoma · latanoprost + timolol FDC", company:"NovaVision Pharma",
-                owner: "Dr. Ananya Rao", role: "Brand Director" };
+                owner: "Dr. Carlos", role: "Brand Director" };
 
 const BRANDS = [
   { id:"yic", name:"YI Combo Brand", tag:"Glaucoma · latanoprost + timolol", initial:"Y", active:true },
-  { id:"win", name:"WinYou Brand",   tag:"Glaucoma franchise", initial:"W", active:false },
-  { id:"cos", name:"Cosopt Brand",   tag:"Glaucoma franchise", initial:"C", active:false },
+  { id:"win", name:"WinYou Brand",   tag:"No research connected", initial:"W", active:false },
+  { id:"cos", name:"Cosopt Brand",   tag:"No research connected", initial:"C", active:false },
 ];
 
 // The question that drives the whole demo.
@@ -208,6 +208,16 @@ const CONNECTORS = [
     sync:"1 hr ago", docs:"8,412 interactions", icon:"users" },
   { id:"vv", name:"Veeva Vault PromoMats", desc:"Approved claims library & MLR asset status", status:"Connected",
     sync:"34 min ago", docs:"32 assets", icon:"vault" },
+  { id:"pm", name:"PubMed", desc:"Peer-reviewed literature relevant to YI Combo & competitors", status:"Connected",
+    sync:"18 min ago", docs:"64 references", icon:"pulse" },
+];
+// Live auto-ingestion stream — knowledge Brainlee is continuously indexing from enterprise systems.
+const INGEST_FEED = [
+  { src:"Veeva", icon:"vault", name:"PP-YIC-GLB-0301 — HCP visual aid (draft)", topic:"YI Combo", when:"just now" },
+  { src:"PubMed", icon:"pulse", name:"Rho-kinase inhibitors in POAG — 2026 meta-analysis", topic:"Competitors", when:"6 min ago" },
+  { src:"Outlook", icon:"mail", name:"IQVIA MAT Apr'26 refresh — Lat/Tim segment", topic:"Commercial evidence", when:"11 min ago" },
+  { src:"CRM", icon:"users", name:"142 new field call notes — glaucoma specialists", topic:"YI Combo", when:"22 min ago" },
+  { src:"SharePoint", icon:"grid", name:"Xalacom competitive teardown — brand team", topic:"Competitors", when:"38 min ago" },
 ];
 
 /* ------------------------------------------------------------------ CITATIONS */
@@ -964,6 +974,8 @@ const Icon = {
   tag:      p=><Ic {...p} d={<><path d="M3 3h8l10 10-8 8L3 11z"/><circle cx="8" cy="8" r="1.5"/></>}/>,
   refresh:  p=><Ic {...p} d={<><path d="M21 12a9 9 0 1 1-2.6-6.4L21 8"/><path d="M21 3v5h-5"/></>}/>,
   pen:      p=><Ic {...p} d={<><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></>}/>,
+  home:     p=><Ic {...p} d={<><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/></>}/>,
+  pie:      p=><Ic {...p} d={<><path d="M12 3v9l7.5 4.5"/><path d="M12 3a9 9 0 1 0 7.5 13.5"/></>}/>,
   beaker:   p=><Ic {...p} d={<><path d="M9 3h6M10 3v6l-5 9a1.5 1.5 0 0 0 1.3 2.2h11.4A1.5 1.5 0 0 0 19 18l-5-9V3"/><path d="M7.5 14h9"/></>}/>,
 };
 
@@ -1372,13 +1384,23 @@ function WelcomeConstellation() {
   </svg>;
 }
 
+// The orchestration checklist — proves Brainlee coordinates many capabilities, not one chat reply.
+const WELCOME_STEPS = [
+  "Retrieved 18 relevant documents","Compared with previous campaigns","Simulated 5 HCP archetypes",
+  "Evaluated competitor positioning","Assessed scientific evidence","Calculated commercial risk",
+  "Generated recommendation","Ready for human review",
+];
+function WelcomeSteps() {
+  const [n,setN]=useState(0);
+  useEffect(()=>{ const t=setInterval(()=>setN(v=>v<WELCOME_STEPS.length?v+1:v),380); return ()=>clearInterval(t); },[]);
+  return <div className="grid sm:grid-cols-2 gap-x-8 gap-y-2 text-left">
+    {WELCOME_STEPS.map((s,i)=><div key={i} className={cx("flex items-center gap-2.5 text-[13px] transition-all duration-300", i<n?"opacity-100 text-slate-200":"opacity-30 text-slate-500")}>
+      <span className={cx("w-5 h-5 rounded-full grid place-items-center shrink-0", i<n?"bg-emerald-500/20 text-emerald-300":"bg-white/5 text-white/30")}>
+        {i<n?<Icon.check size={13}/>:<span className="block w-1.5 h-1.5 rounded-full bg-white/20"/>}</span>{s}</div>)}
+  </div>;
+}
+
 function WelcomeScreen({onEnter}) {
-  const pillars=[
-    { icon:"library", title:"Ingest everything", body:"Market data, research decks, transcripts, MLR assets — every document becomes governed evidence." },
-    { icon:"ask", title:"Ask anything", body:"Strategic questions answered from your evidence — every claim labeled, scored and cited." },
-    { icon:"shield", title:"Verify every claim", body:"One click opens the exact source passage. Contradictions are preserved, never averaged." },
-    { icon:"brain", title:"Remember forever", body:"Approved insights become versioned institutional memory that every future answer reads." },
-  ];
   return <div className="fixed inset-0 z-[70] overflow-y-auto" style={{background:"radial-gradient(1200px 700px at 50% -10%, #1E1B4B 0%, #0F172A 55%, #0B1120 100%)"}}>
     <WelcomeConstellation/>
     <div className="relative min-h-full flex flex-col items-center justify-center px-6 py-14">
@@ -1387,46 +1409,35 @@ function WelcomeScreen({onEnter}) {
         <div className="flex items-center justify-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 grid place-items-center text-white shadow-pop"><Icon.brain size={26}/></div>
           <div className="text-left leading-none">
-            <div className="text-white font-extrabold text-[20px] tracking-[-.02em]">BrandBrain</div>
-            <div className="text-indigo-300 text-[11px] font-bold uppercase tracking-[.18em] mt-1">by Brainlee</div>
+            <div className="text-white font-extrabold text-[20px] tracking-[-.02em]">Brainlee</div>
+            <div className="text-indigo-300 text-[11px] font-bold uppercase tracking-[.18em] mt-1">Decision Intelligence</div>
           </div>
         </div>
-        {/* the five-second promise */}
-        <h1 className="mt-9 text-[42px] leading-[1.08] font-extrabold tracking-[-.035em] text-white">
-          Every insight your brand<br/>has ever learned. <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-emerald-300">One brain.</span>
+        {/* positioning */}
+        <div className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[12px] font-semibold text-slate-300">
+          <span className="text-emerald-300"><Icon.shield size={14}/></span>The Decision Intelligence layer for Life Sciences — not a chatbot
+        </div>
+        <h1 className="mt-6 text-[34px] sm:text-[42px] leading-[1.1] font-extrabold tracking-[-.03em] text-white max-w-3xl mx-auto">
+          Fragmented research, market data, physician feedback and clinical evidence — <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-emerald-300">turned into Commercial Decision Intelligence.</span>
         </h1>
-        <p className="mt-5 text-[16.5px] leading-relaxed text-slate-300 max-w-xl mx-auto">
-          Brainlee turns fragmented brand research — market data, physician interviews, clinical
-          evidence — into one trusted memory, so every strategic decision is grounded in evidence
-          you can verify, not recollection.
+        <p className="mt-5 text-[16px] leading-relaxed text-slate-300 max-w-2xl mx-auto">
+          Brainlee turns Life Sciences' scattered brand knowledge into one trusted, evidence-backed memory —
+          becoming the decision layer above your existing enterprise ecosystem.
         </p>
+        {/* orchestration proof — Brainlee coordinates multiple AI capabilities */}
+        <div className="mt-8 rounded-2xl bg-white/[.05] border border-white/10 backdrop-blur-sm p-6 max-w-xl mx-auto">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"/><span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"/></span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300">Brainlee is orchestrating your decision</span>
+          </div>
+          <WelcomeSteps/>
+        </div>
         {/* who it's for */}
-        <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[12px] font-semibold text-slate-300">
-          <span className="text-emerald-300"><Icon.pulse size={14}/></span>
-          For Life Sciences Brand Teams, CMOs &amp; Medical Affairs
-        </div>
-        {/* the loop */}
-        <div className="mt-7 flex items-center justify-center gap-2 text-[12px] font-semibold text-slate-400 flex-wrap">
-          {["Evidence in","Cited answers","Human approval","Living memory"].map((s,i)=><React.Fragment key={s}>
-            {i>0 && <span className="text-indigo-400"><Icon.arrow size={13}/></span>}
-            <span className={cx("rounded-full px-3 py-1 border", i===3?"border-emerald-400/40 text-emerald-300 bg-emerald-400/10":"border-white/10 bg-white/5")}>{s}</span>
-          </React.Fragment>)}
-        </div>
-        {/* four pillars — scannable in seconds */}
-        <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-3 text-left">
-          {pillars.map((p,i)=>{ const PIc=Icon[p.icon]; return <div key={i} className="rounded-2xl bg-white/[.06] border border-white/10 backdrop-blur-sm p-4 hover:bg-white/[.09] transition">
-            <span className="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-300 grid place-items-center"><PIc size={18}/></span>
-            <div className="mt-3 font-bold text-[14px] text-white">{p.title}</div>
-            <div className="mt-1 text-[12.5px] leading-relaxed text-slate-400">{p.body}</div>
-          </div>;})}
-        </div>
-        {/* subtle Life Sciences cues — understated, not clichéd */}
-        <div className="mt-9 flex items-center justify-center gap-x-6 gap-y-2 flex-wrap text-[11.5px] font-medium text-slate-400">
-          {[["doc","Peer-reviewed evidence"],["users","HCP segments"],["pulse","Clinical studies"],["graph","Knowledge graph"],["eye","Ophthalmology focus"]].map(([ic,label])=>{
-            const LIc=Icon[ic]; return <span key={label} className="inline-flex items-center gap-1.5"><span className="text-indigo-300/80"><LIc size={14}/></span>{label}</span>;})}
+        <div className="mt-7 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[12px] font-semibold text-slate-300">
+          <span className="text-emerald-300"><Icon.pulse size={14}/></span>For Life Sciences Brand Teams, CMOs &amp; Medical Affairs
         </div>
         {/* enter */}
-        <div className="mt-9 flex flex-col items-center gap-3">
+        <div className="mt-8 flex flex-col items-center gap-3">
           <button onClick={onEnter}
             className="group inline-flex items-center gap-3 rounded-2xl bg-white text-ink font-bold text-[15px] px-7 py-4 shadow-pop hover:shadow-lift hover:-translate-y-0.5 transition-all">
             <span className="w-7 h-7 rounded-lg bg-indigo-600 text-white grid place-items-center"><Icon.bolt size={15}/></span>
@@ -1451,38 +1462,102 @@ function ScreenHeader({title, sub, right}) {
   </div>;
 }
 
-function DocRow({d, last}) {
-  const [open,setOpen]=useState(false);
-  const statusMap={
-    ready:    {label:"Ready", cls:"text-emerald-700 bg-emerald-50", dot:"bg-emerald-500"},
-    approved: {label:"MLR approved", cls:"text-emerald-700 bg-emerald-50", dot:"bg-emerald-500"},
-    review:   {label:"In MLR review", cls:"text-amber-700 bg-amber-50", dot:"bg-amber-500"},
-  };
-  const st=statusMap[d.status]||statusMap.ready;
+const DOC_STATUS={
+  ready:    {label:"Auto-synced", cls:"text-emerald-700 bg-emerald-50", dot:"bg-emerald-500"},
+  approved: {label:"MLR approved", cls:"text-emerald-700 bg-emerald-50", dot:"bg-emerald-500"},
+  review:   {label:"In MLR review", cls:"text-amber-700 bg-amber-50", dot:"bg-amber-500"},
+};
+const fileKind=(f)=>{ const e=(f.split(".").pop()||"").toLowerCase();
+  return e==="pptx"||e==="ppt"?"ppt":e==="xlsx"||e==="xls"||e==="csv"?"xls":e==="png"||e==="jpg"?"img":e==="html"?"email":"pdf"; };
+const connectorOf=(src)=>{ const s=(src||"").toLowerCase();
+  return s.includes("sharepoint")?["SharePoint","grid"]:s.includes("outlook")?["Outlook","mail"]:s.includes("veeva")?["Veeva","vault"]:s.includes("crm")?["CRM","users"]:s.includes("pubmed")?["PubMed","pulse"]:["Medical Affairs","doc"]; };
+
+function DocRow({d, last, onOpen}) {
+  const st=DOC_STATUS[d.status]||DOC_STATUS.ready;
+  const [cName,cIcon]=connectorOf(d.source); const CIc=Icon[cIcon]||Icon.doc;
   return <div className={cx(!last&&"border-b border-line")}>
-    <button onClick={()=>setOpen(o=>!o)} className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-50 transition text-left">
+    <button onClick={()=>onOpen(d)} className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-50 transition text-left">
       <span className={cx("w-9 h-9 rounded-lg grid place-items-center shrink-0",
         d.color==="indigo"?"bg-indigo-50 text-indigo-600":d.color==="emerald"?"bg-emerald-50 text-emerald-600":d.color==="amber"?"bg-amber-50 text-amber-600":"bg-slate-100 text-ink-soft")}><Icon.doc size={17}/></span>
       <div className="flex-1 min-w-0"><div className="font-semibold text-[14px] text-ink truncate">{d.name}</div>
         <div className="text-[12px] text-ink-mute truncate">{d.type} · {d.meta}</div></div>
+      <span className="hidden lg:inline-flex items-center gap-1 text-[10.5px] font-semibold text-ink-soft bg-slate-100 rounded-md px-1.5 py-0.5 shrink-0"><CIc size={11}/>{cName}</span>
       <span className="hidden md:block text-[11.5px] text-ink-faint shrink-0">{d.uploaded}</span>
       <span className={cx("text-[11px] rounded-md px-2 py-0.5 font-semibold flex items-center gap-1 shrink-0", st.cls)}><span className={cx("w-1.5 h-1.5 rounded-full", st.dot)}/>{st.label}</span>
-      <span className={cx("text-ink-faint transition-transform shrink-0", open&&"rotate-90")}><Icon.chevron size={14}/></span>
+      <span className="text-ink-faint shrink-0"><Icon.eye size={15}/></span>
     </button>
-    {open && <div className="px-3 pb-4 animate-fadein">
-      <div className="ml-12 rounded-xl border border-line bg-slate-50/50 p-4">
-        <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2.5 text-[12.5px]">
+  </div>;
+}
+
+// Right-side document preview drawer — inspect PPT / Excel / PDF / banner / email without leaving.
+function FilePreview({d, onClose}) {
+  const kind=fileKind(d.file); const [cName,cIcon]=connectorOf(d.source); const CIc=Icon[cIcon]||Icon.doc;
+  const KIND={ ppt:["PPTX","fuchsia"], xls:["Excel","emerald"], img:["Image","amber"], email:["Email","indigo"], pdf:["PDF","rose"] }[kind];
+  const body=()=>{
+    if(kind==="ppt") return <div className="space-y-3">
+      {[["Title slide", d.name],["Executive summary","3 priority cohorts · 43% of HCPs → 83% of TRx"],["Key chart","Value share 21.7% → 33.1% → 42.3%"]].map(([t,s],i)=>
+        <div key={i} className="rounded-xl border border-line overflow-hidden">
+          <div className="bg-slate-50 border-b border-line px-3 py-1.5 text-[10.5px] font-bold text-ink-mute">Slide {i+1} · {t}</div>
+          <div className="p-4 bg-white"><div className="h-2.5 rounded bg-slate-200 w-2/3 mb-2"/><div className="h-2 rounded bg-slate-100 w-full mb-1.5"/><div className="h-2 rounded bg-slate-100 w-5/6 mb-3"/>
+            <div className="flex items-end gap-2 h-16">{[40,62,88].map((h,j)=><div key={j} className="flex-1 rounded-t bg-indigo-200" style={{height:h+"%"}}/>)}</div>
+            <div className="text-[11px] text-ink-mute mt-2">{s}</div></div>
+        </div>)}
+    </div>;
+    if(kind==="xls") return <div className="rounded-xl border border-line overflow-hidden">
+      <div className="bg-slate-50 border-b border-line px-3 py-1.5 text-[10.5px] font-bold text-ink-mute">Sheet 3 · Brand-level table</div>
+      <table className="w-full text-[11px]"><thead><tr className="bg-slate-50/70 text-ink-mute">{["Brand","Share","Value","Rank"].map(h=><th key={h} className="text-left px-2.5 py-1.5 font-bold">{h}</th>)}</tr></thead>
+        <tbody>{[["YI Combo","42.3%","₹10.8 Cr","1"],["Xalacom","19.1%","₹4.9 Cr","2"],["Latocom","16.6%","₹4.2 Cr","3"],["Latocom-CF","12.4%","₹3.2 Cr","4"]].map((r,i)=>
+          <tr key={i} className={cx("border-t border-line", i===0&&"bg-indigo-50/50 font-semibold")}>{r.map((c,j)=><td key={j} className="px-2.5 py-1.5 text-ink">{c}</td>)}</tr>)}</tbody></table>
+    </div>;
+    if(kind==="img") return <div className="rounded-xl overflow-hidden border border-line">
+      <div className="aspect-[16/7] bg-gradient-to-br from-emerald-50 to-indigo-100 grid place-items-center text-center p-6">
+        <div><div className="text-[11px] font-bold uppercase tracking-wider text-indigo-700">Once Daily</div>
+          <div className="text-[22px] font-extrabold text-ink mt-1">YI Combo</div>
+          <div className="text-[11px] text-ink-mute mt-2 max-w-xs">{d.meta}</div></div></div>
+    </div>;
+    if(kind==="email") return <div className="rounded-xl border border-line overflow-hidden">
+      <div className="bg-slate-50 border-b border-line px-3 py-2 text-[11px]"><div className="font-bold text-ink">Subject: Once-daily glaucoma control with YI Combo</div><div className="text-ink-mute mt-0.5">To: {"{{accTitle}} {{accLname}}"} · rep-triggered</div></div>
+      <div className="p-4 bg-white space-y-2"><div className="h-2 rounded bg-slate-100 w-full"/><div className="h-2 rounded bg-slate-100 w-5/6"/>
+        <div className="rounded-lg bg-gradient-to-r from-indigo-900 to-teal-700 p-3 text-white text-[11px] font-semibold my-2">YI Combo effectively reduces IOP with a once-daily dose · 97% persistence at 6 months</div>
+        <div className="h-2 rounded bg-slate-100 w-3/4"/></div>
+    </div>;
+    return <div className="rounded-xl border border-line overflow-hidden">
+      {[0,1].map(p=><div key={p} className="p-4 bg-white border-b border-line last:border-0">
+        <div className="text-[10.5px] font-bold text-ink-mute mb-2">Page {p+1}</div>
+        {[92,80,86,74,88].map((w,i)=><div key={i} className={cx("h-2 rounded mb-1.5", i===2?"bg-indigo-200":"bg-slate-100")} style={{width:w+"%"}}/>)}
+      </div>)}
+    </div>;
+  };
+  return <div className="fixed inset-0 z-50">
+    <div className="absolute inset-0 bg-ink/25 backdrop-blur-[2px] animate-fadein" onClick={onClose}/>
+    <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-pop animate-slidein flex flex-col">
+      <div className="px-6 py-5 border-b border-line flex items-start gap-3">
+        <span className={cx("mt-0.5 w-9 h-9 rounded-xl grid place-items-center shrink-0",
+          KIND[1]==="fuchsia"?"bg-fuchsia-50 text-fuchsia-600":KIND[1]==="emerald"?"bg-emerald-50 text-emerald-600":KIND[1]==="amber"?"bg-amber-50 text-amber-600":KIND[1]==="rose"?"bg-rose-50 text-rose-600":"bg-indigo-50 text-indigo-600")}><Icon.doc size={19}/></span>
+        <div className="flex-1 min-w-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">{KIND[0]} preview · {d.brand}</div>
+          <div className="font-bold text-[15px] leading-snug mt-0.5">{d.name}</div>
+          <div className="text-[12px] text-ink-mute mt-0.5 flex items-center gap-1.5"><CIc size={12}/>Auto-synced from {cName} · {d.uploaded}</div>
+        </div>
+        <button onClick={onClose} className="text-ink-mute hover:text-ink hover:bg-slate-100 rounded-lg p-1.5"><Icon.x size={18}/></button>
+      </div>
+      <div className="flex-1 overflow-y-auto p-6">
+        {body()}
+        <div className="mt-5 grid grid-cols-2 gap-x-6 gap-y-2.5 text-[12.5px]">
           <div><span className="text-ink-faint font-bold uppercase text-[10px] tracking-wider block mb-0.5">File</span><span className="text-ink font-medium break-all">{d.file}</span></div>
-          <div><span className="text-ink-faint font-bold uppercase text-[10px] tracking-wider block mb-0.5">Source</span><span className="text-ink font-medium">{d.source}</span></div>
+          <div><span className="text-ink-faint font-bold uppercase text-[10px] tracking-wider block mb-0.5">Source system</span><span className="text-ink font-medium">{d.source}</span></div>
           <div><span className="text-ink-faint font-bold uppercase text-[10px] tracking-wider block mb-0.5">Therapeutic area</span><span className="text-ink font-medium">{d.ta} · Glaucoma</span></div>
           <div><span className="text-ink-faint font-bold uppercase text-[10px] tracking-wider block mb-0.5">Brand</span><span className="text-ink font-medium">{d.brand}</span></div>
         </div>
         <div className="mt-3 flex items-center gap-1.5 flex-wrap">
           <span className="text-ink-faint"><Icon.tag size={13}/></span>
-          {d.tags.map(t=><span key={t} className="text-[11px] font-semibold bg-white border border-line rounded-md px-2 py-0.5 text-ink-soft">{t}</span>)}
+          {d.tags.map(t=><span key={t} className="text-[11px] font-semibold bg-slate-50 border border-line rounded-md px-2 py-0.5 text-ink-soft">{t}</span>)}
         </div>
       </div>
-    </div>}
+      <div className="px-6 py-4 border-t border-line bg-slate-50/60 text-[12px] text-ink-mute flex items-center gap-2">
+        <Icon.shield size={14} cls="text-emerald-600"/> Indexed into the Brand Brain · every claim stays traceable to this source.
+      </div>
+    </div>
   </div>;
 }
 
@@ -1506,113 +1581,88 @@ function ConnectorCard({c}) {
 }
 
 function LibraryScreen({app}) {
-  const [phase,setPhase]=useState(app.uploaded?"added":"idle"); // idle | parsing | detected | added
-  const [pstep,setPstep]=useState(0);
+  const [tab,setTab]=useState("documents"); // documents | connectors | audit
   const [query,setQuery]=useState("");
   const [searched,setSearched]=useState(false);
-  const PSTEPS=["Reading the document","Extracting atomic evidence (12 pages)","Detecting study metadata"];
-
-  const startParse=()=>{ setPhase("parsing"); setPstep(0);
-    let i=0; const t=setInterval(()=>{ i++; setPstep(i); if(i>=PSTEPS.length){ clearInterval(t); setTimeout(()=>setPhase("detected"),400);} },780); };
-  const confirm=()=>{ setPhase("added"); app.setUploaded(true); app.toast("Added to the estate · indexed and searchable");
-    app.log("Ingested “YI Combo ATU Wave 2 Topline — IQVIA” — metadata confirmed by reviewer", ["c5"], null, "Verified", "emerald"); };
+  const [preview,setPreview]=useState(null);
+  const TABS=[ {id:"documents",label:"Documents",icon:"library",count:DOCUMENTS.length},
+               {id:"connectors",label:"Connectors",icon:"plug",count:CONNECTORS.length},
+               {id:"audit",label:"Audit Trail",icon:"list"} ];
 
   return <div className="max-w-4xl mx-auto pb-24">
-    <ScreenHeader title="Library" sub="Your brand's governed evidence estate. Everything the AI reasons over — and nothing it hasn't."
-      right={<div className="text-[12px] text-ink-mute flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>{DOCUMENTS.length + (phase==="added"?1:0)} sources</div>}/>
+    <ScreenHeader title="Library" sub="Securely connects and organizes commercial knowledge from enterprise systems — continuously indexed, nothing manually uploaded."
+      right={<div className="text-[12px] text-ink-mute flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"/>Continuously indexing · {CONNECTORS.length} connectors</div>}/>
 
-    {/* Upload / ingestion */}
-    {phase==="idle" && <button onClick={startParse}
-      className="group w-full rounded-2xl border-2 border-dashed border-line hover:border-indigo-300 hover:bg-indigo-50/30 transition p-8 flex flex-col items-center gap-2 text-center">
-      <span className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 grid place-items-center group-hover:scale-105 transition"><Icon.upload size={22}/></span>
-      <div className="font-bold text-[15px] text-ink mt-1">Drop new research here</div>
-      <div className="text-[13px] text-ink-mute">This morning's IQVIA ATU delivery is in your inbox · PDF, PPTX, XLSX, audio</div>
-    </button>}
-
-    {phase==="parsing" && <Card pad="p-6" className="animate-fadeup">
-      <div className="flex items-center gap-3 mb-4"><span className="text-indigo-600"><Icon.file size={18}/></span>
-        <div className="font-bold text-[14.5px]">{UPLOAD_DOC.name}</div>
-        <span className="ml-auto text-[12px] text-ink-mute">{UPLOAD_DOC.sizeMB} MB · {UPLOAD_DOC.pages} pages</span></div>
-      <div className="space-y-2.5">
-        {PSTEPS.map((s,i)=><div key={i} className={cx("flex items-center gap-3 text-[13.5px] transition", i<=pstep?"text-ink":"text-ink-faint")}>
-          <span className="w-4 h-4">{i<pstep?<span className="text-emerald-600"><Icon.check size={16}/></span>
-            :i===pstep?<span className="block w-3.5 h-3.5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"/>
-            :<span className="block w-1.5 h-1.5 rounded-full bg-slate-300 ml-1"/>}</span>
-          <span className={i===pstep?"font-medium":""}>{s}</span></div>)}
-      </div>
-    </Card>}
-
-    {phase==="detected" && <Card pad="p-6" className="animate-fadeup">
-      <div className="flex items-center gap-2 mb-1"><span className="text-emerald-600"><Icon.sparkles size={16}/></span>
-        <div className="font-bold text-[15px]">Detected — please confirm</div></div>
-      <p className="text-[13px] text-ink-mute mb-4">The AI proposes; a human confirms. Nothing enters the estate unreviewed.</p>
-      <div className="grid grid-cols-2 gap-2.5">
-        {Object.entries(UPLOAD_DOC.detected).map(([k,v])=><div key={k} className="rounded-xl border border-line p-3">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint flex items-center gap-1">
-            <span className="text-indigo-500"><Icon.sparkles size={11}/></span>Auto-detected</div>
-          <div className="text-[11px] text-ink-mute mt-1">{k}</div><div className="font-bold text-[14px] text-ink">{v}</div></div>)}
-      </div>
-      <div className="mt-4 flex justify-end gap-2">
-        <Button variant="outline" size="sm" onClick={()=>setPhase("idle")}>Cancel</Button>
-        <Button variant="emerald" size="sm" onClick={confirm} icon={<Icon.check size={15}/>}>Confirm &amp; add to estate</Button>
-      </div>
-    </Card>}
-
-    {phase==="added" && <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 flex items-center gap-3 animate-fadeup">
-      <span className="text-emerald-600"><Icon.checkc size={20}/></span>
-      <div className="flex-1"><div className="font-bold text-[14px] text-ink">{UPLOAD_DOC.name}</div>
-        <div className="text-[12px] text-ink-mute">Indexed · searchable across the estate · passed the metadata gate</div></div>
-      <Button variant="soft" size="sm" onClick={()=>app.go("ask")} iconRight={<Icon.arrow size={14}/>}>Ask a question</Button>
-    </div>}
-
-    {/* Evidence search — Perplexity for internal pharma knowledge */}
-    <div className="mt-9">
-      <div className="flex items-center gap-2 mb-3"><span className="text-ink-soft"><Icon.search size={16}/></span>
-        <div className="font-bold text-[15px]">Search the evidence</div>
-        <span className="ml-auto text-[11px] text-ink-faint">every hit is citation-stamped</span></div>
-      <div className="flex items-center gap-3 bg-white border border-line rounded-xl shadow-card px-4 py-3 focus-within:border-indigo-300 focus-within:ring-4 focus-within:ring-indigo-50 transition">
-        <span className="text-ink-faint"><Icon.search size={18}/></span>
-        <input value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")setSearched(true);}}
-          placeholder="e.g. switching drivers" className="flex-1 bg-transparent outline-none text-[15px] placeholder:text-ink-faint"/>
-        <Button size="sm" onClick={()=>setSearched(true)}>Search</Button>
-      </div>
-      {!searched && <div className="mt-3"><button onClick={()=>{setQuery("yi combo share");setSearched(true);}}
-        className="text-[13px] text-ink-mute hover:text-indigo-700 inline-flex items-center gap-1.5"><Icon.clock size={13}/>Try “yi combo share”</button></div>}
-      {searched && <div className="mt-4 space-y-2.5 stagger">
-        {SEARCH_RESULTS.map(r=><SearchResult key={r.id} r={r}/>)}
-      </div>}
+    {/* tabs */}
+    <div className="flex items-center gap-1 mb-5 bg-slate-100/70 border border-line rounded-xl p-1 w-fit">
+      {TABS.map(t=>{ const TIc=Icon[t.icon]; const on=tab===t.id;
+        return <button key={t.id} onClick={()=>setTab(t.id)}
+          className={cx("inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-[13px] font-semibold transition",
+            on?"bg-white text-ink shadow-card":"text-ink-mute hover:text-ink-soft")}>
+          <TIc size={15}/>{t.label}{t.count!=null && <span className={cx("text-[10px] font-bold rounded px-1.5 py-0.5", on?"bg-indigo-50 text-indigo-700":"bg-slate-200 text-ink-mute")}>{t.count}</span>}</button>;})}
     </div>
 
-    {/* Estate list — the knowledge repository */}
-    <div className="mt-9">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="font-bold text-[15px]">In the estate</div>
-        <span className="ml-auto text-[11px] text-ink-faint">click a document for source, metadata &amp; tags</span></div>
-      <Card pad="p-2">
-        {DOCUMENTS.map((d,i)=><DocRow key={d.id} d={d} last={i===DOCUMENTS.length-1}/>)}
-      </Card>
-    </div>
-
-    {/* Connectors — the estate feeds itself */}
-    <div className="mt-9">
-      <div className="flex items-center gap-2 mb-1"><span className="text-ink-soft"><Icon.plug size={16}/></span>
-        <div className="font-bold text-[15px]">Connectors</div>
-        <span className="ml-auto text-[11px] text-emerald-700 font-semibold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>4 of 4 healthy</span></div>
-      <p className="text-[12.5px] text-ink-mute mb-3.5">Enterprise systems feeding the estate automatically — every import passes the same metadata gate.</p>
+    {/* ---- CONNECTORS TAB (integrations discoverable without scrolling) ---- */}
+    {tab==="connectors" && <div className="animate-fadein">
+      <div className="flex items-center gap-2 mb-3.5"><span className="text-ink-soft"><Icon.plug size={16}/></span>
+        <div className="font-bold text-[15px]">Enterprise connectors</div>
+        <span className="ml-auto text-[11px] text-emerald-700 font-semibold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>{CONNECTORS.length} of {CONNECTORS.length} healthy</span></div>
+      <p className="text-[12.5px] text-ink-mute mb-3.5">Knowledge is indexed automatically from these systems — no manual uploads. Only YI Combo, competitor and commercial evidence is surfaced.</p>
       <div className="grid sm:grid-cols-2 gap-3">
         {CONNECTORS.map(c=><ConnectorCard key={c.id} c={c}/>)}
-        {/* add / discover more connectors */}
         <button onClick={()=>app.toast("Connector gallery — Teams, Slack, Box, Salesforce, Google Drive & more available to connect")}
           className="rounded-2xl border-2 border-dashed border-line hover:border-indigo-300 hover:bg-indigo-50/30 transition p-4 flex items-center gap-3 text-left group">
           <span className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 grid place-items-center group-hover:scale-105 transition shrink-0"><Icon.plus size={20}/></span>
-          <div className="flex-1">
-            <div className="font-bold text-[14px] text-ink">Add connector</div>
-            <div className="text-[11.5px] text-ink-mute">Teams · Slack · Box · Salesforce · Google Drive &amp; more</div>
-          </div>
+          <div className="flex-1"><div className="font-bold text-[14px] text-ink">Add connector</div>
+            <div className="text-[11.5px] text-ink-mute">Teams · Slack · Box · Salesforce · Google Drive &amp; more</div></div>
           <span className="text-ink-faint group-hover:text-indigo-600 transition"><Icon.arrow size={16}/></span>
         </button>
       </div>
-    </div>
+    </div>}
+
+    {/* ---- DOCUMENTS TAB ---- */}
+    {tab==="documents" && <div className="animate-fadein">
+      {/* live auto-ingestion feed */}
+      <div className="rounded-2xl border border-line bg-white shadow-card p-4 mb-5">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"/><span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"/></span>
+          <div className="font-bold text-[14px]">Continuously indexing enterprise knowledge</div>
+          <span className="ml-auto text-[11px] text-ink-faint">SharePoint · Outlook · CRM · Veeva · PubMed</span>
+        </div>
+        <div className="space-y-1.5">
+          {INGEST_FEED.map((f,i)=>{ const FIc=Icon[f.icon]||Icon.doc;
+            return <div key={i} className="flex items-center gap-2.5 text-[12.5px]">
+              <span className="w-6 h-6 rounded-lg bg-slate-50 border border-line text-ink-soft grid place-items-center shrink-0"><FIc size={12}/></span>
+              <span className="text-ink font-medium truncate flex-1">{f.name}</span>
+              <span className="hidden sm:inline text-[10.5px] font-semibold text-indigo-700 bg-indigo-50 rounded px-1.5 py-0.5 shrink-0">{f.topic}</span>
+              <span className="text-[11px] text-ink-faint shrink-0 w-16 text-right">{f.when}</span>
+              <span className="text-emerald-600 shrink-0"><Icon.checkc size={14}/></span>
+            </div>;})}
+        </div>
+      </div>
+
+      {/* search */}
+      <div className="flex items-center gap-3 bg-white border border-line rounded-xl shadow-card px-4 py-3 focus-within:border-indigo-300 focus-within:ring-4 focus-within:ring-indigo-50 transition mb-4">
+        <span className="text-ink-faint"><Icon.search size={18}/></span>
+        <input value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")setSearched(true);}}
+          placeholder="Search the evidence — e.g. switching drivers" className="flex-1 bg-transparent outline-none text-[15px] placeholder:text-ink-faint"/>
+        <Button size="sm" onClick={()=>setSearched(true)}>Search</Button>
+      </div>
+      {searched && <div className="mb-5 space-y-2.5 stagger">{SEARCH_RESULTS.map(r=><SearchResult key={r.id} r={r}/>)}</div>}
+
+      {/* estate list */}
+      <div className="flex items-center gap-2 mb-3">
+        <div className="font-bold text-[15px]">In the estate</div>
+        <span className="ml-auto text-[11px] text-ink-faint">click any file to preview it on the right</span></div>
+      <Card pad="p-2">
+        {DOCUMENTS.map((d,i)=><DocRow key={d.id} d={d} last={i===DOCUMENTS.length-1} onOpen={setPreview}/>)}
+      </Card>
+    </div>}
+
+    {/* ---- AUDIT TRAIL TAB ---- */}
+    {tab==="audit" && <div className="animate-fadein"><AuditList app={app}/></div>}
+
+    {preview && <FilePreview d={preview} onClose={()=>setPreview(null)}/>}
   </div>;
 }
 
@@ -1723,96 +1773,337 @@ function PulseScreen({app}) {
   </div>;
 }
 
-/* ------------------------------------------------------------------ ASK */
-function AskScreen({app}) {
-  const S=app; // phases: 'idle' | 'retrieving' | 'thinking' | 'done'
-  const [q,setQ]=useState("");
-  const [phase,setPhase]=useState(S.synthDone?"done":"idle");
-  const [step,setStep]=useState(0);
-  const [foundN,setFoundN]=useState(0);
+/* ------------------------------------------------------------------ ASK — decision intelligence */
+// Brainlee orchestrates multiple capabilities per question (Change 14 workflow).
+const ORCH_STEPS = [
+  { k:"retrieve",  label:"Retrieving evidence from the Library" },
+  { k:"compare",   label:"Comparing with previous campaigns & benchmarks" },
+  { k:"simulate",  label:"Simulating HCP archetype reactions" },
+  { k:"competitor",label:"Evaluating competitor positioning" },
+  { k:"science",   label:"Assessing scientific credibility" },
+  { k:"risk",      label:"Calculating commercial risk" },
+  { k:"recommend", label:"Generating recommendation" },
+];
+const ASK_ROLES = {
+  marketing:{ label:"Marketing", icon:"bolt", lens:"Commercial lens — growth, share, messaging and campaign implications." },
+  medcoe:{ label:"Medical Affairs CoE", icon:"shield", lens:"Scientific lens — evidence quality, guideline alignment and claim substantiation." },
+};
+// Visual summaries per intent — dashboard, not paragraphs.
+const ASK_VIZ = {
+  switching:[
+    { kind:"scorecards", items:[{label:"Segment value share",value:"42.3%",delta:"Rank #1",tone:"emerald"},{label:"Prescriber base",value:"950",delta:"+260 YoY",tone:"indigo"},{label:"MAT 2026 value",value:"₹10.8 Cr",delta:"+56.5%",tone:"emerald"}] },
+    { kind:"trend", title:"Value share trajectory", labels:["FY24","FY25","FY26"], series:[21.7,33.1,42.3], unit:"%" },
+    { kind:"bars", title:"Stated switch drivers (ATU)", unit:"%", items:[{label:"Once-daily convenience",value:58},{label:"Better IOP control",value:24},{label:"Tolerability",value:11},{label:"Cost",value:7}] },
+  ],
+  competitor:[
+    { kind:"bars", title:"Latanoprost+Timolol FDC — value share, MAT 2026", unit:"%", items:[{label:"YI Combo",value:42.3,tone:"self"},{label:"Xalacom",value:19.1},{label:"Latocom",value:16.6},{label:"Latocom-CF",value:12.4},{label:"Lacoma-T",value:7.5}] },
+    { kind:"scorecards", items:[{label:"YI Combo growth",value:"+56.5%",tone:"emerald"},{label:"Xalacom growth",value:"+2.7%",tone:"slate"},{label:"Rho-kinase class CAGR",value:"68.7%",delta:"class threat",tone:"rose"}] },
+  ],
+  segments:[
+    { kind:"bars", title:"Share of segment TRx by cohort", unit:"%", items:[{label:"PG-Sparing Advocates",value:36,tone:"self"},{label:"Independent Habitualists",value:25,tone:"self"},{label:"Network-Controlled",value:22},{label:"Low-volume Enthusiasts",value:11},{label:"Delayed Digitalists",value:6}] },
+    { kind:"scorecards", items:[{label:"Priority cohorts",value:"3 of 5"},{label:"of HCP universe",value:"43%",tone:"indigo"},{label:"of segment TRx",value:"83%",tone:"emerald"}] },
+  ],
+  adherence:[
+    { kind:"gauge", title:"6-month persistence", value:97, sub:"of patients persisted with YI Combo" },
+    { kind:"scorecards", items:[{label:"Persistence horizon",value:"6 months",delta:"brand data",tone:"indigo"},{label:"Long-term evidence",value:"5-year",delta:"legacy molecule",tone:"amber"}] },
+  ],
+  objections:[
+    { kind:"bars", title:"Objection strength (relative)", unit:"", items:[{label:"Habit / familiarity",value:82,tone:"rose"},{label:"Beta-blocker caution",value:64,tone:"amber"},{label:"Price vs. generics",value:57,tone:"amber"}] },
+  ],
+  changed:[
+    { kind:"trend", title:"MAT value (₹ Cr)", labels:["FY24","FY25","FY26"], series:[3.6,6.9,10.8], unit:"₹Cr" },
+    { kind:"scorecards", items:[{label:"YoY value growth",value:"+56.5%",tone:"emerald"},{label:"Prescribers added",value:"+260",tone:"indigo"},{label:"Segment rank",value:"#1",delta:"from #2",tone:"emerald"}] },
+  ],
+  default:[ { kind:"scorecards", items:[{label:"Segment share",value:"42.3%",tone:"emerald"},{label:"Prescriber base",value:"950",tone:"indigo"}] } ],
+};
+// Medical Affairs CoE reframes the recommended next step toward substantiation.
+const ASK_MEDCOE_NEXT = {
+  switching:"Validate the driver hierarchy in a controlled study before it anchors any promotional claim.",
+  adherence:"Scope persistence claims strictly to the 6-month evidence; longer wording needs new data.",
+  objections:"Ensure beta-blocker safety language matches the SmPC; pre-clear objection responses through MLR.",
+  competitor:"Keep competitive framing non-disparaging and fully substantiated for medical governance.",
+  segments:"Confirm segment-level claims are supportable and aligned to guideline positioning.",
+  changed:"Attach source-level substantiation to every growth figure before external use.",
+  default:"Confirm each figure is substantiated and traceable before it informs field materials.",
+};
+// Reject meaningless / gibberish input instead of hallucinating an answer.
+function isGibberish(q){
+  const s=(q||"").trim();
+  if(s.length<6) return true;
+  const words=s.match(/[a-zA-Z]{2,}/g)||[];
+  if(words.length<2) return true;
+  const alpha=(s.match(/[a-zA-Z]/g)||[]).length;
+  const vowels=(s.match(/[aeiouAEIOU]/g)||[]).length;
+  if(alpha < s.replace(/\s/g,"").length*0.5) return true;         // mostly symbols/numbers
+  if(alpha>0 && vowels/alpha < 0.22) return true;                  // consonant soup
+  const realWord=words.some(w=>/[aeiou]/i.test(w) && w.length<=16);
+  return !realWord;
+}
+function askAnswer(q){
+  if(isGibberish(q)) return { gibberish:true };
+  const t=q.toLowerCase(); let key="default";
+  for(const k in RAG_ANSWERS){ if(RAG_ANSWERS[k].match.test(t)){ key=k; break; } }
+  const data = key==="default" ? RAG_DEFAULT : RAG_ANSWERS[key];
+  return { key, data, viz: ASK_VIZ[key]||ASK_VIZ.default };
+}
 
-  useEffect(()=>{ if(S.synthDone) setPhase("done"); },[S.synthDone]);
+/* ---- Ask visual primitives (executive dashboard, not chat) ---- */
+const VTONE={ emerald:"#059669", indigo:"#4F46E5", rose:"#E11D48", amber:"#D97706", slate:"#64748B" };
+function AskScorecards({items}) {
+  return <div className={cx("grid gap-3", items.length>=3?"grid-cols-3":"grid-cols-2")}>
+    {items.map((s,i)=><div key={i} className="rounded-xl border border-line bg-white p-3.5">
+      <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">{s.label}</div>
+      <div className="text-[20px] font-extrabold tracking-[-.02em] text-ink mt-1">{s.value}</div>
+      {s.delta && <div className={cx("mt-1 inline-flex items-center gap-1 text-[10.5px] font-bold rounded px-1.5 py-0.5",
+        s.tone==="emerald"?"text-emerald-700 bg-emerald-50":s.tone==="rose"?"text-rose-600 bg-rose-50":s.tone==="amber"?"text-amber-700 bg-amber-50":"text-indigo-700 bg-indigo-50")}>{s.delta}</div>}
+    </div>)}
+  </div>;
+}
+function AskBars({title, items, unit}) {
+  const max=Math.max(...items.map(i=>i.value));
+  return <div className="rounded-xl border border-line bg-white p-4">
+    <div className="text-[11px] font-bold uppercase tracking-wider text-ink-faint mb-3">{title}</div>
+    <div className="space-y-2">
+      {items.map((it,i)=>{ const self=it.tone==="self"; const col=self?"#4F46E5":it.tone?VTONE[it.tone]:"#94A3B8";
+        return <div key={i} className="flex items-center gap-3">
+          <span className={cx("text-[12px] w-40 shrink-0 truncate", self?"font-bold text-ink":"text-ink-soft")}>{it.label}</span>
+          <div className="flex-1 h-3 rounded-full bg-slate-100 overflow-hidden">
+            <div className="h-full rounded-full barfill" style={{width:(it.value/max*100)+"%", background:self?"linear-gradient(90deg,#D946EF,#4F46E5)":col}}/>
+          </div>
+          <span className="text-[12px] font-bold text-ink w-12 text-right shrink-0">{it.value}{unit}</span>
+        </div>;})}
+    </div>
+  </div>;
+}
+function AskTrend({title, labels, series, unit}) {
+  const max=Math.max(...series), min=Math.min(...series,0); const W=280,H=90,pad=8;
+  const x=(i)=>pad+i*(W-2*pad)/(series.length-1); const y=(v)=>H-pad-(v-min)/(max-min||1)*(H-2*pad);
+  const pts=series.map((v,i)=>[x(i),y(v)]);
+  const path=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
+  return <div className="rounded-xl border border-line bg-white p-4">
+    <div className="text-[11px] font-bold uppercase tracking-wider text-ink-faint mb-2">{title}</div>
+    <div className="flex items-end gap-4">
+      <svg viewBox={`0 0 ${W} ${H+16}`} className="flex-1" style={{maxWidth:340}}>
+        <path d={path+` L ${x(series.length-1)} ${H-pad} L ${x(0)} ${H-pad} Z`} fill="#4F46E51A"/>
+        <path d={path} fill="none" stroke="#4F46E5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+        {pts.map((p,i)=><g key={i}><circle cx={p[0]} cy={p[1]} r="3.5" fill="#4F46E5"/>
+          <text x={p[0]} y={p[1]-8} textAnchor="middle" fontSize="9.5" fontWeight="800" fill="#4338CA" fontFamily="Inter">{series[i]}{unit}</text>
+          <text x={p[0]} y={H+11} textAnchor="middle" fontSize="9" fill="#94A3B8" fontFamily="Inter">{labels[i]}</text></g>)}
+      </svg>
+      <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 rounded-md px-2 py-1 text-[11.5px] font-bold shrink-0 mb-4"><Icon.trend size={12}/>rising</span>
+    </div>
+  </div>;
+}
+function AskGauge({title, value, sub}) {
+  return <div className="rounded-xl border border-line bg-white p-4 flex items-center gap-4">
+    <ReadinessDial value={value} size={64}/>
+    <div><div className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">{title}</div>
+      <div className="text-[15px] font-bold text-ink mt-0.5">{sub}</div></div>
+  </div>;
+}
+function AskViz({spec}) {
+  return <div className="space-y-3">
+    {spec.map((b,i)=> b.kind==="scorecards"?<AskScorecards key={i} items={b.items}/>
+      : b.kind==="bars"?<AskBars key={i} {...b}/>
+      : b.kind==="trend"?<AskTrend key={i} {...b}/>
+      : b.kind==="gauge"?<AskGauge key={i} {...b}/>:null)}
+  </div>;
+}
+
+// The intent-driven answer — visual dashboard + role lens + orchestration + Sources only.
+function AskResult({q, res, role, published, onApprove}) {
+  const {data, viz, key} = res;
+  const R=ASK_ROLES[role]; const RIc=Icon[R.icon];
+  const B=READY_BAND(data.readiness.score);
+  const next = role==="medcoe" ? (ASK_MEDCOE_NEXT[key]||ASK_MEDCOE_NEXT.default) : data.next;
+  const allCites=[...new Set([].concat(...data.insights.map(x=>x.cites||[])))];
+  return <div className="max-w-3xl mx-auto pb-32">
+    {/* question + role lens */}
+    <div className="flex items-start gap-3 mb-4 animate-fadeup">
+      <div className="mt-1 w-9 h-9 rounded-xl bg-indigo-600 text-white grid place-items-center shadow-card shrink-0"><Icon.ask size={18}/></div>
+      <div className="flex-1"><div className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">Your question</div>
+        <div className="text-[19px] font-bold tracking-[-.02em] text-ink leading-snug">{q}</div></div>
+      <span className="mt-1 inline-flex items-center gap-1.5 text-[11px] font-bold rounded-full px-2.5 py-1 bg-indigo-50 text-indigo-700 shrink-0"><RIc size={12}/>{R.label} lens</span>
+    </div>
+
+    {/* orchestration strip — Brainlee coordinated multiple capabilities */}
+    <div className="rounded-xl border border-line bg-slate-50/70 px-4 py-2.5 mb-4 flex items-center gap-x-3 gap-y-1 flex-wrap animate-fadeup">
+      <span className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">Brainlee orchestrated</span>
+      {["Retrieval","Evidence comparison","HCP simulation","Competitor scan","Scientific check","Commercial risk"].map((s,i)=>
+        <span key={i} className="inline-flex items-center gap-1 text-[11px] font-semibold text-ink-soft"><Icon.checkc size={12} cls="text-emerald-600"/>{s}</span>)}
+    </div>
+
+    {/* executive summary — concise, decision-first */}
+    <div className="relative rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50/70 via-white to-emerald-50/30 p-5 shadow-card animate-fadeup">
+      <div className="flex items-center gap-2 mb-2.5">
+        <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-700 flex items-center gap-1.5"><Icon.sparkles size={13}/>Decision summary</span>
+        <span className="ml-auto flex items-center gap-2"><ReadinessDial value={data.readiness.score} size={30}/>
+          <span className="text-[11px] font-bold" style={{color:B.fg&&undefined}}>
+            <span className={B.fg}>{B.label} · {data.readiness.score}%</span></span></span>
+      </div>
+      <p className="text-[16px] leading-relaxed font-medium text-ink">{data.summary}</p>
+    </div>
+
+    {/* visual summaries */}
+    <div className="mt-4 animate-fadeup"><AskViz spec={viz}/></div>
+
+    {/* key insights — brief, cited */}
+    <div className="mt-4 space-y-2 animate-fadeup">
+      {data.insights.map((ins,i)=><div key={i} className="flex gap-2.5 rounded-xl border border-line bg-white p-3.5">
+        <span className="text-emerald-600 mt-0.5 shrink-0"><Icon.check size={15}/></span>
+        <div className="flex-1 text-[13.5px] leading-relaxed text-ink">{ins.text} <span className="inline-flex align-middle ml-0.5"><Cites ids={ins.cites}/></span></div>
+      </div>)}
+    </div>
+
+    {/* mixed-evidence indicator (compact) */}
+    {data.contradiction && <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50/50 px-4 py-3 flex items-start gap-2.5 animate-fadeup">
+      <span className="text-amber-600 mt-0.5 shrink-0"><Icon.split size={15}/></span>
+      <div><div className="text-[11px] font-bold uppercase tracking-wider text-amber-700">Mixed evidence — preserved, not averaged</div>
+        <p className="text-[12.5px] text-ink-soft leading-snug mt-0.5">{data.contradiction}</p></div>
+    </div>}
+
+    {/* recommended next action (role-adjusted) */}
+    <div className="mt-3 rounded-xl border-2 border-slate-200 bg-white p-4 flex items-start gap-3 animate-fadeup">
+      <span className="w-8 h-8 rounded-lg bg-slate-900 text-white grid place-items-center shrink-0"><Icon.bolt size={16}/></span>
+      <div className="flex-1"><div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">Recommended next action · {R.label}</div>
+        <p className="text-[14px] font-medium text-ink leading-snug mt-0.5">{next}</p></div>
+    </div>
+
+    {/* SOURCES — the only meta-section retained beneath the answer */}
+    <div className="mt-5 animate-fadeup">
+      <div className="text-[11px] font-bold uppercase tracking-wider text-ink-faint mb-2 flex items-center gap-1.5"><Icon.doc size={13}/>Sources</div>
+      <div className="rounded-xl border border-line bg-white divide-y divide-line">
+        {data.sources.map((s,i)=><div key={i} className="flex items-center gap-2.5 px-3.5 py-2.5 text-[13px]">
+          <span className="text-indigo-500 shrink-0"><Icon.doc size={14}/></span><span className="text-ink font-medium flex-1">{s}</span>
+          <span className="text-[10.5px] text-ink-faint">Library</span></div>)}
+      </div>
+      {allCites.length>0 && <div className="mt-2 flex items-center gap-1.5 flex-wrap"><span className="text-[10.5px] font-bold uppercase tracking-wider text-ink-faint">Citations</span><Cites ids={allCites}/></div>}
+    </div>
+
+    {/* publish → human approval → institutional memory (workflow) */}
+    <div className="fixed bottom-0 left-[248px] right-0 z-30 pointer-events-none">
+      <div className="max-w-3xl mx-auto px-6 pb-5">
+        <div className="pointer-events-auto rounded-2xl bg-ink text-white shadow-pop px-5 py-3.5 flex items-center gap-4 animate-fadeup">
+          {published ? <>
+            <span className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 grid place-items-center shrink-0"><Icon.checkc size={20}/></span>
+            <div className="flex-1"><div className="font-bold text-[14px]">Published to the Brand Brain · v12</div>
+              <div className="text-[12px] text-white/60">Institutional memory updated — read by every future answer.</div></div>
+            <Button variant="soft" size="sm" onClick={onApprove} iconRight={<Icon.arrow size={15}/>}>View in Brand Brain</Button>
+          </> : <>
+            <span className="w-9 h-9 rounded-xl bg-white/10 grid place-items-center shrink-0"><Icon.brain size={20}/></span>
+            <div className="flex-1"><div className="font-bold text-[14px]">Approve into the Brand Brain?</div>
+              <div className="text-[12px] text-white/60">Human approval → institutional memory update. Cited, versioned, governed.</div></div>
+            <Button variant="emerald" size="sm" onClick={onApprove} icon={<Icon.check size={15}/>}>Review &amp; publish</Button>
+          </>}
+        </div>
+      </div>
+    </div>
+  </div>;
+}
+
+/* ------------------------------------------------------------------ ASK */
+const ASK_SUGGESTIONS = [
+  "What are ophthalmologists saying about switching patients to YI Combo?",
+  "How does YI Combo compare to competitors in the segment?",
+  "Which HCP segments should we prioritise?",
+  "What are the biggest adherence barriers?",
+  "What are physician objections?",
+  "What changed compared with last quarter?",
+];
+function AskRoleToggle({role, setRole}) {
+  return <div className="inline-flex items-center gap-1 bg-slate-100/70 border border-line rounded-xl p-1">
+    {Object.entries(ASK_ROLES).map(([id,r])=>{ const RIc=Icon[r.icon]; const on=role===id;
+      return <button key={id} onClick={()=>setRole(id)} title={r.lens}
+        className={cx("inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-semibold transition", on?"bg-white text-ink shadow-card":"text-ink-mute hover:text-ink-soft")}>
+        <RIc size={13}/>{r.label}</button>;})}
+  </div>;
+}
+
+function AskScreen({app}) {
+  const S=app; const role=S.askRole, setRole=S.setAskRole;
+  const [q,setQ]=useState("");
+  const [phase,setPhase]=useState(S.synthDone?"done":"idle"); // idle | thinking | done
+  const [res,setRes]=useState(S.synthDone?askAnswer(HERO_QUESTION):null);
+  const [step,setStep]=useState(0);
+  const [invalid,setInvalid]=useState(false);
 
   const run=useCallback((question)=>{
-    setQ(question); setPhase("retrieving"); setStep(0); setFoundN(0);
-    let n=0; const ri=setInterval(()=>{ n++; setFoundN(n); if(n>=SYNTHESIS.sourcesUsed.length) clearInterval(ri); }, 260);
-    setTimeout(()=>{ setPhase("thinking");
-      let i=0; const ti=setInterval(()=>{ i++; setStep(i); if(i>=SYNTHESIS.thinkSteps.length){ clearInterval(ti);
-        setTimeout(()=>{ setPhase("done"); S.setSynthDone(true);
-          S.log("Asked “"+question+"” — synthesized from 5 sources with 1 contradiction preserved", ["c1","c4","c5"], "high", "Answered", "indigo");
-        }, 520);
-      }}, 620);
-    }, 1500);
-  },[S]);
+    const a=askAnswer(question);
+    if(a.gibberish){ setInvalid(true); setQ(question); return; }
+    setInvalid(false); setQ(question); setRes(a); setPhase("thinking"); setStep(0);
+    let i=0; const ti=setInterval(()=>{ i++; setStep(i); if(i>=ORCH_STEPS.length){ clearInterval(ti);
+      setTimeout(()=>{ setPhase("done"); S.setSynthDone(true);
+        S.log("Asked “"+question+"” — orchestrated retrieval, simulation, competitor scan & risk ("+ASK_ROLES[role].label+" lens)", (a.data.insights[0]&&a.data.insights[0].cites)||["c1"], a.data.readiness.score>=80?"high":"moderate", "Answered", "indigo");
+      }, 480);
+    }}, 560);
+  },[S, role]);
 
-  // IDLE — calm centered prompt
-  if(phase==="idle") return <div className="h-full flex flex-col items-center justify-center px-6 -mt-10">
-    <div className="w-full max-w-2xl text-center animate-fadeup">
+  // IDLE — role toggle top-left + calm centered prompt
+  if(phase==="idle") return <div className="max-w-3xl mx-auto">
+    <div className="mb-6"><AskRoleToggle role={role} setRole={setRole}/></div>
+    <div className="flex flex-col items-center justify-center text-center pt-6">
       <div className="inline-flex items-center gap-2 text-[12px] font-semibold text-ink-mute bg-white border border-line rounded-full px-3 py-1.5 shadow-card mb-6">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/> {DOCUMENTS.length} sources · governed · ready
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/> Decision Intelligence · {DOCUMENTS.length} governed sources · {ASK_ROLES[role].label} lens
       </div>
-      <h1 className="text-[30px] font-extrabold tracking-[-.03em] text-ink">Ask your brand's memory.</h1>
+      <h1 className="text-[30px] font-extrabold tracking-[-.03em] text-ink">Ask evidence-backed commercial questions.</h1>
       <p className="text-[15px] text-ink-mute mt-3 max-w-lg mx-auto leading-relaxed">
-        A strategic question, answered from everything {BRAND.name} has ever learned — with every claim labeled, scored, and traceable to its source.</p>
-      <div className="mt-8 relative">
-        <div className="flex items-center gap-3 bg-white border border-line rounded-2xl shadow-lift px-4 py-3.5 focus-within:border-indigo-300 focus-within:ring-4 focus-within:ring-indigo-50 transition">
+        Brainlee orchestrates retrieval, HCP simulation, competitor and scientific checks into a structured decision — not a chat reply. Every claim is scored and traceable.</p>
+      <div className="mt-8 w-full max-w-2xl">
+        <div className={cx("flex items-center gap-3 bg-white border rounded-2xl shadow-lift px-4 py-3.5 transition", invalid?"border-rose-300 ring-4 ring-rose-50":"border-line focus-within:border-indigo-300 focus-within:ring-4 focus-within:ring-indigo-50")}>
           <span className="text-ink-faint"><Icon.search size={20}/></span>
-          <input autoFocus value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&q.trim())run(q);}}
+          <input autoFocus value={q} onChange={e=>{setQ(e.target.value); if(invalid) setInvalid(false);}} onKeyDown={e=>{if(e.key==="Enter"&&q.trim())run(q);}}
             placeholder="Ask a strategic question…" className="flex-1 bg-transparent outline-none text-[16px] text-ink placeholder:text-ink-faint"/>
           <Button size="sm" disabled={!q.trim()} onClick={()=>q.trim()&&run(q)} icon={<Icon.send size={15}/>}>Ask</Button>
         </div>
+        {invalid && <div className="mt-2.5 flex items-center justify-center gap-2 text-[13px] font-medium text-rose-600 animate-fadein">
+          <Icon.gap size={15}/> Please enter a meaningful business or commercial question.</div>}
       </div>
-      <div className="mt-6 flex flex-col items-center gap-2">
-        <div className="text-[11px] font-semibold uppercase tracking-wider text-ink-faint">Try</div>
-        <button onClick={()=>run(HERO_QUESTION)}
-          className="group text-left max-w-xl w-full rounded-xl border border-line bg-white hover:border-indigo-200 hover:bg-indigo-50/40 hover:shadow-card px-4 py-3 transition flex items-center gap-3">
-          <span className="text-indigo-500 group-hover:text-indigo-700"><Icon.sparkles size={16}/></span>
-          <span className="text-[14.5px] font-medium text-ink flex-1">{HERO_QUESTION}</span>
-          <span className="text-ink-faint group-hover:text-indigo-600 group-hover:translate-x-0.5 transition"><Icon.arrow size={16}/></span>
-        </button>
-        <div className="flex flex-wrap justify-center gap-2 mt-1">
-          {["What are the biggest adherence barriers?","What are physician objections?"].map(s=>
-            <button key={s} onClick={()=>run(HERO_QUESTION)}
-              className="text-[12.5px] font-medium text-ink-mute border border-line bg-white rounded-full px-3.5 py-1.5 hover:border-indigo-200 hover:text-indigo-700 hover:bg-indigo-50/40 transition">{s}</button>)}
+      <div className="mt-7 w-full max-w-2xl">
+        <div className="text-[11px] font-semibold uppercase tracking-wider text-ink-faint mb-2.5">Try a strategic question</div>
+        <div className="grid sm:grid-cols-2 gap-2">
+          {ASK_SUGGESTIONS.map(s=><button key={s} onClick={()=>run(s)}
+            className="group text-left rounded-xl border border-line bg-white hover:border-indigo-200 hover:bg-indigo-50/40 hover:shadow-card px-3.5 py-2.5 transition flex items-center gap-2.5">
+            <span className="text-indigo-500 group-hover:text-indigo-700 shrink-0"><Icon.sparkles size={14}/></span>
+            <span className="text-[13px] font-medium text-ink flex-1">{s}</span>
+            <span className="text-ink-faint group-hover:text-indigo-600 group-hover:translate-x-0.5 transition shrink-0"><Icon.arrow size={14}/></span>
+          </button>)}
         </div>
       </div>
     </div>
   </div>;
 
-  // RETRIEVING + THINKING — "reads before it speaks"
-  if(phase==="retrieving"||phase==="thinking") return <div className="max-w-2xl mx-auto pt-10 px-2">
-    <div className="flex items-start gap-3 mb-8 animate-fadeup">
+  // THINKING — Brainlee orchestrates multiple capabilities
+  if(phase==="thinking") return <div className="max-w-2xl mx-auto pt-6 px-2">
+    <div className="mb-6"><AskRoleToggle role={role} setRole={setRole}/></div>
+    <div className="flex items-start gap-3 mb-6 animate-fadeup">
       <div className="mt-1 w-9 h-9 rounded-xl bg-indigo-600 text-white grid place-items-center shadow-card shrink-0"><Icon.ask size={18}/></div>
       <div className="text-[19px] font-bold tracking-[-.02em] text-ink leading-snug">{q}</div>
     </div>
     <Card className="animate-fadeup" pad="p-6">
       <div className="flex items-center gap-2.5 mb-5">
         <span className="relative flex h-2.5 w-2.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-60"/><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-600"/></span>
-        <span className="font-bold text-[15px]">{phase==="retrieving"?"Retrieving the evidence":"Reasoning across the evidence"}</span>
-        <span className="ml-auto text-[12px] text-ink-mute font-medium">reads before it speaks</span>
+        <span className="font-bold text-[15px]">Orchestrating your decision</span>
+        <span className="ml-auto text-[12px] text-ink-mute font-medium">{ASK_ROLES[role].label} lens</span>
       </div>
-      {/* retrieval sources */}
-      <div className="space-y-2 mb-5">
-        {SYNTHESIS.sourcesUsed.map((s,i)=><div key={i} className={cx("flex items-center gap-2.5 text-[13.5px] transition-all duration-300",
-          i<foundN?"opacity-100 translate-y-0":"opacity-0 translate-y-1")}>
-          <span className="text-emerald-600"><Icon.checkc size={16}/></span><span className="text-ink-soft font-medium">{s}</span>
-          <span className="ml-auto text-[11px] text-ink-faint">indexed</span>
-        </div>)}
-      </div>
-      {phase==="thinking" && <div className="pt-4 border-t border-line space-y-2.5">
-        {SYNTHESIS.thinkSteps.map((t,i)=><div key={i} className={cx("flex items-center gap-3 text-[13.5px] transition-all duration-300",
-          i<step?"opacity-100":i===step?"opacity-100":"opacity-30")}>
+      <div className="space-y-2.5">
+        {ORCH_STEPS.map((t,i)=><div key={i} className={cx("flex items-center gap-3 text-[13.5px] transition-all duration-300", i<step?"opacity-100":i===step?"opacity-100":"opacity-30")}>
           <span className="w-4 h-4 shrink-0">{i<step? <span className="text-emerald-600"><Icon.check size={16}/></span>
             : i===step? <span className="block w-3.5 h-3.5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"/> : <span className="block w-1.5 h-1.5 rounded-full bg-slate-300 ml-1"/>}</span>
-          <span className={cx(i<=step?"text-ink font-medium":"text-ink-faint", i===step&&"caret")}>{t}</span>
+          <span className={cx(i<=step?"text-ink font-medium":"text-ink-faint", i===step&&"caret")}>{t.label}</span>
         </div>)}
-      </div>}
+      </div>
     </Card>
   </div>;
 
-  // DONE
-  return <div className="pt-8 px-2"><SynthesisView data={SYNTHESIS} published={S.published}
-    onApprove={()=> S.published ? S.go("brand") : S.openReview()}/></div>;
+  // DONE — intent-driven visual dashboard
+  return <div className="pt-2 px-2">
+    <div className="max-w-3xl mx-auto mb-5 flex items-center gap-3">
+      <AskRoleToggle role={role} setRole={setRole}/>
+      <Button variant="outline" size="sm" onClick={()=>{ setPhase("idle"); setQ(""); }} icon={<Icon.search size={14}/>}>New question</Button>
+    </div>
+    <AskResult q={q} res={res} role={role} published={S.published}
+      onApprove={()=> S.published ? S.go("brand") : S.openReview()}/>
+  </div>;
 }
 
 /* ------------------------------------------------------------------ BRAND BRAIN */
@@ -2908,13 +3199,16 @@ function MLRScreen({app}) {
   </div>;
 }
 
-/* ------------------------------------------------------------------ AUDIT TRAIL */
-function AuditScreen({app}) {
+/* ------------------------------------------------------------------ AUDIT TRAIL (embedded in Library) */
+function AuditList({app}) {
   const rows = [...app.audit, ...AUDIT_SEED];
   const statusTone={ "Published":"emerald","Approved":"emerald","Verified":"emerald","Answered":"indigo","Flagged":"amber","In review":"amber","Rejected":"rose" };
-  return <div className="max-w-3xl mx-auto pb-24">
-    <ScreenHeader title="Audit Trail" sub="Every interaction, decision and approval — timestamped, named, and immutable. Compliance can replay any answer."
-      right={<div className="text-[12px] text-ink-mute flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>{rows.length} events · append-only</div>}/>
+  return <div>
+    <div className="flex items-center gap-2 mb-3 text-[12px] text-ink-mute">
+      <Icon.shield size={14} cls="text-emerald-600"/>
+      <span className="flex-1">Every interaction, decision and approval — timestamped, named and immutable.</span>
+      <span className="inline-flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"/>{rows.length} events · append-only</span>
+    </div>
     <div className="space-y-2.5 stagger">
       {rows.map((r,i)=>{ const tone=statusTone[r.status]||"slate";
         return <Card key={i} pad="p-4">
@@ -2938,23 +3232,19 @@ function AuditScreen({app}) {
         </div>
       </Card>;})}
     </div>
-    <div className="mt-6 flex items-center gap-2 text-[12px] text-ink-mute justify-center">
-      <Icon.shield size={14} cls="text-emerald-600"/> Append-only log · exportable for compliance · nothing is ever deleted, including rejected drafts.
-    </div>
   </div>;
 }
 
 /* ------------------------------------------------------------------ SHELL */
 const NAV=[
-  { id:"ask", label:"Ask", icon:"ask" },
-  { id:"pulse", label:"Brand Pulse", icon:"pulse" },
-  { id:"library", label:"Library", icon:"library" },
-  { id:"brand", label:"Brand Brain", icon:"brain" },
-  { id:"personas", label:"HCP Synthetic Simulation", icon:"users" },
-  { id:"mlr", label:"MLR Review", icon:"stamp" },
-  { id:"audit", label:"Audit Trail", icon:"list" },
+  { id:"library", label:"Library", icon:"library", desc:"Securely connects and organizes commercial knowledge from enterprise systems." },
+  { id:"personas", label:"HCP Synthetic Simulation", icon:"users", desc:"Predict how different physician archetypes respond before launch." },
+  { id:"ask", label:"Ask", icon:"ask", desc:"Ask evidence-backed commercial questions across your Brand Brain." },
+  { id:"brand", label:"Brand Brain", icon:"brain", desc:"Every approved insight strengthens your Brand Brain, creating institutional memory that compounds over time." },
+  { id:"pulse", label:"Brand Pulse", icon:"pulse", desc:"Continuously monitor market signals, competitors and commercial trends." },
+  { id:"mlr", label:"MLR Review", icon:"stamp", desc:"Review promotional content with AI-assisted compliance checks before approval." },
 ];
-const ROADMAP=["Brand Launchpad","Concept AI"];
+const ROADMAP=["Brand Planning Copilot"];
 
 function BrandSwitcher({app}) {
   const [open,setOpen]=useState(false);
@@ -3003,24 +3293,30 @@ function Sidebar({app}) {
     <BrandSwitcher app={app}/>
     <nav className="px-3 mt-1 space-y-0.5 overflow-y-auto">
       {NAV.map(n=>{ const on=app.nav===n.id; const Ico=Icon[n.icon];
-        return <button key={n.id} onClick={()=>app.go(n.id)} className={cx("group w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition text-left relative",
+        return <button key={n.id} onClick={()=>app.go(n.id)} title={n.desc}
+          className={cx("group w-full flex items-start gap-3 px-3 py-2 rounded-xl transition text-left relative",
           on?"bg-indigo-50 text-indigo-700":"text-ink-soft hover:bg-slate-50")}>
           {on && <span className="absolute left-0 top-2.5 bottom-2.5 w-1 rounded-r-full bg-indigo-600"/>}
-          <span className={on?"text-indigo-600":"text-ink-mute group-hover:text-ink-soft"}><Ico size={19}/></span>
-          <span className="font-semibold text-[14px]">{n.label}</span>
-          {n.id==="brand" && !app.published && app.synthDone && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-500"/>}
-          {n.id==="mlr" && !app.mlrApproved && <span className="ml-auto text-[9px] font-bold bg-amber-50 text-amber-700 rounded px-1.5 py-0.5">1</span>}
+          <span className={cx("mt-0.5 shrink-0", on?"text-indigo-600":"text-ink-mute group-hover:text-ink-soft")}><Ico size={19}/></span>
+          <span className="min-w-0 flex-1">
+            <span className="flex items-center gap-1.5">
+              <span className="font-semibold text-[14px]">{n.label}</span>
+              {n.id==="brand" && !app.published && app.synthDone && <span className="w-1.5 h-1.5 rounded-full bg-amber-500"/>}
+              {n.id==="mlr" && !app.mlrApproved && <span className="ml-auto text-[9px] font-bold bg-amber-50 text-amber-700 rounded px-1.5 py-0.5">1</span>}
+            </span>
+            <span className={cx("block text-[10.5px] leading-snug mt-0.5", on?"text-indigo-600/70":"text-ink-faint")}>{n.desc}</span>
+          </span>
         </button>;})}
     </nav>
-    <div className="px-3 mt-5">
-      <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint px-3 mb-1.5">On the roadmap</div>
+    <div className="px-3 mt-4">
+      <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint px-3 mb-1.5">Upcoming</div>
       {ROADMAP.map(r=><div key={r} className="flex items-center gap-3 px-3 py-2 rounded-xl text-ink-faint cursor-not-allowed">
         <span className="w-[19px] h-[19px] grid place-items-center"><Icon.lock size={14}/></span><span className="text-[13.5px] font-medium">{r}</span>
         <span className="ml-auto text-[9px] font-bold bg-slate-100 text-ink-faint rounded px-1.5 py-0.5">SOON</span></div>)}
     </div>
     <div className="mt-auto p-3 border-t border-line">
       <div className="flex items-center gap-3 px-2 py-1.5">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-700 to-slate-500 text-white grid place-items-center font-bold text-[13px]">AR</div>
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-700 to-slate-500 text-white grid place-items-center font-bold text-[13px]">DC</div>
         <div className="min-w-0"><div className="font-bold text-[13px] truncate">{BRAND.owner}</div><div className="text-[10.5px] text-ink-mute truncate">{BRAND.role} · {BRAND.name}</div></div>
       </div>
     </div>
@@ -3037,16 +3333,22 @@ function Toast({message}) {
 
 const NAV_TITLES={ ask:"Ask", pulse:"Brand Pulse", library:"Library", brand:"Brand Brain", personas:"HCP Synthetic Simulation", mlr:"MLR Review", audit:"Audit Trail" };
 
-// Slim top bar with browser-style back / forward arrows — present on every screen.
+// Slim top bar with a visible Back button (returns to prior screen, or to Welcome at the root)
+// plus a forward arrow, a Welcome home link, and a breadcrumb — present on every screen.
 function TopBar({app}) {
+  const backLabel = app.canBack ? "Back" : "Back to Welcome";
   return <div className="sticky top-0 z-20 bg-canvas/85 backdrop-blur border-b border-line px-8 py-2.5 flex items-center gap-2">
-    <button onClick={app.back} disabled={!app.canBack}
-      className={cx("w-8 h-8 rounded-lg grid place-items-center transition", app.canBack?"text-ink-soft hover:bg-slate-100 hover:text-ink":"text-ink-faint opacity-40 cursor-not-allowed")}
-      title="Back"><Icon.chevron size={17} cls="rotate-180"/></button>
+    <button onClick={()=> app.canBack ? app.back() : app.toWelcome()} title={backLabel}
+      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 h-8 text-[12.5px] font-semibold text-ink-soft hover:bg-slate-100 hover:text-ink transition">
+      <Icon.chevron size={16} cls="rotate-180"/>Back</button>
     <button onClick={app.forward} disabled={!app.canForward}
       className={cx("w-8 h-8 rounded-lg grid place-items-center transition", app.canForward?"text-ink-soft hover:bg-slate-100 hover:text-ink":"text-ink-faint opacity-40 cursor-not-allowed")}
       title="Forward"><Icon.chevron size={17}/></button>
+    <button onClick={app.toWelcome} title="Return to the Welcome screen"
+      className="w-8 h-8 rounded-lg grid place-items-center text-ink-soft hover:bg-slate-100 hover:text-ink transition"><Icon.home size={16}/></button>
     <div className="ml-1 flex items-center gap-1.5 text-[12.5px] text-ink-mute">
+      <button onClick={app.toWelcome} className="font-semibold text-ink-soft hover:text-indigo-700 transition">Welcome</button>
+      <Icon.chevron size={12} cls="text-ink-faint"/>
       <span className="font-semibold text-ink-soft">{BRAND.name}</span>
       <Icon.chevron size={12} cls="text-ink-faint"/>
       <span className="font-semibold text-ink">{NAV_TITLES[app.nav]}</span>
@@ -3554,7 +3856,7 @@ function LandingPage({onLaunch}) {
 function App() {
   const [stage,setStage]=useState("landing");  // landing | welcome | app
   const [entered,setEntered]=useState(false);
-  const [histState,setHistState]=useState({stack:["ask"], i:0});
+  const [histState,setHistState]=useState({stack:["library"], i:0});
   const nav=histState.stack[histState.i];
   const [uploaded,setUploaded]=useState(false);
   const [synthDone,setSynthDone]=useState(false);
@@ -3562,6 +3864,7 @@ function App() {
   const [mlrApproved,setMlrApproved]=useState(false);
   const [reviewOpen,setReviewOpen]=useState(false);
   const [brainTab,setBrainTab]=useState("graph");
+  const [askRole,setAskRole]=useState("marketing"); // marketing | medcoe
   const [source,setSource]=useState(null);       // citation id or null
   const [audit,setAudit]=useState([]);
   const [toastMsg,setToastMsg]=useState(null);
@@ -3580,9 +3883,10 @@ function App() {
   const log=useCallback((action, evidence, conf, status, tone, user, role)=>{
     setAudit(a=>[{ ts:"Just now", user:user||BRAND.owner, role:role||BRAND.role, action, evidence:evidence||[], conf, status, tone },...a]); },[]);
 
-  const app={ nav, go, back, forward, canBack:histState.i>0, canForward:histState.i<histState.stack.length-1,
+  const toWelcome=useCallback(()=>{ setHistState({stack:["library"], i:0}); setStage("welcome"); },[]);
+  const app={ nav, go, back, forward, canBack:histState.i>0, canForward:histState.i<histState.stack.length-1, toWelcome,
               uploaded, setUploaded, synthDone, setSynthDone, published,
-              mlrApproved, setMlrApproved, brainTab, setBrainTab, audit, log,
+              mlrApproved, setMlrApproved, brainTab, setBrainTab, askRole, setAskRole, audit, log,
               openReview:()=>setReviewOpen(true), toast };
   const srcApi={ open:(id)=>setSource(id), close:()=>setSource(null) };
 
@@ -3594,7 +3898,7 @@ function App() {
     log("Rejected today's synthesis draft — retained in the audit archive", [], null, "Rejected", "rose"); };
 
   const Screen={ ask:AskScreen, pulse:PulseScreen, library:LibraryScreen, brand:BrandBrainScreen,
-                 personas:PersonasScreen, mlr:MLRScreen, audit:AuditScreen }[nav];
+                 personas:PersonasScreen, mlr:MLRScreen }[nav] || LibraryScreen;
 
   if(stage==="landing") return <LandingPage onLaunch={()=>setStage("welcome")}/>;
   if(stage==="welcome") return <WelcomeScreen onEnter={()=>{ setStage("app"); setEntered(true); toast("YI Combo loaded · 9 sources · governed · ready"); }}/>;
