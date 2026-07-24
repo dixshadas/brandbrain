@@ -3,22 +3,31 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Brainlee, The AI Brand Brain for Life Sciences Commercial Teams</title>
-<meta name="description" content="Brainlee transforms fragmented market research, physician interviews, clinical evidence and commercial knowledge into one trusted AI memory that powers evidence-backed decisions for Life Sciences brand teams.">
-<meta name="theme-color" content="#0F172A">
+<title>Brainlee — Your brand's knowledge, with the source behind every answer</title>
+<meta name="description" content="Brainlee turns scattered research, market data, physician feedback and clinical evidence into one trusted memory your team can question and verify. Built for Life Sciences brand teams, CMOs and medical affairs.">
+<meta name="theme-color" content="#0B0F1A">
 <meta name="robots" content="index,follow">
+<link rel="canonical" href="https://brainlee.ai/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Brainlee, Every commercial insight your brand has ever learned. One Brain.">
-<meta property="og:description" content="One trusted AI memory for Life Sciences brand teams, commercial leaders and medical affairs. Evidence-backed, human-approved, MLR-aware.">
+<meta property="og:url" content="https://brainlee.ai/">
+<meta property="og:site_name" content="Brainlee">
+<meta property="og:title" content="Brainlee — Your brand's knowledge, finally in one place">
+<meta property="og:description" content="One trusted memory for Life Sciences commercial teams. Every answer traces to the document and page it came from.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Brainlee, The AI Brand Brain for Life Sciences">
-<meta name="twitter:description" content="Turn fragmented research, physician interviews and clinical evidence into one trusted, evidence-backed AI memory.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%234F46E5'/%3E%3Cpath d='M9 5a3 3 0 0 0-3 3 3 3 0 0 0-1 5.7A3 3 0 0 0 6 18a3 3 0 0 0 6 .5 3 3 0 0 0 6-.5 3 3 0 0 0 1-5.3A3 3 0 0 0 18 8a3 3 0 0 0-3-3 3 3 0 0 0-6 0z' fill='none' stroke='white' stroke-width='1.6'/%3E%3C/svg%3E">
+<meta name="twitter:title" content="Brainlee — Your brand's knowledge, finally in one place">
+<meta name="twitter:description" content="Turn scattered research, market data and clinical evidence into one trusted memory your team can question and verify.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%237C5CFF'/%3E%3Cpath d='M9 5a3 3 0 0 0-3 3 3 3 0 0 0-1 5.7A3 3 0 0 0 6 18a3 3 0 0 0 6 .5 3 3 0 0 0 6-.5 3 3 0 0 0 1-5.3A3 3 0 0 0 18 8a3 3 0 0 0-3-3 3 3 0 0 0-6 0z' fill='none' stroke='white' stroke-width='1.6'/%3E%3C/svg%3E">
 <script>
-  /* Paste a Google Apps Script Web-App URL here to persist Request-a-Demo submissions
-     to the connected Google Sheet. Leave blank to run the form in demo mode (validates,
-     shows the success state, and keeps a local copy). See the Apps Script snippet in README. */
-  window.__DEMO_ENDPOINT = "";
+  /* ---- Runtime configuration (no build step; each is a one-line swap) -------------------
+     __LEAD_ENDPOINT  : POST target for "Request a demo". Blank = log to console, still
+                        show success, and keep a local copy, so the build never looks broken.
+     __VIDEO_URL      : product-tour video. Blank = composed poster placeholder (no player).
+     __PROTOTYPE_KEY  : private access key for the internal prototype. MUST stay blank in
+                        production — blank means the prototype cannot be reached at all.
+                        When set, open  ?preview=<key>  to load it. Never linked from the site. */
+  window.__LEAD_ENDPOINT = "";
+  window.__VIDEO_URL     = "";
+  window.__PROTOTYPE_KEY = "";
 </script>
 <!-- Zero-build React prototype: React 18 + Babel(TSX) + Tailwind. Opens in any browser.
      Trust is the product. Calm. Executive-cognition. -->
@@ -30,11 +39,21 @@
   tailwind.config = {
     theme: {
       extend: {
-        fontFamily: { sans: ['Inter','ui-sans-serif','system-ui','-apple-system','sans-serif'] },
+        fontFamily: {
+          sans: ['Inter Tight','Inter','ui-sans-serif','system-ui','-apple-system','sans-serif'],
+          mono: ['JetBrains Mono','ui-monospace','SFMono-Regular','Menlo','monospace'],
+        },
         colors: {
           ink:    { DEFAULT:'#0F172A', soft:'#334155', mute:'#64748B', faint:'#94A3B8' },
           line:   '#E7EAF0',
           canvas: '#FBFCFE',
+          /* --- marketing site palette (dark) --- */
+          bg:      '#0B0F1A',
+          surface: '#111726',
+          raised:  '#161D2F',
+          accent:  { DEFAULT:'#7C5CFF', soft:'#A794FF' },
+          txt:     { DEFAULT:'#F2F4F8', muted:'#94A0B8', dim:'#64708A' },
+          ok:      '#3FB984',
           indigo: { 50:'#EEF1FF',100:'#E0E7FF',500:'#6366F1',600:'#4F46E5',700:'#4338CA' },
           emerald:{ 50:'#ECFDF5',600:'#059669',700:'#047857' },
           amber:  { 50:'#FFFBEB',600:'#D97706',700:'#B45309' },
@@ -63,7 +82,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   html,body,#root{height:100%}
   body{background:#FBFCFE;color:#0F172A;font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased;overflow:hidden}
@@ -112,8 +131,45 @@
   .lp-card:hover{transform:translateY(-4px)}
   @keyframes sheen{0%{transform:translateX(-120%)}60%,100%{transform:translateX(120%)}}
   .lp-sheen::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.06) 50%,transparent 60%);animation:sheen 6s ease-in-out infinite}
+  /* --- Marketing site (public) — dark, premium, disciplined ------------------------- */
+  :root{
+    --bg:#0B0F1A; --surface:#111726; --surface-raised:#161D2F;
+    --border:rgba(255,255,255,.08); --border-strong:rgba(255,255,255,.14);
+    --text:#F2F4F8; --text-muted:#94A0B8; --text-dim:#64708A;
+    --accent:#7C5CFF; --accent-soft:#A794FF; --accent-glow:rgba(124,92,255,.18);
+    --success:#3FB984;
+  }
+  .mk{background:var(--bg);color:var(--text);height:100%;overflow-y:auto;scroll-behavior:smooth;
+      font-feature-settings:normal;letter-spacing:-0.01em}
+  .mk ::selection{background:rgba(124,92,255,.32)}
+  .mk h1,.mk h2,.mk h3{letter-spacing:-0.02em;font-weight:600}
+  .mk :focus-visible{outline:2px solid var(--accent-soft);outline-offset:3px;border-radius:6px}
+  .mk-glass{background:rgba(255,255,255,.03);backdrop-filter:blur(12px);border:1px solid var(--border)}
+
+  /* entry reveal: fade + 12px rise, 500ms, staggered by --d */
+  .reveal{opacity:0;transform:translateY(12px)}
+  .reveal.in{opacity:1;transform:none;transition:opacity .5s cubic-bezier(.2,.8,.2,1) var(--d,0ms),transform .5s cubic-bezier(.2,.8,.2,1) var(--d,0ms)}
+
+  /* ambient loops — slow, low-amplitude, paused off-screen via .is-paused */
+  @keyframes mkGlow{0%,100%{opacity:.34;transform:translate3d(0,0,0) scale(1)}50%{opacity:.72;transform:translate3d(0,-6px,0) scale(1.05)}}
+  .mk-glow{animation:mkGlow 8s ease-in-out infinite;will-change:transform,opacity}
+  @keyframes mkBreathe{0%,100%{opacity:.4}50%{opacity:.85}}
+  .mk-breathe{animation:mkBreathe 4s ease-in-out infinite}
+  @keyframes mkRing{0%{opacity:.3;transform:scale(.62)}100%{opacity:0;transform:scale(1.5)}}
+  .mk-ring{transform-box:fill-box;transform-origin:center;animation:mkRing 6s ease-out infinite}
+  @keyframes mkDrift{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-6px,0)}}
+  .mk-drift{animation:mkDrift 12s ease-in-out infinite}
+  @keyframes mkSweep{0%{transform:translateX(-120%)}100%{transform:translateX(220%)}}
+  .mk-sweep::after{content:'';position:absolute;top:0;bottom:0;width:45%;pointer-events:none;
+    background:linear-gradient(105deg,transparent,rgba(255,255,255,.07),transparent);animation:mkSweep 1.5s cubic-bezier(.2,.8,.2,1) .35s 1 both}
+  @keyframes mkPop{0%{opacity:0;transform:scale(.82)}70%{transform:scale(1.06)}100%{opacity:1;transform:scale(1)}}
+  .mk-pop{animation:mkPop .42s cubic-bezier(.2,.8,.2,1) both}
+  .is-paused *,.is-paused{animation-play-state:paused !important}
+
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}
+    .reveal{opacity:1 !important;transform:none !important}
+    .mk-sweep::after{display:none}
   }
 </style>
 </head>
@@ -3921,305 +3977,687 @@ function ChatDock({app}) {
   </div>;
 }
 
-/* ------------------------------------------------------------------ LANDING PAGE */
-const LP_STEPS = [
-  { icon:"upload",   title:"Knowledge Ingestion",      body:"Stop losing insights in scattered decks, every study, transcript and asset becomes one searchable source of truth." },
-  { icon:"search",   title:"Evidence Retrieval",       body:"Answer strategic questions in minutes, with every claim traceable to the exact source passage." },
-  { icon:"sparkles", title:"Insight Synthesis",        body:"Decide with clarity, findings are scored, cited, and disagreements surfaced instead of averaged away." },
-  { icon:"users",    title:"HCP Simulation",          body:"Know how each physician segment will react to your message before a single dollar is spent." },
-  { icon:"bolt",     title:"Campaign Intelligence",    body:"Pressure-test creative and concepts against real behavioural profiles ahead of launch." },
-  { icon:"stamp",    title:"MLR Governance",           body:"Move assets through medical, legal and regulatory faster, with a named human approving every claim." },
-  { icon:"brain",    title:"Brand Brain",              body:"Never re-learn what your team already knows, a living memory every future decision draws on." },
-  { icon:"pulse",    title:"Brand Pulse",              body:"See what changed in your market this week, and whether it should change your plan." },
-];
-const LP_TRUST = [["shield","Evidence-backed"],["checkc","Human Approved"],["stamp","MLR Aware"],["brain","Institutional Memory"]];
-const DEMO_ROLES = ["Brand Manager","Brand Director","Chief Marketing Officer","Medical Affairs","Commercial Excellence","Market Access","Other"];
-// Enterprise readiness, only capabilities true in the product today.
-const LP_GOV = [
-  { icon:"shield", title:"Explainable AI",            body:"Every score and recommendation opens into the weighted factors and reasoning behind it." },
-  { icon:"checkc", title:"Human approval workflow",   body:"Nothing enters the Brand Brain until a named reviewer approves it." },
-  { icon:"stamp",  title:"MLR-aware reviews",         body:"Automated claims, safety and compliance checks route to a human before anything ships." },
-  { icon:"history",title:"Append-only audit trail",  body:"Every question, decision and approval is timestamped, attributed and immutable." },
-  { icon:"quote",  title:"Evidence-backed responses",body:"Each answer cites its source passage, no unattributed AI claims." },
-  { icon:"lock",   title:"Brand-isolated memory",    body:"Each brand's evidence and memory stays its own, nothing crosses brands." },
-];
-const LP_ROADMAP = ["SSO","RBAC","Private deployment","Data residency controls"];
+/* ================================================================================
+   MARKETING SITE (public)  ·  one scrolling page, dark, evidence-first.
+   The internal prototype is never linked, referenced or hinted at from here.
+   ================================================================================ */
 
-function RequestDemoModal({onClose, toast}) {
-  const [f,setF]=useState({ first:"", last:"", email:"", company:"", jobTitle:"", phone:"", useCase:"" });
+/* ---- copy & data ------------------------------------------------------------- */
+const MK_CHIPS = ["Evidence-backed","Explainable","Human-approved","Institutional memory"];
+
+// Generic capability tiles. No third-party names: nothing here is a live integration yet.
+const MK_SOURCES = [
+  { id:"crm",  icon:"users",   label:"CRM",               feeds:"Field calls and customer interactions" },
+  { id:"mkt",  icon:"pie",     label:"Market research",   feeds:"Segmentation, ATU and market sizing" },
+  { id:"clin", icon:"beaker",  label:"Clinical evidence", feeds:"Studies, publications and safety data" },
+  { id:"file", icon:"doc",     label:"Files",             feeds:"Decks, PDFs and research reports" },
+];
+
+// The three clusters the core reveals on hover. Labels are fixed by the copy rules.
+const MK_REGIONS = {
+  evidence:  { label:"Evidence",   body:"Finds every relevant passage across your material, including the ones that disagree." },
+  simulation:{ label:"Simulation", body:"Pressure-tests a position the way your physicians and customers actually would." },
+  governance:{ label:"Governance", body:"Checks the answer against your review standards before anyone sees it." },
+};
+
+// Three rotating scenarios for the output card. One must decline to over-claim.
+const MK_SCENARIOS = [
+  { q:"Can we support a superiority claim versus Competitor X on the primary endpoint?",
+    lines:["Not yet — the head-to-head study measured non-inferiority, not superiority.",
+           "A superiority claim would need a new endpoint-powered comparison."],
+    cites:["Study 214 · p.31","Claims library · CL-018"], conflict:"1 conflicting source", by:"Approved by L. Coleman" },
+  { q:"Which physician segment should we prioritise for the next cycle?",
+    lines:["High-volume community prescribers, who carry the largest share of switching decisions.",
+           "Hospital prescribers are gated by formulary, so effort there converts more slowly."],
+    cites:["Segmentation · slide 9","Field notes · Q2"], conflict:"1 conflicting source", by:"Approved by D. Foster" },
+  { q:"Does our tolerability message hold for the cardiology audience?",
+    lines:["Partly — it holds for the primary population studied.",
+           "It is not supported for patients already on beta-blockers."],
+    cites:["Safety review · p.7","Label · §4.4"], conflict:"1 conflicting source", by:"Approved by J. Whitfield" },
+];
+
+const MK_TRUST = [
+  { icon:"quote",  title:"Evidence-backed",      body:"Every recommendation traces to the source document and page it came from." },
+  { icon:"checkc", title:"Human approval",       body:"Nothing becomes institutional memory until a person signs off." },
+  { icon:"lock",   title:"Enterprise deployment",body:"Designed to fit the environments and controls enterprise IT already requires." },
+];
+const MK_ROADMAP = ["Private deployment","SSO","RBAC","Audit logging"];
+const MK_CHAIN = ["Question","Decision","Human approval","Institutional memory","Better next decision"];
+
+const MK_ROLES = ["Brand Manager","Brand Director","Chief Marketing Officer","Medical Affairs","Commercial Excellence","Market Access","Other"];
+const FREE_EMAIL = ["gmail.com","yahoo.com","hotmail.com","outlook.com","aol.com","icloud.com","me.com","proton.me","protonmail.com","gmx.com","mail.com","yandex.com","live.com","msn.com","qq.com","163.com"];
+
+/* ---- motion primitives ------------------------------------------------------- */
+// Entry: fade + 12px rise, 500ms, staggered between siblings, on scroll into view.
+function Reveal({children, delay=0, className="", as:Tag="div"}) {
+  const ref=useRef(null); const [seen,setSeen]=useState(false);
+  useEffect(()=>{ const el=ref.current; if(!el) return;
+    if(typeof IntersectionObserver==="undefined"){ setSeen(true); return; }
+    const io=new IntersectionObserver(([e])=>{ if(e.isIntersecting){ setSeen(true); io.disconnect(); } },
+      { rootMargin:"0px 0px -8% 0px", threshold:.12 });
+    io.observe(el); return ()=>io.disconnect(); },[]);
+  return <Tag ref={ref} className={cx("reveal", seen&&"in", className)} style={{"--d":delay+"ms"}}>{children}</Tag>;
+}
+// Section headings reveal word by word.
+function WordReveal({text, className=""}) {
+  const ref=useRef(null); const [seen,setSeen]=useState(false);
+  useEffect(()=>{ const el=ref.current; if(!el) return;
+    if(typeof IntersectionObserver==="undefined"){ setSeen(true); return; }
+    const io=new IntersectionObserver(([e])=>{ if(e.isIntersecting){ setSeen(true); io.disconnect(); } },{threshold:.2});
+    io.observe(el); return ()=>io.disconnect(); },[]);
+  const words=text.split(" ");
+  // A real space sits between spans (not &nbsp; inside them), so text stays copy/searchable
+  // and the browser can still wrap naturally between words.
+  return <span ref={ref} className={className}>{words.map((w,i)=><React.Fragment key={i}>
+    <span className={cx("reveal inline-block", seen&&"in")} style={{"--d":(i*45)+"ms"}}>{w}</span>
+    {i<words.length-1?" ":""}</React.Fragment>)}</span>;
+}
+// Pause ambient loops while a block is off-screen (performance requirement).
+function usePausedOffscreen(){
+  const ref=useRef(null); const [on,setOn]=useState(true);
+  useEffect(()=>{ const el=ref.current; if(!el||typeof IntersectionObserver==="undefined") return;
+    const io=new IntersectionObserver(([e])=>setOn(e.isIntersecting),{rootMargin:"120px"});
+    io.observe(el); return ()=>io.disconnect(); },[]);
+  return [ref,on];
+}
+function prefersReducedMotion(){
+  try{ return window.matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(_){ return false; }
+}
+
+/* ---- small primitives -------------------------------------------------------- */
+function MonoChip({children, tone="muted", className=""}) {
+  return <span className={cx("inline-flex items-center gap-1.5 font-mono text-[11px] tracking-tight rounded-md border px-2 py-1",
+    tone==="accent"?"border-accent/40 text-accent-soft bg-accent/10":"border-white/10 text-txt-muted", className)}>{children}</span>;
+}
+function MkBtn({children, onClick, variant="primary", type="button", disabled, className="", ...rest}) {
+  const base="inline-flex items-center justify-center gap-2 rounded-xl font-medium text-[14.5px] px-5 py-3 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
+  const look = variant==="primary"
+    ? "text-white shadow-[0_0_0_0_rgba(124,92,255,0)] hover:shadow-[0_8px_30px_rgba(124,92,255,.35)] hover:scale-[1.03]"
+    : "border border-white/12 text-txt hover:border-white/25 hover:bg-white/[.04]";
+  const style = variant==="primary" ? {background:"linear-gradient(135deg,#7C5CFF,#6B4CF0)"} : undefined;
+  return <button type={type} onClick={onClick} disabled={disabled} style={style} className={cx(base,look,className)} {...rest}>{children}</button>;
+}
+function MkHead({eyebrow, title, sub, center=true}) {
+  return <div className={cx("max-w-2xl", center&&"mx-auto text-center")}>
+    {eyebrow && <Reveal><div className="font-mono text-[11px] uppercase tracking-[.18em] text-txt-dim">{eyebrow}</div></Reveal>}
+    <h2 className="text-[27px] sm:text-[34px] leading-[1.15] text-txt mt-3"><WordReveal text={title}/></h2>
+    {sub && <Reveal delay={120}><p className="text-[15.5px] leading-[1.6] text-txt-muted mt-4">{sub}</p></Reveal>}
+  </div>;
+}
+
+/* ---- HERO ANSWER CARD  ·  the single most important asset on the page ---------- */
+// A real Brainlee answer, rendered as product UI. It proves the claim instead of asserting it.
+function AnswerCard() {
+  return <div className="relative rounded-2xl mk-glass mk-sweep overflow-hidden shadow-[0_24px_80px_rgba(0,0,0,.45)]">
+    {/* question */}
+    <div className="px-5 sm:px-6 pt-5 pb-4 border-b border-white/[.06]">
+      <div className="font-mono text-[10.5px] uppercase tracking-[.16em] text-txt-dim mb-2">Question</div>
+      <p className="text-[15px] sm:text-[16px] leading-[1.55] text-txt">
+        “Can we support a superiority claim versus Competitor X on the primary endpoint?”</p>
+    </div>
+    {/* answer — declining to over-claim is the strongest trust signal available */}
+    <div className="px-5 sm:px-6 py-5">
+      <p className="text-[15px] sm:text-[16px] leading-[1.6] text-txt">
+        <span className="text-accent-soft font-medium">Not yet —</span> the head-to-head study measured
+        non-inferiority, not superiority. A superiority claim would need a new endpoint-powered comparison.</p>
+      <div className="mt-3.5 flex items-center gap-2 flex-wrap">
+        <MonoChip tone="accent">Study 214 · p.31</MonoChip>
+        <MonoChip tone="accent">Claims library · CL-018</MonoChip>
+      </div>
+    </div>
+    {/* one expanded source, with the operative clause highlighted */}
+    <div className="mx-5 sm:mx-6 mb-5 rounded-xl border border-white/[.07] bg-white/[.02]">
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/[.06] flex-wrap">
+        <Icon.doc size={13} cls="text-txt-dim"/>
+        <span className="font-mono text-[11px] text-txt-muted">Study_214_CSR.pdf</span>
+        <span className="font-mono text-[11px] text-txt-dim">page 31</span>
+        <span className="ml-auto inline-flex items-center gap-1.5 font-mono text-[10.5px] text-ok">
+          <Icon.checkc size={12}/>Approved</span>
+      </div>
+      <p className="px-4 py-3 text-[13.5px] leading-[1.65] text-txt-muted">
+        “The trial was designed to demonstrate <mark className="bg-accent/20 text-txt rounded px-1 py-0.5">non-inferiority
+        to the active comparator</mark>; no superiority testing was pre-specified for the primary endpoint.”</p>
+    </div>
+    {/* the flag that says this system argues with itself */}
+    <div className="px-5 sm:px-6 py-3 border-t border-white/[.06] flex items-center gap-2">
+      <Icon.gap size={14} cls="text-amber-400"/>
+      <span className="font-mono text-[11px] text-amber-300/90">1 conflicting source</span>
+      <span className="ml-auto font-mono text-[10.5px] text-txt-dim">Traced to 2 documents</span>
+    </div>
+  </div>;
+}
+
+/* ---- SECTION 3 · LAYER 1 — sources flowing in --------------------------------- */
+function SourcesLayer({hover, setHover, running}) {
+  // Tile centres land on eighths of the viewBox, matching the flex row above.
+  const xs=[112.5,337.5,562.5,787.5];
+  return <div className="relative">
+    <div className="grid grid-cols-4 gap-2 sm:gap-4">
+      {MK_SOURCES.map((s,i)=>{ const SIc=Icon[s.icon]; const on=hover===s.id;
+        return <div key={s.id} className="relative flex justify-center"
+          onMouseEnter={()=>setHover(s.id)} onMouseLeave={()=>setHover(null)}>
+          <div tabIndex={0} onFocus={()=>setHover(s.id)} onBlur={()=>setHover(null)}
+            aria-label={s.label+". "+s.feeds}
+            className={cx("w-full rounded-xl mk-glass px-2 py-3 sm:px-3 sm:py-3.5 flex flex-col items-center gap-1.5 text-center transition-all duration-300",
+              on?"border-accent/50 bg-accent/[.07]":"", running&&"mk-breathe")}
+            style={{animationDelay:(i*0.9)+"s"}}>
+            <SIc size={17} cls={on?"text-accent-soft":"text-txt-muted"}/>
+            <span className={cx("text-[11.5px] sm:text-[12.5px] font-medium leading-tight", on?"text-txt":"text-txt-muted")}>{s.label}</span>
+          </div>
+          {on && <div role="tooltip" className="absolute top-full mt-2 z-20 w-44 rounded-lg mk-glass px-3 py-2 text-[11.5px] leading-snug text-txt-muted shadow-xl">
+            {s.feeds}</div>}
+        </div>;})}
+    </div>
+    {/* bezier paths carrying luminous packets down into the core */}
+    <svg viewBox="0 0 900 180" preserveAspectRatio="none" aria-hidden="true"
+      className="w-full h-[70px] sm:h-[110px] mt-1 overflow-visible">
+      {MK_SOURCES.map((s,i)=>{ const on=hover===s.id;
+        const d=`M${xs[i]} 4 C${xs[i]} 80, 450 60, 450 176`;
+        return <g key={s.id}>
+          <path d={d} fill="none" strokeLinecap="round"
+            stroke={on?"#7C5CFF":"rgba(255,255,255,.10)"} strokeWidth={on?2:1}
+            style={{transition:"stroke .3s ease, stroke-width .3s ease"}}/>
+          {running && <>
+            <circle r={on?3.4:2.6} fill={on?"#A794FF":"#7C5CFF"} opacity={on?1:.75}>
+              <animateMotion dur={`${(on?1.7:2.6+i*0.62).toFixed(2)}s`} repeatCount="indefinite"
+                begin={`${(i*0.73).toFixed(2)}s`} path={d}/>
+              <animate attributeName="opacity" values="0;1;1;0"
+                dur={`${(on?1.7:2.6+i*0.62).toFixed(2)}s`} repeatCount="indefinite" begin={`${(i*0.73).toFixed(2)}s`}/>
+            </circle>
+            <circle r="2" fill="#7C5CFF" opacity=".5">
+              <animateMotion dur={`${(3.4+i*0.55).toFixed(2)}s`} repeatCount="indefinite"
+                begin={`${(1.5+i*0.44).toFixed(2)}s`} path={d}/>
+            </circle>
+          </>}
+        </g>;})}
+    </svg>
+  </div>;
+}
+
+/* ---- SECTION 3 · LAYER 2 — the core ------------------------------------------- */
+// A constellation of nodes and edges, not a filled illustration: reads engineered, not stock.
+const CORE_NODES = [
+  // evidence (left lobe)
+  {id:"e1",x:78,y:74,r:4,c:"evidence"},   {id:"e2",x:56,y:100,r:3,c:"evidence"},
+  {id:"e3",x:84,y:120,r:4.5,c:"evidence"},{id:"e4",x:110,y:58,r:3,c:"evidence"},
+  {id:"e5",x:112,y:96,r:5,c:"evidence"},  {id:"e6",x:96,y:146,r:3,c:"evidence"},
+  // simulation (centre)
+  {id:"s1",x:150,y:66,r:3.5,c:"simulation"},{id:"s2",x:178,y:48,r:4,c:"simulation"},
+  {id:"s3",x:180,y:96,r:6,c:"simulation"},  {id:"s4",x:148,y:120,r:4,c:"simulation"},
+  {id:"s5",x:206,y:74,r:3.5,c:"simulation"},{id:"s6",x:176,y:146,r:3.5,c:"simulation"},
+  {id:"s7",x:210,y:120,r:4,c:"simulation"},
+  // governance (right lobe)
+  {id:"g1",x:244,y:62,r:3.5,c:"governance"},{id:"g2",x:272,y:86,r:4.5,c:"governance"},
+  {id:"g3",x:248,y:112,r:4,c:"governance"}, {id:"g4",x:292,y:112,r:3,c:"governance"},
+  {id:"g5",x:266,y:138,r:3.5,c:"governance"},{id:"g6",x:300,y:80,r:3,c:"governance"},
+];
+const CORE_EDGES = [
+  ["e1","e4"],["e1","e2"],["e2","e3"],["e3","e5"],["e1","e5"],["e4","e5"],["e3","e6"],["e5","e6"],
+  ["e4","s1"],["e5","s4"],
+  ["s1","s2"],["s2","s3"],["s1","s3"],["s3","s5"],["s2","s5"],["s3","s4"],["s4","s6"],["s3","s7"],["s5","s7"],["s6","s7"],
+  ["s5","g1"],["s7","g3"],
+  ["g1","g2"],["g2","g6"],["g2","g3"],["g3","g5"],["g2","g4"],["g4","g6"],["g5","g4"],
+];
+const CORE_POS = CORE_NODES.reduce((m,n)=>{ m[n.id]=n; return m; },{});
+
+function BrainCore({region, setRegion, running}) {
+  const dim=(c)=> region && region!==c;
+  const lit=(c)=> region===c;
+  return <div className="relative w-full max-w-[420px] mx-auto">
+    {/* layered radial glow, breathing */}
+    <div aria-hidden="true" className={cx("absolute inset-0 -z-10 grid place-items-center", running&&"mk-glow")}>
+      <div className="w-[78%] h-[78%] rounded-full"
+        style={{background:"radial-gradient(circle, var(--accent-glow) 0%, rgba(124,92,255,.05) 45%, transparent 70%)"}}/>
+    </div>
+    <svg viewBox="0 0 360 200" className={cx("w-full", running&&"mk-drift")} role="img"
+      aria-label="Brainlee weighing evidence, simulation and governance together">
+      {/* expanding rings */}
+      {running && [0,1,2].map(i=><circle key={i} cx="180" cy="100" r="62" fill="none" stroke="#7C5CFF"
+        strokeWidth="1" opacity=".18" className="mk-ring" style={{animationDelay:(i*2)+"s"}}/>)}
+      {/* edges — activity travels through the network */}
+      {CORE_EDGES.map(([a,b],i)=>{ const A=CORE_POS[a],B=CORE_POS[b];
+        const c = A.c===B.c ? A.c : null;
+        return <line key={i} x1={A.x} y1={A.y} x2={B.x} y2={B.y}
+          stroke={c&&lit(c)?"#A794FF":"#7C5CFF"} strokeWidth={c&&lit(c)?1.5:1}
+          opacity={c&&dim(c)?.09:(c&&lit(c)?.75:.28)}
+          className={running&&!region?"mk-breathe":undefined}
+          style={{animationDelay:(i*0.14)+"s", transition:"opacity .35s ease, stroke .35s ease"}}/>;})}
+      {/* nodes */}
+      {CORE_NODES.map((n,i)=><circle key={n.id} cx={n.x} cy={n.y} r={n.r}
+        fill={lit(n.c)?"#A794FF":"#7C5CFF"} opacity={dim(n.c)?.3:1}
+        className={running&&!region?"mk-breathe":undefined}
+        style={{animationDelay:(i*0.21)+"s", transition:"opacity .35s ease, fill .35s ease"}}/>)}
+      {/* hover regions */}
+      {[["evidence",34,110],["simulation",130,110],["governance",244,112]].map(([c,x,w])=>
+        <rect key={c} x={x} y="26" width={w} height="150" fill="transparent" style={{cursor:"pointer"}}
+          onMouseEnter={()=>setRegion(c)} onMouseLeave={()=>setRegion(null)}/>)}
+    </svg>
+    {/* keyboard-reachable equivalents of the three hover regions */}
+    <div className="mt-3 flex items-center justify-center gap-2 flex-wrap">
+      {Object.keys(MK_REGIONS).map(c=>
+        <button key={c} onMouseEnter={()=>setRegion(c)} onMouseLeave={()=>setRegion(null)}
+          onFocus={()=>setRegion(c)} onBlur={()=>setRegion(null)}
+          aria-describedby={region===c?"core-tip":undefined}
+          className={cx("font-mono text-[11px] uppercase tracking-[.14em] rounded-md border px-2.5 py-1.5 transition-all duration-300",
+            region===c?"border-accent/50 text-accent-soft bg-accent/10":"border-white/10 text-txt-dim hover:text-txt-muted")}>
+          {MK_REGIONS[c].label}</button>)}
+    </div>
+    <div className="h-[62px] mt-2">
+      {region && <div id="core-tip" role="tooltip"
+        className="mk-glass rounded-lg px-3.5 py-2.5 text-[12.5px] leading-snug text-txt-muted max-w-sm mx-auto text-center mk-pop">
+        <span className="text-txt font-medium">{MK_REGIONS[region].label}.</span> {MK_REGIONS[region].body}</div>}
+    </div>
+  </div>;
+}
+
+/* ---- SECTION 3 · LAYER 3 — the decision coming out ---------------------------- */
+function DecisionCard({running}) {
+  const [idx,setIdx]=useState(0);
+  const [phase,setPhase]=useState(0);   // 0 pulse · 1 lines · 2 chips · 3 flag · 4 stamp · 5 hold
+  const reduced=prefersReducedMotion();
+  useEffect(()=>{
+    if(!running||reduced) return;
+    const gaps=[520,700,620,520,520,3600];
+    const t=setTimeout(()=>{
+      if(phase>=5){ setIdx(i=>(i+1)%MK_SCENARIOS.length); setPhase(0); } else setPhase(p=>p+1);
+    }, gaps[phase]);
+    return ()=>clearTimeout(t);
+  },[phase,running,reduced]);
+  const s=MK_SCENARIOS[idx];
+  const show=(p)=> reduced || phase>=p;
+  return <div className="w-full max-w-xl mx-auto">
+    {/* a light pulse travels from the core into the card */}
+    <div className="h-8 flex justify-center" aria-hidden="true">
+      <svg viewBox="0 0 4 32" className="h-8 w-1 overflow-visible">
+        <line x1="2" y1="0" x2="2" y2="32" stroke="#7C5CFF" strokeWidth="1" opacity=".25"/>
+        {running && !reduced && <circle cx="2" r="2.6" fill="#A794FF">
+          <animate attributeName="cy" values="0;32" dur=".52s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;1;0" dur=".52s" repeatCount="indefinite"/>
+        </circle>}
+      </svg>
+    </div>
+    <div key={idx} className="rounded-2xl mk-glass p-5 shadow-[0_18px_60px_rgba(0,0,0,.4)] animate-fadein">
+      <div className="font-mono text-[10.5px] uppercase tracking-[.16em] text-txt-dim">Question</div>
+      <p className="text-[14px] leading-[1.55] text-txt-muted mt-1.5">“{s.q}”</p>
+      <div className="mt-4 min-h-[74px]">
+        {s.lines.map((l,i)=><p key={i}
+          className={cx("text-[14.5px] leading-[1.6] text-txt transition-all duration-500", i?"mt-1.5":"",
+            show(1)&&(i===0||show(1))?"opacity-100 translate-y-0":"opacity-0 translate-y-2")}
+          style={{transitionDelay:(i*160)+"ms"}}>
+          {i===0&&l.startsWith("Not yet")
+            ? <><span className="text-accent-soft font-medium">Not yet —</span>{l.slice(9)}</> : l}</p>)}
+      </div>
+      <div className="mt-3 flex items-center gap-2 flex-wrap min-h-[28px]">
+        {s.cites.map((c,i)=> show(2) &&
+          <span key={c} className="mk-pop" style={{animationDelay:(i*140)+"ms"}}><MonoChip tone="accent">{c}</MonoChip></span>)}
+      </div>
+      <div className="mt-3 flex items-center gap-3 flex-wrap min-h-[24px]">
+        {show(3) && <span className="inline-flex items-center gap-1.5 mk-pop">
+          <Icon.gap size={13} cls="text-amber-400"/>
+          <span className="font-mono text-[11px] text-amber-300/90">{s.conflict}</span></span>}
+        {show(4) && <span className="inline-flex items-center gap-1.5 ml-auto mk-pop">
+          <Icon.checkc size={13} cls="text-ok"/>
+          <span className="font-mono text-[11px] text-ok">{s.by}</span></span>}
+      </div>
+    </div>
+  </div>;
+}
+
+function HowItWorks() {
+  const [wrapRef,onScreen]=usePausedOffscreen();
+  const [hover,setHover]=useState(null);
+  const [region,setRegion]=useState(null);
+  const reduced=prefersReducedMotion();
+  const running=onScreen && !reduced;
+  return <section id="how" ref={wrapRef} className="relative border-t border-white/[.06] py-20 sm:py-28">
+    <div className="max-w-5xl mx-auto px-5 sm:px-8">
+      <MkHead eyebrow="How Brainlee works"
+        title="One place where your knowledge is weighed, tested and checked."
+        sub="Your material flows in. Brainlee finds the evidence, pressure-tests the position, and checks it against your review standards before anyone sees it."/>
+      <div className={cx("mt-14", !running&&"is-paused")}>
+        <div className="font-mono text-[10.5px] uppercase tracking-[.16em] text-txt-dim text-center mb-4">Connects to</div>
+        <SourcesLayer hover={hover} setHover={setHover} running={running}/>
+        <BrainCore region={region} setRegion={setRegion} running={running}/>
+        <DecisionCard running={running}/>
+      </div>
+      <p className="mt-10 text-[11.5px] leading-relaxed text-txt-dim text-center max-w-xl mx-auto">
+        Integrations in development. Connectors shown describe categories of content, not named products.
+      </p>
+    </div>
+  </section>;
+}
+
+/* ---- SECTION 2 · product video ------------------------------------------------ */
+// Ships as a composed poster until VITE-equivalent config supplies a URL. Never a broken player.
+function ProductVideo() {
+  const url = (typeof window!=="undefined" && window.__VIDEO_URL) || "";
+  return <section id="tour" className="border-t border-white/[.06] py-20 sm:py-28">
+    <div className="max-w-4xl mx-auto px-5 sm:px-8">
+      <MkHead eyebrow="Product tour" title="See Brainlee in action"
+        sub="A short walkthrough of how Brainlee turns your existing knowledge into decisions you can trace back to their source."/>
+      <Reveal delay={120} className="mt-10">
+        <div className="relative rounded-2xl overflow-hidden border border-white/[.09] bg-raised shadow-[0_28px_90px_rgba(0,0,0,.5)]"
+          style={{aspectRatio:"16 / 9"}}>
+          {url ? <video controls preload="none" playsInline className="absolute inset-0 w-full h-full" src={url}/> : <>
+            {/* composed poster, so the frame looks designed rather than missing */}
+            <div aria-hidden="true" className="absolute inset-0"
+              style={{background:"radial-gradient(700px 320px at 50% 0%, rgba(124,92,255,.16) 0%, transparent 65%), linear-gradient(180deg,#161D2F,#0B0F1A)"}}/>
+            <div aria-hidden="true" className="absolute top-0 inset-x-0 h-9 border-b border-white/[.06] flex items-center gap-1.5 px-4">
+              <span className="w-2 h-2 rounded-full bg-white/15"/><span className="w-2 h-2 rounded-full bg-white/15"/><span className="w-2 h-2 rounded-full bg-white/15"/>
+              <span className="ml-3 font-mono text-[10.5px] text-txt-dim">brainlee — product tour</span>
+            </div>
+            <div className="absolute inset-0 grid place-items-center">
+              <button disabled aria-disabled="true" aria-label="Product tour video coming soon"
+                className="w-16 h-16 rounded-full grid place-items-center opacity-50 cursor-default"
+                style={{background:"linear-gradient(135deg,#7C5CFF,#6B4CF0)"}}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" className="translate-x-0.5"><path d="M6 4l14 8-14 8z"/></svg>
+              </button>
+            </div>
+          </>}
+        </div>
+        {!url && <div className="mt-3 text-center font-mono text-[11px] text-txt-dim">Full walkthrough coming soon</div>}
+      </Reveal>
+    </div>
+  </section>;
+}
+
+/* ---- SECTION 4 · enterprise trust --------------------------------------------- */
+function TrustSection() {
+  return <section className="border-t border-white/[.06] py-20 sm:py-28">
+    <div className="max-w-5xl mx-auto px-5 sm:px-8">
+      <MkHead title="Built for enterprise trust"/>
+      <div className="mt-12 grid sm:grid-cols-3 gap-4">
+        {MK_TRUST.map((t,i)=>{ const TIc=Icon[t.icon];
+          return <Reveal key={t.title} delay={i*60}>
+            <div className="h-full rounded-xl border border-white/[.08] bg-surface p-5">
+              <TIc size={18} cls="text-accent-soft"/>
+              <div className="text-[15px] font-medium text-txt mt-3.5">{t.title}</div>
+              <p className="text-[13.5px] leading-[1.6] text-txt-muted mt-1.5">{t.body}</p>
+            </div></Reveal>;})}
+      </div>
+      <Reveal delay={200}>
+        <div className="mt-6 rounded-xl border border-dashed border-white/[.10] bg-white/[.015] px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3">
+          <span className="font-mono text-[10.5px] uppercase tracking-[.16em] text-txt-dim shrink-0">On the roadmap</span>
+          <div className="flex flex-wrap gap-2 flex-1">
+            {MK_ROADMAP.map(r=><MonoChip key={r}>{r}</MonoChip>)}
+          </div>
+          <span className="font-mono text-[10.5px] text-txt-dim sm:ml-auto shrink-0">Not available today</span>
+        </div>
+      </Reveal>
+    </div>
+  </section>;
+}
+
+/* ---- SECTION 5 · why it compounds --------------------------------------------- */
+function CompoundsSection() {
+  return <section className="border-t border-white/[.06] py-20 sm:py-28">
+    <div className="max-w-4xl mx-auto px-5 sm:px-8">
+      <MkHead title="Your Brand Brain gets sharper with every decision"/>
+      <Reveal delay={140} className="mt-12">
+        <div className="relative">
+          <div className="flex items-stretch justify-between gap-1 sm:gap-2 flex-wrap sm:flex-nowrap">
+            {MK_CHAIN.map((n,i)=><React.Fragment key={n}>
+              <div className="flex-1 min-w-[104px] rounded-xl border border-white/[.08] bg-surface px-2.5 py-3 text-center">
+                <div className="font-mono text-[10px] text-txt-dim">{String(i+1).padStart(2,"0")}</div>
+                <div className="text-[12.5px] leading-tight text-txt mt-1">{n}</div>
+              </div>
+              {i<MK_CHAIN.length-1 && <div className="hidden sm:flex items-center text-txt-dim shrink-0"><Icon.arrow size={13}/></div>}
+            </React.Fragment>)}
+          </div>
+          {/* the return arc makes the loop legible at a glance */}
+          <svg viewBox="0 0 800 44" preserveAspectRatio="none" aria-hidden="true" className="w-full h-9 mt-1">
+            <path d="M780 2 C780 34, 560 40, 400 40 C240 40, 20 34, 20 2" fill="none"
+              stroke="#7C5CFF" strokeWidth="1" opacity=".38" strokeDasharray="4 6"/>
+            <path d="M20 2 l5 7 M20 2 l-5 7" fill="none" stroke="#7C5CFF" strokeWidth="1" opacity=".38"/>
+          </svg>
+        </div>
+      </Reveal>
+      <Reveal delay={220}>
+        <p className="mt-6 text-[15.5px] leading-[1.6] text-txt-muted max-w-2xl">
+          Every approved recommendation becomes part of your brand's memory. The next question starts from
+          everything already settled, so the system compounds instead of resetting.</p>
+        <p className="mt-3 text-[14.5px] leading-[1.6] text-txt-dim max-w-2xl">
+          The memory belongs to your brand. It leaves with your team, not with a vendor.</p>
+      </Reveal>
+    </div>
+  </section>;
+}
+
+/* ---- SECTION 6 · lead capture -------------------------------------------------- */
+// The only conversion event on the site: validated, spam-guarded, fully keyboard operable.
+function LeadModal({onClose}) {
+  const [f,setF]=useState({first:"",last:"",company:"",email:"",jobTitle:"",phone:"",useCase:"",website:""});
   const [err,setErr]=useState({});
-  const [state,setState]=useState("form"); // form | sending | done
-  const firstRef=useRef(null);
-  useEffect(()=>{ if(firstRef.current) firstRef.current.focus();
-    const onKey=(e)=>{ if(e.key==="Escape") onClose(); };
-    document.addEventListener("keydown",onKey); return ()=>document.removeEventListener("keydown",onKey); },[onClose]);
+  const [state,setState]=useState("idle");     // idle | submitting | success | error
+  const panel=useRef(null); const firstRef=useRef(null);
+  const openedAt=useRef(Date.now()); const lastSubmit=useRef(0);
+  const restoreTo=useRef(typeof document!=="undefined"?document.activeElement:null);
+
+  useEffect(()=>{
+    if(firstRef.current) firstRef.current.focus();
+    const onKey=(e)=>{
+      if(e.key==="Escape"){ onClose(); return; }
+      if(e.key!=="Tab"||!panel.current) return;
+      const els=panel.current.querySelectorAll('a[href],button:not([disabled]),input:not([type="hidden"]),select,textarea,[tabindex]:not([tabindex="-1"])');
+      if(!els.length) return;
+      const first=els[0], last=els[els.length-1];
+      if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener("keydown",onKey);
+    return ()=>{ document.removeEventListener("keydown",onKey);
+      try{ restoreTo.current && restoreTo.current.focus && restoreTo.current.focus(); }catch(_){} };
+  },[onClose]);
+
   const set=(k,v)=>{ setF(s=>({...s,[k]:v})); if(err[k]) setErr(e=>({...e,[k]:null})); };
   const validate=()=>{ const e={};
     if(!f.first.trim()) e.first="Required";
-    if(!f.last.trim()) e.last="Required";
-    if(!f.email.trim()) e.email="Required"; else if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email)) e.email="Enter a valid work email";
+    if(!f.last.trim())  e.last="Required";
     if(!f.company.trim()) e.company="Required";
     if(!f.jobTitle) e.jobTitle="Required";
+    if(!f.email.trim()) e.email="Required";
+    else if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email)) e.email="Enter a valid email address";
+    else if(FREE_EMAIL.includes(f.email.split("@")[1].toLowerCase()))
+      e.email="Please use your work email so we can route this to the right team.";
     setErr(e); return Object.keys(e).length===0; };
-  const submit=(ev)=>{ ev.preventDefault(); if(!validate()) return; setState("sending");
-    const payload={ ...f, submittedAt:new Date().toISOString(), source:"brainlee-landing" };
-    // Persist a local copy so nothing is lost even without a backend.
-    try{ const all=JSON.parse(localStorage.getItem("brainlee_demo_requests")||"[]"); all.push(payload);
-      localStorage.setItem("brainlee_demo_requests", JSON.stringify(all)); }catch(_){}
-    const endpoint = (typeof window!=="undefined" && window.__DEMO_ENDPOINT) || "";
-    const finish=()=>{ setState("done"); toast && toast("Demo request received, we'll be in touch shortly"); };
-    if(endpoint){ // POST to a Google Apps Script Web App → appends a row to the Sheet
-      fetch(endpoint,{ method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload) })
-        .then(finish).catch(finish); setTimeout(finish, 1400);
-    } else { setTimeout(finish, 900); }
+
+  const submit=(ev)=>{ ev.preventDefault();
+    // Validation always runs first, so a genuine (if fast) submission never gets silently
+    // swallowed by the anti-spam checks below — those only gate submissions that already pass.
+    if(!validate()) return;
+    const now=Date.now();
+    // spam guards: honeypot filled, submitted implausibly fast, or double-fired.
+    // Show success anyway so a bot gets no signal that it was rejected.
+    if(f.website || now-openedAt.current<1200 || now-lastSubmit.current<2500){ setState("success"); return; }
+    lastSubmit.current=now; setState("submitting");
+    const {website, ...clean}=f;
+    const payload={...clean, submittedAt:new Date().toISOString(), source:"brainlee-site"};
+    try{ const all=JSON.parse(localStorage.getItem("brainlee_leads")||"[]");
+      all.push(payload); localStorage.setItem("brainlee_leads",JSON.stringify(all)); }catch(_){}
+    const endpoint=(typeof window!=="undefined" && window.__LEAD_ENDPOINT) || "";
+    if(!endpoint){ console.info("[Brainlee] lead captured (no endpoint configured):",payload);
+      setTimeout(()=>setState("success"),650); return; }
+    let done=false; const ok=()=>{ if(!done){ done=true; setState("success"); } };
+    fetch(endpoint,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)})
+      .then(ok).catch(()=>{ if(!done){ done=true; setState("error"); } });
+    setTimeout(ok,2500);
   };
-  const Field=({label, k, type="text", req, ph, full})=>(
+
+  const F=({label,k,type="text",req,ph,full,rows})=>(
     <div className={full?"sm:col-span-2":""}>
-      <label htmlFor={"df-"+k} className="block text-[11px] font-bold uppercase tracking-wider text-ink-faint mb-1">{label}{req && <span className="text-rose-500"> *</span>}</label>
-      <input id={"df-"+k} ref={k==="first"?firstRef:null} type={type} value={f[k]} onChange={e=>set(k,e.target.value)}
-        placeholder={ph} aria-required={!!req} aria-invalid={!!err[k]} aria-describedby={err[k]?"e-"+k:undefined}
-        className={cx("w-full rounded-xl border bg-white px-3.5 py-2.5 text-[14px] outline-none transition focus:ring-4 focus:ring-indigo-50",
-          err[k]?"border-rose-300 focus:border-rose-400":"border-line focus:border-indigo-300")}/>
-      {err[k] && <div id={"e-"+k} className="text-[11px] font-semibold text-rose-600 mt-1">{err[k]}</div>}
+      <label htmlFor={"lf-"+k} className="block font-mono text-[10.5px] uppercase tracking-[.14em] text-txt-dim mb-1.5">
+        {label}{req&&<span className="text-accent-soft"> *</span>}</label>
+      {rows
+        ? <textarea id={"lf-"+k} rows={rows} value={f[k]} onChange={e=>set(k,e.target.value)} placeholder={ph}
+            className="w-full rounded-lg border border-white/10 bg-white/[.03] px-3 py-2.5 text-[14px] text-txt placeholder:text-txt-dim outline-none focus:border-accent/50 resize-none"/>
+        : <input id={"lf-"+k} ref={k==="first"?firstRef:null} type={type} value={f[k]} onChange={e=>set(k,e.target.value)}
+            placeholder={ph} aria-required={!!req} aria-invalid={!!err[k]} aria-describedby={err[k]?"le-"+k:undefined}
+            className={cx("w-full rounded-lg border bg-white/[.03] px-3 py-2.5 text-[14px] text-txt placeholder:text-txt-dim outline-none",
+              err[k]?"border-rose-400/60":"border-white/10 focus:border-accent/50")}/>}
+      {err[k] && <div id={"le-"+k} className="text-[11.5px] text-rose-300 mt-1.5">{err[k]}</div>}
     </div>);
-  return <div className="fixed inset-0 z-[80] grid place-items-center px-4 py-8" role="dialog" aria-modal="true" aria-labelledby="demo-title">
-    <div className="absolute inset-0 bg-ink/50 backdrop-blur-[3px] animate-fadein" onClick={onClose}/>
-    <div className="relative w-full max-w-lg max-h-full overflow-y-auto bg-white rounded-2xl shadow-pop animate-fadeup">
-      {state!=="done" ? <form onSubmit={submit}>
-        <div className="px-6 pt-5 pb-4 border-b border-line flex items-start gap-3 sticky top-0 bg-white z-10">
-          <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-500 text-white grid place-items-center shrink-0"><Icon.brain size={20}/></span>
-          <div className="flex-1"><div id="demo-title" className="font-bold text-[17px] text-ink">Request a demo</div>
-            <div className="text-[12.5px] text-ink-mute mt-0.5">See Brainlee on your brand's evidence. We'll reach out within one business day.</div></div>
-          <button type="button" onClick={onClose} aria-label="Close" className="text-ink-mute hover:text-ink hover:bg-slate-100 rounded-lg p-1.5"><Icon.x size={18}/></button>
+
+  return <div className="fixed inset-0 z-[90] grid place-items-center px-4 py-8" role="dialog" aria-modal="true" aria-labelledby="lead-title">
+    <div className="absolute inset-0 bg-black/70 backdrop-blur-[3px] animate-fadein" onClick={onClose}/>
+    <div ref={panel} className="relative w-full max-w-lg max-h-full overflow-y-auto rounded-2xl border border-white/10 bg-surface shadow-[0_40px_120px_rgba(0,0,0,.7)] animate-fadeup">
+      {state==="success" ? <div className="p-8 text-center">
+          <span className="w-12 h-12 rounded-full bg-ok/15 text-ok grid place-items-center mx-auto"><Icon.checkc size={26}/></span>
+          <div id="lead-title" className="text-[18px] font-medium text-txt mt-4">Request received</div>
+          <p className="text-[14px] leading-[1.6] text-txt-muted mt-2 max-w-sm mx-auto">
+            Thanks{f.first?", "+f.first:""}. We'll be in touch within one business day to arrange your demo.</p>
+          <div className="mt-6"><MkBtn onClick={onClose}>Done</MkBtn></div>
         </div>
-        <div className="px-6 py-5 grid sm:grid-cols-2 gap-3.5">
-          <Field label="First name" k="first" req ph="Alex"/>
-          <Field label="Last name" k="last" req ph="Morgan"/>
-          <Field label="Work email" k="email" type="email" req ph="you@company.com" full/>
-          <Field label="Company" k="company" req ph="NovaVision Pharma"/>
-          <div>
-            <label htmlFor="df-jobTitle" className="block text-[11px] font-bold uppercase tracking-wider text-ink-faint mb-1">Job title<span className="text-rose-500"> *</span></label>
-            <select id="df-jobTitle" value={f.jobTitle} onChange={e=>set("jobTitle",e.target.value)} aria-required="true" aria-invalid={!!err.jobTitle}
-              className={cx("w-full rounded-xl border bg-white px-3.5 py-2.5 text-[14px] outline-none transition focus:ring-4 focus:ring-indigo-50", err.jobTitle?"border-rose-300":"border-line focus:border-indigo-300", !f.jobTitle&&"text-ink-faint")}>
-              <option value="">Select…</option>
-              {DEMO_ROLES.map(r=><option key={r} value={r} className="text-ink">{r}</option>)}
-            </select>
-            {err.jobTitle && <div className="text-[11px] font-semibold text-rose-600 mt-1">{err.jobTitle}</div>}
+      : <form onSubmit={submit} noValidate>
+          <div className="px-6 pt-5 pb-4 border-b border-white/[.07] flex items-start gap-3">
+            <div className="flex-1">
+              <div id="lead-title" className="text-[17px] font-medium text-txt">Request a demo</div>
+              <p className="text-[13px] text-txt-muted mt-1">We'll walk through Brainlee using your own commercial content.</p>
+            </div>
+            <button type="button" onClick={onClose} aria-label="Close"
+              className="text-txt-dim hover:text-txt rounded-lg p-1.5 hover:bg-white/[.06]"><Icon.x size={18}/></button>
           </div>
-          <Field label="Phone (optional)" k="phone" type="tel" ph="+91 …"/>
-          <div className="sm:col-span-2">
-            <label htmlFor="df-useCase" className="block text-[11px] font-bold uppercase tracking-wider text-ink-faint mb-1">What would you like Brainlee to help you with? (optional)</label>
-            <textarea id="df-useCase" value={f.useCase} onChange={e=>set("useCase",e.target.value)} rows={2}
-              placeholder="e.g. what your Brand Brain should answer first"
-              className="w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-[14px] leading-relaxed outline-none focus:border-indigo-300 focus:ring-4 focus:ring-indigo-50 resize-none"/>
+          <div className="px-6 py-5 grid sm:grid-cols-2 gap-4">
+            <F label="First name" k="first" req ph="Alex"/>
+            <F label="Last name"  k="last"  req ph="Morgan"/>
+            <F label="Company"    k="company" req ph="Your company" full/>
+            <F label="Work email" k="email" type="email" req ph="you@company.com" full/>
+            <div>
+              <label htmlFor="lf-jobTitle" className="block font-mono text-[10.5px] uppercase tracking-[.14em] text-txt-dim mb-1.5">
+                Job title<span className="text-accent-soft"> *</span></label>
+              <select id="lf-jobTitle" value={f.jobTitle} onChange={e=>set("jobTitle",e.target.value)}
+                aria-required="true" aria-invalid={!!err.jobTitle}
+                className={cx("w-full rounded-lg border bg-white/[.03] px-3 py-2.5 text-[14px] outline-none",
+                  err.jobTitle?"border-rose-400/60":"border-white/10 focus:border-accent/50", f.jobTitle?"text-txt":"text-txt-dim")}>
+                <option value="" className="bg-surface">Select…</option>
+                {MK_ROLES.map(r=><option key={r} value={r} className="bg-surface text-txt">{r}</option>)}
+              </select>
+              {err.jobTitle && <div className="text-[11.5px] text-rose-300 mt-1.5">{err.jobTitle}</div>}
+            </div>
+            <F label="Phone" k="phone" type="tel" ph="Optional"/>
+            <F label="Use case" k="useCase" rows={2} ph="What should your Brand Brain answer first?" full/>
+            {/* honeypot — hidden from people, tempting to bots */}
+            <div className="hidden" aria-hidden="true">
+              <label htmlFor="lf-website">Website</label>
+              <input id="lf-website" tabIndex={-1} autoComplete="off" value={f.website} onChange={e=>set("website",e.target.value)}/>
+            </div>
           </div>
-        </div>
-        <div className="px-6 py-4 border-t border-line bg-slate-50/60 flex items-center gap-3">
-          <span className="text-[11px] text-ink-mute flex-1 flex items-center gap-1.5"><Icon.lock size={13}/>We'll only use this to arrange your demo.</span>
-          <Button variant="outline" size="sm" onClick={onClose} type="button">Cancel</Button>
-          <Button variant="primary" size="sm" type="submit" disabled={state==="sending"} icon={state==="sending"?null:<Icon.arrow size={15}/>}>
-            {state==="sending"?"Sending…":"Request Demo"}</Button>
-        </div>
-      </form> : <div className="p-8 text-center animate-fadein">
-        <span className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 grid place-items-center mx-auto"><Icon.checkc size={30}/></span>
-        <div className="font-extrabold text-[19px] text-ink mt-4">Request received</div>
-        <p className="text-[14px] text-ink-mute mt-2 max-w-sm mx-auto leading-relaxed">Thanks, {f.first}. A member of the Brainlee team will reach out to {f.email} within one business day to schedule your demo.</p>
-        <div className="mt-6"><Button variant="primary" size="md" onClick={onClose}>Done</Button></div>
-      </div>}
+          {state==="error" && <div className="mx-6 mb-4 rounded-lg border border-rose-400/30 bg-rose-500/10 px-3.5 py-2.5 text-[13px] text-rose-200">
+            That didn't go through. Please try again.</div>}
+          <div className="px-6 py-4 border-t border-white/[.07] flex items-center gap-3">
+            <span className="font-mono text-[10.5px] text-txt-dim flex-1">We'll only use this to arrange your demo.</span>
+            <MkBtn variant="ghost" onClick={onClose}>Cancel</MkBtn>
+            <MkBtn type="submit" disabled={state==="submitting"}>
+              {state==="submitting"?"Sending…":state==="error"?"Try again":"Request a demo"}</MkBtn>
+          </div>
+        </form>}
     </div>
   </div>;
 }
 
-// Large, premium autoplaying demo-video placeholder (muted, looping constellation) with a play affordance.
-function DemoVideo({onPlay}) {
-  return <div className="relative w-full rounded-3xl overflow-hidden border border-white/10 shadow-pop lp-sheen"
-    style={{aspectRatio:"16 / 9", background:"radial-gradient(1000px 500px at 50% 0%, #1E1B4B 0%, #0F172A 60%, #0B1120 100%)"}}>
-    <div className="absolute inset-0"><WelcomeConstellation/></div>
-    {/* faux product chrome */}
-    <div className="absolute top-0 left-0 right-0 h-9 bg-white/[.04] border-b border-white/10 flex items-center gap-1.5 px-4">
-      <span className="w-2.5 h-2.5 rounded-full bg-white/20"/><span className="w-2.5 h-2.5 rounded-full bg-white/20"/><span className="w-2.5 h-2.5 rounded-full bg-white/20"/>
-      <span className="ml-3 text-[11px] font-semibold text-white/40">brainlee · YI Combo · Brand Brain</span>
-    </div>
-    <div className="absolute inset-0 grid place-items-center">
-      <button onClick={onPlay} aria-label="Play product demo"
-        className="group w-20 h-20 rounded-full bg-white/95 grid place-items-center shadow-pop hover:scale-105 transition-transform">
-        <svg width="26" height="26" viewBox="0 0 24 24" className="translate-x-0.5" fill="#4F46E5"><path d="M6 4l14 8-14 8z"/></svg>
-        <span className="absolute inset-0 rounded-full ring-4 ring-white/20 animate-ping opacity-60"/>
-      </button>
-    </div>
-    <div className="absolute bottom-0 left-0 right-0 p-4 flex items-center justify-between">
-      <span className="inline-flex items-center gap-2 text-[12px] font-semibold text-white/70"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"/>Product walkthrough · 2 min</span>
-      <span className="text-[11px] font-medium text-white/40">Muted · autoplay</span>
-    </div>
-  </div>;
-}
+/* ---- the page ------------------------------------------------------------------ */
+function MarketingSite() {
+  const [modal,setModal]=useState(false);
+  const scrollTo=(id)=>{ const el=document.getElementById(id);
+    if(el) el.scrollIntoView({behavior:prefersReducedMotion()?"auto":"smooth", block:"start"}); };
+  return <div className="mk">
+    <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:m-3 focus:rounded-lg focus:bg-surface focus:px-4 focus:py-2 focus:text-txt">Skip to content</a>
 
-function LandingPage({onLaunch}) {
-  const [demo,setDemo]=useState(false);
-  const [toastMsg,setToastMsg]=useState(null);
-  const tRef=useRef(null);
-  const toast=(m)=>{ setToastMsg(m); clearTimeout(tRef.current); tRef.current=setTimeout(()=>setToastMsg(null),3200); };
-  const scrollTo=(id)=>{ const el=document.getElementById(id); if(el) el.scrollIntoView({behavior:"smooth", block:"start"}); };
-  return <div className="lp-scroll bg-canvas text-ink">
-    {/* ---- sticky top nav ---- */}
-    <header className="sticky top-0 z-40 bg-canvas/85 backdrop-blur border-b border-line">
-      <div className="max-w-6xl mx-auto px-5 sm:px-8 h-14 flex items-center gap-3">
+    <header className="sticky top-0 z-40 border-b border-white/[.06]" style={{background:"rgba(11,15,26,.82)",backdropFilter:"blur(12px)"}}>
+      <div className="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-500 grid place-items-center text-white shadow-card"><Icon.brain size={17}/></div>
-          <div className="leading-none"><div className="font-extrabold text-[15px] tracking-[-.02em]">Brainlee</div>
-            <div className="text-[9px] font-bold uppercase tracking-[.16em] text-ink-faint mt-0.5">Brand Brain</div></div>
+          <div className="w-8 h-8 rounded-lg grid place-items-center text-white" style={{background:"linear-gradient(135deg,#7C5CFF,#6B4CF0)"}}>
+            <Icon.brain size={17}/></div>
+          <span className="text-[16px] font-medium tracking-[-.02em] text-txt">Brainlee</span>
         </div>
-        <nav className="ml-auto hidden md:flex items-center gap-1 text-[13px] font-semibold text-ink-mute">
-          <button onClick={()=>scrollTo("lp-demo")} className="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-ink transition">Product</button>
-          <button onClick={()=>scrollTo("lp-how")} className="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-ink transition">How it works</button>
-          <button onClick={onLaunch} className="px-3 py-1.5 rounded-lg hover:bg-slate-100 hover:text-ink transition">Launch demo</button>
-        </nav>
-        <div className="ml-auto md:ml-3"><Button variant="primary" size="sm" onClick={()=>setDemo(true)}>Request a Demo</Button></div>
+        <div className="ml-auto"><MkBtn onClick={()=>setModal(true)} className="!px-4 !py-2 !text-[13.5px]">Request a demo</MkBtn></div>
       </div>
     </header>
 
-    {/* ---- 1 · HERO ---- */}
-    <section className="relative overflow-hidden" style={{background:"radial-gradient(1200px 700px at 50% -10%, #1E1B4B 0%, #0F172A 55%, #0B1120 100%)"}}>
-      <WelcomeConstellation/>
-      <div className="relative max-w-4xl mx-auto px-5 sm:px-8 pt-20 pb-24 text-center wstagger">
-        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-[12px] font-semibold text-slate-300">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"/>For Life Sciences Brand Teams, CMOs &amp; Medical Affairs
+    <main id="main">
+      {/* ---- SECTION 1 · HERO ---- */}
+      <section className="relative overflow-hidden">
+        <div aria-hidden="true" className="absolute inset-x-0 top-0 h-[620px] mk-glow -z-10"
+          style={{background:"radial-gradient(760px 380px at 50% 4%, var(--accent-glow) 0%, transparent 68%)"}}/>
+        <div className="max-w-3xl mx-auto px-5 sm:px-8 pt-20 sm:pt-24 pb-6 text-center">
+          <Reveal><div className="font-mono text-[11px] uppercase tracking-[.18em] text-txt-dim">
+            For Life Sciences brand teams, CMOs &amp; medical affairs</div></Reveal>
+          <Reveal delay={60}>
+            <h1 className="text-[34px] sm:text-[46px] leading-[1.12] text-txt mt-5">
+              Your brand's knowledge, finally in one place — <span className="text-accent-soft">with the source behind every answer.</span>
+            </h1></Reveal>
+          <Reveal delay={120}>
+            <p className="text-[16px] leading-[1.6] text-txt-muted mt-6 max-w-2xl mx-auto">
+              Brainlee turns scattered research, market data, physician feedback and clinical evidence into one
+              trusted memory your team can question — and verify. It sits above the systems you already run.</p></Reveal>
+          <Reveal delay={180}>
+            <div className="mt-7 flex items-center justify-center gap-2 flex-wrap">
+              {MK_CHIPS.map(c=><MonoChip key={c}><Icon.check size={11} cls="text-ok"/>{c}</MonoChip>)}
+            </div></Reveal>
+          <Reveal delay={240}>
+            <div className="mt-9 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <MkBtn onClick={()=>setModal(true)} className="w-full sm:w-auto">Request a demo</MkBtn>
+              <button onClick={()=>scrollTo("tour")}
+                className="inline-flex items-center gap-1.5 text-[14.5px] text-txt-muted hover:text-txt transition-colors">
+                Watch the product tour <Icon.arrow size={15}/></button>
+            </div></Reveal>
+          <Reveal delay={300}>
+            <p className="mt-8 text-[13.5px] leading-[1.6] text-txt-muted max-w-xl mx-auto">
+              From weeks of digging through decks, PDFs and research reports to a decision you can defend in minutes.</p></Reveal>
         </div>
-        <h1 className="mt-7 text-[38px] sm:text-[52px] leading-[1.05] font-extrabold tracking-[-.035em] text-white">
-          Every commercial insight your brand<br className="hidden sm:block"/> has ever learned. <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-emerald-300">One Brain.</span>
-        </h1>
-        <p className="mt-5 text-[16px] sm:text-[17px] leading-relaxed text-slate-300 max-w-2xl mx-auto">
-          Brainlee transforms fragmented market research, physician interviews, clinical evidence and commercial
-          knowledge into one trusted AI memory that powers evidence-backed decisions.
-        </p>
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <button onClick={()=>setDemo(true)}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-2xl bg-white text-ink font-bold text-[15px] px-6 py-3.5 shadow-pop hover:shadow-lift hover:-translate-y-0.5 transition-all">
-            <span className="w-6 h-6 rounded-lg bg-indigo-600 text-white grid place-items-center"><Icon.brain size={14}/></span>Request a Demo</button>
-          <button onClick={()=>scrollTo("lp-demo")}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 text-white font-semibold text-[15px] px-6 py-3.5 hover:bg-white/10 transition">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8z"/></svg>Watch Product Demo</button>
+        {/* the answer card does more selling than any other element on the page */}
+        <div className="max-w-2xl mx-auto px-5 sm:px-8 pb-20 sm:pb-24">
+          <Reveal delay={360}><AnswerCard/></Reveal>
         </div>
-        <div className="mt-9 flex items-center justify-center gap-x-6 gap-y-2 flex-wrap">
-          {LP_TRUST.map(([ic,label])=>{ const TIc=Icon[ic]; return <span key={label} className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-slate-300">
-            <span className="text-emerald-300/90"><TIc size={15}/></span>{label}</span>;})}
-        </div>
-        <p className="mt-8 text-[14px] sm:text-[15px] font-medium text-slate-400 max-w-2xl mx-auto">
-          From weeks of scattered PowerPoints and PDFs to <span className="text-slate-200">evidence-backed commercial decisions in minutes.</span>
-        </p>
-      </div>
-    </section>
+      </section>
 
-    {/* ---- 2 · PRODUCT DEMO ---- */}
-    <section id="lp-demo" className="max-w-5xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
-      <div className="text-center max-w-2xl mx-auto mb-8">
-        <div className="text-[11px] font-bold uppercase tracking-[.16em] text-indigo-600">See it in motion</div>
-        <h2 className="text-[26px] sm:text-[30px] font-extrabold tracking-[-.02em] mt-2">Watch Brainlee turn evidence into decisions</h2>
-        <p className="text-[15px] text-ink-mute mt-3 leading-relaxed">A two-minute walkthrough of ingesting research, asking a strategic question, and publishing a cited insight into your Brand Brain.</p>
-      </div>
-      <DemoVideo onPlay={()=>toast("Product walkthrough, full video coming soon")}/>
-    </section>
+      <ProductVideo/>
+      <HowItWorks/>
+      <TrustSection/>
+      <CompoundsSection/>
 
-    {/* ---- 3 · HOW BRAINLEE WORKS ---- */}
-    <section id="lp-how" className="bg-white border-y border-line">
-      <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="text-[11px] font-bold uppercase tracking-[.16em] text-indigo-600">The orchestration layer</div>
-          <h2 className="text-[26px] sm:text-[30px] font-extrabold tracking-[-.02em] mt-2">How Brainlee works</h2>
-          <p className="text-[15px] text-ink-mute mt-3 leading-relaxed">Eight capabilities, one connected intelligence, from raw research to a governed decision.</p>
+      {/* ---- SECTION 6 · FINAL CTA ---- */}
+      <section className="relative border-t border-white/[.06] py-20 sm:py-28 overflow-hidden">
+        <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-[420px] mk-glow -z-10"
+          style={{background:"radial-gradient(600px 300px at 50% 100%, var(--accent-glow) 0%, transparent 70%)"}}/>
+        <div className="max-w-2xl mx-auto px-5 sm:px-8 text-center">
+          <h2 className="text-[28px] sm:text-[36px] leading-[1.15] text-txt"><WordReveal text="Ready to build your Brand Brain?"/></h2>
+          <Reveal delay={140}>
+            <p className="text-[16px] leading-[1.6] text-txt-muted mt-5">We'll walk through Brainlee using your own commercial content.</p>
+            <div className="mt-8"><MkBtn onClick={()=>setModal(true)}>Request a demo</MkBtn></div>
+          </Reveal>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {LP_STEPS.map((s,i)=>{ const SIc=Icon[s.icon]; return <div key={i}
-            className="lp-card rounded-2xl border border-line bg-white shadow-card p-5 hover:shadow-lift hover:border-indigo-200">
-            <span className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 grid place-items-center"><SIc size={21}/></span>
-            <div className="font-bold text-[15px] text-ink mt-3.5">{s.title}</div>
-            <div className="text-[13px] text-ink-mute leading-relaxed mt-1.5">{s.body}</div>
-          </div>;})}
-        </div>
-      </div>
-    </section>
+      </section>
+    </main>
 
-    {/* ---- COMPETITIVE ADVANTAGE, why it compounds ---- */}
-    <section className="max-w-5xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
-      <div className="text-center max-w-2xl mx-auto mb-9">
-        <div className="text-[11px] font-bold uppercase tracking-[.16em] text-indigo-600">Why Brainlee compounds</div>
-        <h2 className="text-[26px] sm:text-[30px] font-extrabold tracking-[-.02em] mt-2">Your advantage grows with every decision</h2>
-        <p className="text-[15px] text-ink-mute mt-3 leading-relaxed">Every approved insight strengthens the Brand Brain, building institutional memory that competitors can't copy and your team never has to re-learn.</p>
+    <footer className="border-t border-white/[.06] py-8">
+      <div className="max-w-6xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center gap-3">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-md grid place-items-center text-white" style={{background:"linear-gradient(135deg,#7C5CFF,#6B4CF0)"}}>
+            <Icon.brain size={13}/></div>
+          <span className="text-[14px] text-txt-muted">Brainlee</span>
+        </div>
+        <span className="font-mono text-[11px] text-txt-dim sm:ml-auto">© {new Date().getFullYear()} Brainlee</span>
       </div>
-      <div className="grid sm:grid-cols-3 gap-4">
-        {[["brain","Reusable organizational knowledge","What one team learns, the whole brand keeps, decisions stop starting from zero."],
-          ["shield","Explainable, evidence-backed","Every answer is traceable to its source, so confidence rises as the evidence base grows."],
-          ["trend","Compounding decision intelligence","The more you approve, the sharper the next recommendation, a data asset that appreciates."]].map(([ic,t,b],i)=>{
-          const CIc=Icon[ic]; return <div key={i} className="rounded-2xl border border-line bg-white shadow-card p-5">
-            <span className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 grid place-items-center"><CIc size={21}/></span>
-            <div className="font-bold text-[15px] text-ink mt-3.5">{t}</div>
-            <div className="text-[13px] text-ink-mute leading-relaxed mt-1.5">{b}</div>
-          </div>;})}
-      </div>
-      <div className="mt-6 rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50/70 to-emerald-50/40 px-6 py-5 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-        <span className="w-11 h-11 rounded-xl bg-white border border-indigo-100 text-indigo-600 grid place-items-center shrink-0"><Icon.bolt size={20}/></span>
-        <p className="text-[14.5px] text-ink-soft leading-relaxed flex-1"><b className="text-ink">The flywheel:</b> evidence in → cited answers → human approval → living memory. Each turn makes the next decision faster, better-evidenced and cheaper to reach.</p>
-      </div>
-    </section>
+    </footer>
 
-    {/* ---- ENTERPRISE TRUST & GOVERNANCE ---- */}
-    <section className="bg-white border-y border-line">
-      <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="text-[11px] font-bold uppercase tracking-[.16em] text-indigo-600">Enterprise trust &amp; governance</div>
-          <h2 className="text-[26px] sm:text-[30px] font-extrabold tracking-[-.02em] mt-2">Built for regulated commercial teams</h2>
-          <p className="text-[15px] text-ink-mute mt-3 leading-relaxed">Human oversight and traceability are the product, not an afterthought. Every capability below is live today.</p>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {LP_GOV.map((g,i)=>{ const GIc=Icon[g.icon]; return <div key={i} className="rounded-2xl border border-line bg-canvas p-5 flex gap-3.5">
-            <span className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 grid place-items-center shrink-0"><GIc size={19}/></span>
-            <div><div className="font-bold text-[14px] text-ink">{g.title}</div>
-              <div className="text-[12.5px] text-ink-mute leading-relaxed mt-1">{g.body}</div></div>
-          </div>;})}
-        </div>
-        <div className="mt-6 rounded-2xl border border-dashed border-line bg-slate-50/60 px-6 py-4 flex flex-col sm:flex-row items-center gap-3">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-ink-faint shrink-0">Enterprise roadmap</span>
-          <div className="flex flex-wrap items-center gap-2 flex-1">
-            {LP_ROADMAP.map(r=><span key={r} className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-ink-soft bg-white border border-line rounded-full px-3 py-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400"/>{r}</span>)}
-          </div>
-          <span className="text-[11.5px] text-ink-faint sm:ml-auto">On the roadmap, not yet available</span>
-        </div>
-      </div>
-    </section>
-
-    {/* ---- 4 · REQUEST DEMO ---- */}
-    <section className="relative overflow-hidden" style={{background:"radial-gradient(900px 500px at 50% 120%, #1E1B4B 0%, #0F172A 55%, #0B1120 100%)"}}>
-      <WelcomeConstellation/>
-      <div className="relative max-w-3xl mx-auto px-5 sm:px-8 py-20 text-center">
-        <h2 className="text-[30px] sm:text-[38px] font-extrabold tracking-[-.03em] text-white leading-tight">Ready to build your Brand Brain?</h2>
-        <p className="mt-4 text-[16px] text-slate-300 max-w-xl mx-auto leading-relaxed">Bring your evidence. We'll show you the decisions it can power, in a demo tailored to your brand.</p>
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <button onClick={()=>setDemo(true)}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-2xl bg-white text-ink font-bold text-[15px] px-7 py-4 shadow-pop hover:shadow-lift hover:-translate-y-0.5 transition-all">
-            <span className="w-6 h-6 rounded-lg bg-indigo-600 text-white grid place-items-center"><Icon.brain size={14}/></span>Request a Demo</button>
-          <button onClick={onLaunch}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 text-white font-semibold text-[15px] px-7 py-4 hover:bg-white/10 transition">
-            Explore the live demo<Icon.arrow size={16}/></button>
-        </div>
-      </div>
-      {/* footer */}
-      <div className="relative border-t border-white/10">
-        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-6 flex flex-col sm:flex-row items-center gap-3 text-[12px] text-slate-400">
-          <div className="flex items-center gap-2"><div className="w-6 h-6 rounded-lg bg-gradient-to-br from-indigo-600 to-indigo-500 grid place-items-center text-white"><Icon.brain size={13}/></div><span className="font-semibold text-slate-300">Brainlee</span></div>
-          <span className="sm:ml-2">The AI Brand Brain for Life Sciences commercial teams.</span>
-          <span className="sm:ml-auto inline-flex items-center gap-1.5"><Icon.shield size={13} cls="text-emerald-400"/>Evidence-backed · MLR-aware · human-approved</span>
-        </div>
-      </div>
-    </section>
-
-    {demo && <RequestDemoModal onClose={()=>setDemo(false)} toast={toast}/>}
-    <Toast message={toastMsg}/>
+    {modal && <LeadModal onClose={()=>setModal(false)}/>}
   </div>;
 }
 
+/* The internal prototype is private. It is never linked from the marketing site and is
+   unreachable unless window.__PROTOTYPE_KEY is set (blank in production) and the matching
+   ?preview=<key> is supplied. Everything below this line is the internal build. */
+function prototypeUnlocked(){
+  try{
+    const key=(typeof window!=="undefined" && window.__PROTOTYPE_KEY) || "";
+    if(!key) return false;
+    const q=new URLSearchParams(window.location.search);
+    return q.get("preview")===key;
+  }catch(_){ return false; }
+}
+
 function App() {
-  const [stage,setStage]=useState("landing");  // landing | welcome | app
+  const [stage,setStage]=useState("welcome");  // welcome | app  (prototype only)
   const [entered,setEntered]=useState(false);
   const [histState,setHistState]=useState({stack:["library"], i:0});
   const nav=histState.stack[histState.i];
@@ -4265,7 +4703,6 @@ function App() {
   const Screen={ ask:AskScreen, pulse:PulseScreen, library:LibraryScreen, brand:BrandBrainScreen,
                  personas:PersonasScreen, mlr:MLRScreen, audit:AuditScreen }[nav] || LibraryScreen;
 
-  if(stage==="landing") return <LandingPage onLaunch={()=>setStage("welcome")}/>;
   if(stage==="welcome") return <WelcomeScreen onEnter={()=>{ setStage("app"); setEntered(true); toast("YI Combo loaded · 9 sources · governed · ready"); }}/>;
 
   return <SourceCtx.Provider value={srcApi}>
@@ -4283,8 +4720,9 @@ function App() {
   </SourceCtx.Provider>;
 }
 
+// Public entry point is the marketing site. The prototype is private and gated.
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<App/>);
+root.render(prototypeUnlocked() ? <App/> : <MarketingSite/>);
 </script>
 </body>
 </html>
