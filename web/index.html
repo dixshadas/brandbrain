@@ -192,11 +192,28 @@ const UPLOAD_DOC = {
 
 // Evidence search results (Library, every hit citation-stamped).
 const SEARCH_RESULTS = [
-  { id:"s1", quote:"YI Combo is the #1 brand in the Latanoprost+Timolol FDC segment by MAT 2026, 42.3% value share within three years of launch.", src:"Ophthal Market Sizing, IQVIA", loc:"Sheet 3", type:"FACT", color:"indigo", cite:"c1" },
-  { id:"s2", quote:"Prescriber base grew 410 → 690 → 950 across FY2024–26; value per prescriber now ₹11.4 lakh.", src:"Ophthal Market Sizing, IQVIA", loc:"Sheet 4", type:"FACT", color:"indigo", cite:"c2" },
-  { id:"s3", quote:"“Independent Habitualists are high value, ambitious wins over time, they require a greater shift in beliefs on need.”", src:"HCP Segmentation, Final Report", loc:"Slide 7", type:"FACT", color:"emerald", cite:"c4" },
-  { id:"s4", quote:"Fixed-combination latanoprost/timolol was well tolerated over five years of treatment in patients with open-angle glaucoma.", src:"Ali et al. 2011, J Glaucoma", loc:"p. 219", type:"FACT", color:"slate", cite:"c6" },
+  { id:"s1", quote:"YI Combo is the #1 brand in the Latanoprost+Timolol FDC segment by MAT 2026, 42.3% value share within three years of launch.", src:"Ophthal Market Sizing, IQVIA", loc:"Sheet 3", type:"FACT", color:"indigo", cite:"c1",
+    kw:["share","market","competitor","competitive","leader","value","segment","brand","landscape","xalacom","rank","position"] },
+  { id:"s2", quote:"Prescriber base grew 410 → 690 → 950 across FY2024–26; value per prescriber now ₹11.4 lakh.", src:"Ophthal Market Sizing, IQVIA", loc:"Sheet 4", type:"FACT", color:"indigo", cite:"c2",
+    kw:["prescriber","growth","grew","trend","value","change","quarter","adoption","uptake"] },
+  { id:"s3", quote:"“Independent Habitualists are high value, ambitious wins over time, they require a greater shift in beliefs on need.”", src:"HCP Segmentation, Final Report", loc:"Slide 7", type:"FACT", color:"emerald", cite:"c4",
+    kw:["segment","cohort","persona","habitualist","target","prioritise","prioritize","hcp","physician","belief","switch","switching","objection"] },
+  { id:"s4", quote:"Fixed-combination latanoprost/timolol was well tolerated over five years of treatment in patients with open-angle glaucoma.", src:"Ali et al. 2011, J Glaucoma", loc:"p. 219", type:"FACT", color:"slate", cite:"c6",
+    kw:["safety","tolerability","tolerated","adherence","persistence","long-term","evidence","clinical","study","publication"] },
+  { id:"s5", quote:"Once-daily convenience is the stated switch driver for 58% of ophthalmologists (ATU); qualitative interviews weight belief in IOP control higher in practice.", src:"Qualitative Interviews, Ophthalmologists", loc:"ATU n=25", type:"FACT", color:"emerald", cite:"c5",
+    kw:["switch","switching","driver","convenience","why","move","adherence","objection","reason","once-daily"] },
+  { id:"s6", quote:"The rho-kinase inhibitor class is now ₹55.1 Cr and compounding at 68.7% CAGR, larger than the entire Latanoprost+Timolol FDC segment.", src:"Ophthal Market Sizing, IQVIA", loc:"Sheet 2", type:"FACT", color:"indigo", cite:"c9",
+    kw:["competitor","competitive","class","threat","rho-kinase","market","landscape","risk","growth","cagr"] },
+  { id:"s7", quote:"Three priority cohorts (Advocates, Network-Controlled, Habitualists) are 43% of HCPs but 83% of segment TRx.", src:"HCP Segmentation, Final Report", loc:"Slide 9", type:"FACT", color:"emerald", cite:"c3",
+    kw:["segment","cohort","priority","prioritise","prioritize","target","which","hcp","trx","focus"] },
 ];
+// Relevance match: any query token found in the quote, source, type or keyword tags.
+function matchSearch(query, r){
+  const hay=(r.quote+" "+r.src+" "+r.type+" "+(r.kw||[]).join(" ")).toLowerCase();
+  const tokens=(query.toLowerCase().match(/[a-z0-9]{3,}/g)||[]);
+  if(tokens.length===0) return false;
+  return tokens.some(t=>hay.includes(t));
+}
 
 /* ------------------------------------------------------------------ CONNECTORS */
 const CONNECTORS = [
@@ -465,7 +482,7 @@ const CLASS_THREAT = { name:"Rho-kinase inhibitor class", cagr:"68.7% CAGR", val
 // Synthetic ophthalmologist profiles built from the segmentation framework (5 cohorts).
 // readiness.factors → the Explainable Decision Readiness Framework (weighted behavioural dimensions).
 const PERSONAS = [
-  { id:"p1", name:"Prostaglandin-Sparing Advocate", doctor:"Dr Katherine Brooks", avatar:"KB", city:"Archetype · solo-practice adopter",
+  { id:"p1", name:"Prostaglandin-Sparing Advocate", avatar:"PS", city:"Archetype · solo-practice adopter",
     specialty:"Glaucoma & cataract specialist", years:"~18 yrs experience · senior consultant",
     cohort:"Prostaglandin-Sparing Advocate", code:"B", priority:true,
     pctHcp:"17% of HCPs (29,131)", pctTrx:"36% of TRx", practice:"Solo practice institutions",
@@ -488,7 +505,7 @@ const PERSONAS = [
       supporting:["36% TRx concentration despite 17% headcount","Qual verbatims on early FDC escalation"],
       contradictory:["ATU ranks convenience (58%) above efficacy as the stated switch driver"],
       validation:"Confirm efficacy-vs-convenience weighting in the next ATU wave" } },
-  { id:"p2", name:"Network-Controlled Provider", doctor:"Dr Benjamin Carter", avatar:"BC", city:"Archetype · IDN network prescriber",
+  { id:"p2", name:"Network-Controlled Provider", avatar:"NC", city:"Archetype · IDN network prescriber",
     specialty:"Hospital ophthalmology (IDN)", years:"~12 yrs experience · corporate hospital network",
     cohort:"Network-Controlled Provider", code:"B", priority:true,
     pctHcp:"16% of HCPs (27,017)", pctTrx:"22% of TRx", practice:"Nearly all IDN institutions",
@@ -511,7 +528,7 @@ const PERSONAS = [
       supporting:["Practice-type analysis: nearly all IDN","Described as priority formulary-restrained prescribers"],
       contradictory:["No formulary / access study exists, access barrier is inferred, not measured"],
       validation:"Commission the IDN formulary access study before investing here" } },
-  { id:"p3", name:"Independent Habitualist", doctor:"Dr Emily Parker", avatar:"EP", city:"Archetype · non-IDN clinic owner",
+  { id:"p3", name:"Independent Habitualist", avatar:"IH", city:"Archetype · non-IDN clinic owner",
     specialty:"Independent glaucoma practice", years:"~24 yrs experience · independent clinic owner",
     cohort:"Independent Habitualist", code:"E", priority:true,
     pctHcp:"10% of HCPs (17,347)", pctTrx:"25% of TRx", practice:"Nearly all non-IDN institutions",
@@ -534,7 +551,7 @@ const PERSONAS = [
       supporting:["Verbatim: 'requires a greater shift in beliefs on need'","25% TRx despite only 10% headcount"],
       contradictory:["Long-term persistence evidence is legacy-molecule only (Ali 2011), not YI Combo-specific"],
       validation:"Commission a YI Combo real-world persistence tracker beyond 6 months" } },
-  { id:"p4", name:"Low-volume Enthusiast", doctor:"Dr Michael Reed", avatar:"MR", city:"Archetype · digitally-engaged generalist",
+  { id:"p4", name:"Low-volume Enthusiast", avatar:"LE", city:"Archetype · digitally-engaged generalist",
     specialty:"General ophthalmology", years:"~6 yrs experience · general practice",
     cohort:"Low-volume Enthusiast", code:"D", priority:false,
     pctHcp:"28% of HCPs (48,349)", pctTrx:"11% of TRx", practice:"Majority non-IDN · some solo/IDN mix",
@@ -557,7 +574,7 @@ const PERSONAS = [
       supporting:["Segmentation flags this cohort as most digitally engaged","Low TRx share vs. headcount"],
       contradictory:["High engagement does not convert to volume, enthusiasm may overstate intent"],
       validation:"A/B test digital content conversion before scaling spend" } },
-  { id:"p5", name:"Delayed Digitalist", doctor:"Dr Sarah Mitchell", avatar:"SM", city:"Archetype · formulary-bound academic",
+  { id:"p5", name:"Delayed Digitalist", avatar:"DD", city:"Archetype · formulary-bound academic",
     specialty:"Academic / trust hospital ophthalmology", years:"~30 yrs experience · department head",
     cohort:"Delayed Digitalist", code:"A", priority:false,
     pctHcp:"29% of HCPs (49,984)", pctTrx:"6% of TRx", practice:"Nearly all IDN institutions",
@@ -1427,6 +1444,42 @@ function WelcomeFlow(){
   </div>;
 }
 
+// How the modules connect — one closed loop that keeps strengthening the Brand Brain.
+const MODULE_LOOP=[
+  {icon:"library", name:"Knowledge Hub",  note:"connects your knowledge"},
+  {icon:"users",   name:"HCP Simulation", note:"understands physicians"},
+  {icon:"ask",     name:"Decision Studio",note:"reasons over evidence"},
+  {icon:"brain",   name:"Brand Brain",    note:"preserves every decision", hero:true},
+  {icon:"pulse",   name:"Brand Pulse",    note:"watches the market"},
+  {icon:"stamp",   name:"MLR Governance", note:"routes for approval"},
+];
+function WelcomeModuleLoop(){
+  const [n,setN]=useState(-1);
+  useEffect(()=>{ const t=setInterval(()=>setN(v=>(v+1)%(MODULE_LOOP.length+2)),900); return ()=>clearInterval(t); },[]);
+  return <div className="mt-8 rounded-2xl bg-white/[.05] border border-white/10 backdrop-blur-sm p-5 sm:p-6 max-w-2xl mx-auto">
+    <div className="flex items-center gap-2 mb-4 justify-center">
+      <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"/><span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"/></span>
+      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300">One connected decision loop</span>
+    </div>
+    <div className="flex items-center justify-center gap-1.5 flex-wrap">
+      {MODULE_LOOP.map((m,i)=>{ const MIc=Icon[m.icon]; const on=n<0||i<=n;
+        return <React.Fragment key={m.name}>
+          <div title={m.note} className={cx("inline-flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 border transition-all duration-500",
+            m.hero?"bg-gradient-to-r from-fuchsia-500/20 to-indigo-500/20 border-indigo-400/40":on?"bg-white/10 border-white/10":"bg-white/[.03] border-white/5")}>
+            <span className={cx("w-5 h-5 rounded-md grid place-items-center shrink-0 transition-colors duration-500", m.hero?"text-fuchsia-200":on?"text-indigo-200":"text-slate-500")}><MIc size={12}/></span>
+            <span className={cx("text-[11.5px] font-semibold whitespace-nowrap transition-colors duration-500", m.hero?"text-white":on?"text-slate-200":"text-slate-500")}>{m.name}</span>
+          </div>
+          {i<MODULE_LOOP.length-1 && <span className={cx("shrink-0 transition-colors duration-500", i<n?"text-indigo-300":"text-slate-600")}><Icon.arrow size={12}/></span>}
+        </React.Fragment>;})}
+      <span className="inline-flex items-center gap-1 text-slate-500"><Icon.history size={12}/></span>
+      <span className="text-[11px] font-semibold text-emerald-300/90 whitespace-nowrap">strengthens the Brand Brain again</span>
+    </div>
+    <p className="mt-4 text-[12.5px] leading-relaxed text-slate-400 text-center max-w-xl mx-auto">
+      Knowledge connects, physician behaviour is simulated, and evidence is reasoned into decisions preserved in the Brand Brain, continuously watched by Brand Pulse and routed through MLR. Every step is timestamped in the Audit Trail.
+    </p>
+  </div>;
+}
+
 // The orchestration checklist, proves Brainlee coordinates many capabilities, not one chat reply.
 const WELCOME_STEPS = [
   "Retrieved 18 relevant documents","Compared with previous campaigns","Simulated 5 HCP archetypes",
@@ -1457,11 +1510,12 @@ function WelcomeScreen({onEnter}) {
           </div>
         </div>
         {/* positioning */}
-        <div className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[12px] font-semibold text-slate-300">
-          <span className="text-emerald-300"><Icon.shield size={14}/></span>The Decision Intelligence layer for Life Sciences, not a chatbot
+        <div className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[12px] font-semibold text-slate-300">
+          <span className="text-emerald-300"><Icon.shield size={14}/></span>The Decision Intelligence layer for Life Sciences,
+          <span className="text-[15px] font-extrabold tracking-tight text-fuchsia-300">THE BRAND BRAIN</span>
         </div>
         <h1 className="mt-6 text-[34px] sm:text-[42px] leading-[1.1] font-extrabold tracking-[-.03em] text-white max-w-3xl mx-auto">
-          You already have AI. What you need is <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-emerald-300">better decisions.</span>
+          You already have AI &amp; Data. What you need is <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-emerald-300">better decisions.</span>
         </h1>
         {/* subtitle */}
         <p className="mt-4 text-[15px] font-semibold text-slate-300 tracking-wide">For Life Sciences Brand Teams, CMOs &amp; Medical Affairs</p>
@@ -1469,16 +1523,8 @@ function WelcomeScreen({onEnter}) {
           Brainlee turns fragmented research, market data, physician feedback and clinical evidence into one trusted,
           evidence-backed memory, the decision layer above your existing enterprise ecosystem.
         </p>
-        {/* commercial decision flow */}
-        <div className="mt-7 flex justify-center"><WelcomeFlow/></div>
-        {/* orchestration proof, Brainlee coordinates multiple AI capabilities */}
-        <div className="mt-8 rounded-2xl bg-white/[.05] border border-white/10 backdrop-blur-sm p-6 max-w-xl mx-auto">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"/><span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"/></span>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300">Brainlee is orchestrating your decision</span>
-          </div>
-          <WelcomeSteps/>
-        </div>
+        {/* how the modules connect into one loop around the Brand Brain */}
+        <WelcomeModuleLoop/>
         {/* enter */}
         <div className="mt-8 flex flex-col items-center gap-3">
           <button onClick={onEnter}
@@ -1686,19 +1732,37 @@ function LibraryScreen({app}) {
       {/* search */}
       <div className="flex items-center gap-3 bg-white border border-line rounded-xl shadow-card px-4 py-3 focus-within:border-indigo-300 focus-within:ring-4 focus-within:ring-indigo-50 transition mb-4">
         <span className="text-ink-faint"><Icon.search size={18}/></span>
-        <input value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")setSearched(true);}}
-          placeholder="Search the evidence, e.g. switching drivers" className="flex-1 bg-transparent outline-none text-[15px] placeholder:text-ink-faint"/>
-        <Button size="sm" onClick={()=>setSearched(true)}>Search</Button>
+        <input value={query} onChange={e=>{setQuery(e.target.value); if(searched) setSearched(false);}} onKeyDown={e=>{if(e.key==="Enter"&&query.trim())setSearched(true);}}
+          placeholder="Search the evidence, e.g. switching drivers, competitors, safety" className="flex-1 bg-transparent outline-none text-[15px] placeholder:text-ink-faint"/>
+        <Button size="sm" disabled={!query.trim()} onClick={()=>query.trim()&&setSearched(true)}>Search</Button>
       </div>
-      {searched && <div className="mb-5 space-y-2.5 stagger">{SEARCH_RESULTS.map(r=><SearchResult key={r.id} r={r}/>)}</div>}
+      {searched && (()=>{ const hits=SEARCH_RESULTS.filter(r=>matchSearch(query,r));
+        return <div className="mb-5">
+          <div className="flex items-center gap-2 mb-2.5 text-[12px]">
+            <span className="font-bold text-ink">{hits.length} evidence {hits.length===1?"passage":"passages"}</span>
+            <span className="text-ink-faint">for “{query}”</span>
+            <button onClick={()=>{setSearched(false); setQuery("");}} className="ml-auto text-[11px] font-semibold text-indigo-600 hover:text-indigo-800">Clear</button>
+          </div>
+          {hits.length>0
+            ? <div className="space-y-2.5 stagger">{hits.map(r=><SearchResult key={r.id} r={r}/>)}</div>
+            : <div className="rounded-xl border border-dashed border-line bg-slate-50/60 px-4 py-6 text-center">
+                <div className="text-[13.5px] font-semibold text-ink">No evidence matched “{query}”.</div>
+                <div className="text-[12px] text-ink-mute mt-1">Try switching drivers, competitors, segments, safety, prescriber growth or adherence.</div>
+              </div>}
+        </div>;})()}
 
       {/* estate list */}
-      <div className="flex items-center gap-2 mb-3">
-        <div className="font-bold text-[15px]">In the estate</div>
-        <span className="ml-auto text-[11px] text-ink-faint">click any file to preview it on the right</span></div>
-      <Card pad="p-2">
-        {DOCUMENTS.map((d,i)=><DocRow key={d.id} d={d} last={i===DOCUMENTS.length-1} onOpen={setPreview}/>)}
-      </Card>
+      {(()=>{ const q=searched?query.trim().toLowerCase():"";
+        const docs = q ? DOCUMENTS.filter(d=>(d.name+" "+d.type+" "+(d.tags||[]).join(" ")+" "+(d.meta||"")).toLowerCase().includes(q)) : DOCUMENTS;
+        const shown = docs.length?docs:DOCUMENTS;
+        return <>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="font-bold text-[15px]">{q && docs.length ? "Matching files" : "In the estate"}</div>
+            <span className="ml-auto text-[11px] text-ink-faint">click any file to preview it on the right</span></div>
+          <Card pad="p-2">
+            {shown.map((d,i)=><DocRow key={d.id} d={d} last={i===shown.length-1} onOpen={setPreview}/>)}
+          </Card>
+        </>;})()}
     </div>}
 
     {preview && <FilePreview d={preview} onClose={()=>setPreview(null)}/>}
@@ -2284,8 +2348,10 @@ function FollowupBlock({q, res, role}){
 function AskScreen({app}) {
   const S=app; const role=S.askRole, setRole=S.setAskRole;
   const [q,setQ]=useState("");
-  const [phase,setPhase]=useState(S.synthDone?"done":"idle"); // idle | thinking | done
-  const [res,setRes]=useState(S.synthDone?askAnswer(HERO_QUESTION):null);
+  // Always re-enter Decision Studio at the idle prompt so Back / re-navigation returns cleanly
+  // to the question screen instead of a stale answer.
+  const [phase,setPhase]=useState("idle"); // idle | thinking | done
+  const [res,setRes]=useState(null);
   const [step,setStep]=useState(0);
   const [invalid,setInvalid]=useState(false);
   // Follow-up conversation (Change 9) + export/share (Change 12)
@@ -2380,13 +2446,15 @@ function AskScreen({app}) {
   </div>;
 
   // DONE, intent-driven visual dashboard + contextual follow-up workspace
+  const backToPrompt=()=>{ setPhase("idle"); setQ(""); setThread([]); setInvalid(false); };
   return <div className="pt-2 px-2 pb-16">
     <div className="max-w-3xl mx-auto mb-5 flex items-center gap-2 flex-wrap">
+      <Button variant="outline" size="sm" onClick={backToPrompt} icon={<Icon.chevron size={14} cls="rotate-180"/>}>Back</Button>
       <AskRoleToggle role={role} setRole={setRole}/>
       <div className="ml-auto flex items-center gap-2">
         <Button variant="outline" size="sm" onClick={()=>downloadReport(entries, BRAND, S.toast)} icon={<Icon.download size={14}/>}>Download</Button>
         <Button variant="outline" size="sm" onClick={()=>setShareOpen(true)} icon={<Icon.share size={14}/>}>Share</Button>
-        <Button variant="outline" size="sm" onClick={()=>{ setPhase("idle"); setQ(""); setThread([]); }} icon={<Icon.search size={14}/>}>New question</Button>
+        <Button variant="outline" size="sm" onClick={backToPrompt} icon={<Icon.search size={14}/>}>New question</Button>
       </div>
     </div>
     <AskResult q={q} res={res} role={role} published={S.published}
@@ -2856,7 +2924,7 @@ function PersonaCard({p, onOpen, onEdit, edited}) {
       <span className="w-11 h-11 rounded-xl grid place-items-center text-white font-extrabold text-[15px] shrink-0"
         style={{background:`linear-gradient(135deg, ${col}, ${col}CC)`}}>{p.avatar}</span>
       <div className="flex-1 min-w-0">
-        <div className="font-bold text-[15px] text-ink leading-tight">{p.doctor}</div>
+        <div className="font-bold text-[15px] text-ink leading-tight">{p.name}</div>
         <div className="text-[11.5px] text-ink-mute mt-0.5">{p.specialty}</div>
       </div>
       <div className="flex items-center gap-1 shrink-0">
@@ -2868,7 +2936,6 @@ function PersonaCard({p, onOpen, onEdit, edited}) {
     </div>
     <div className="mt-3 flex items-center gap-1.5 flex-wrap">
       <span className="text-[10.5px] font-bold rounded-md px-2 py-0.5 text-white" style={{background:col}}>Segment {p.code}</span>
-      <span className="text-[10.5px] font-bold rounded-md px-2 py-0.5 bg-slate-100 text-ink-soft">{p.name}</span>
       <span className="text-[10.5px] font-bold rounded-md px-2 py-0.5 bg-slate-100 text-ink-soft">{p.mbti} · {p.mbtiName}</span>
     </div>
     <p className="mt-3 text-[12.5px] leading-relaxed text-ink-soft line-clamp-2 flex-1">{p.behaviour}</p>
@@ -2989,11 +3056,10 @@ function PersonaPanel({p, onClose, onEdit}) {
         <span className="w-12 h-12 rounded-xl grid place-items-center text-white font-extrabold text-[16px] shrink-0"
           style={{background:`linear-gradient(135deg, ${col}, ${col}CC)`}}>{p.avatar}</span>
         <div className="flex-1 min-w-0">
-          <div className="font-bold text-[17px] leading-tight">{p.doctor}</div>
+          <div className="font-bold text-[17px] leading-tight">{p.name}</div>
           <div className="text-[12px] text-ink-mute mt-0.5">{p.specialty} · {p.years}</div>
           <div className="mt-2 flex items-center gap-1.5 flex-wrap">
             <span className="text-[10.5px] font-bold rounded-md px-2 py-0.5 text-white" style={{background:col}}>Segment {p.code}</span>
-            <span className="text-[10.5px] font-bold rounded-md px-2 py-0.5 bg-slate-100 text-ink-soft">{p.name}</span>
             {p.priority && <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 rounded px-1.5 py-0.5">PRIORITY COHORT</span>}
           </div>
         </div>
@@ -3112,7 +3178,7 @@ function PersonaEditModal({p, onSave, onClose}) {
     <div className="relative w-full max-w-lg max-h-full overflow-y-auto bg-white rounded-2xl shadow-pop animate-fadeup">
       <div className="px-6 pt-5 pb-4 border-b border-line flex items-center gap-3 sticky top-0 bg-white z-10">
         <span className="w-9 h-9 rounded-xl grid place-items-center text-white font-extrabold text-[13px] shrink-0" style={{background:`linear-gradient(135deg, ${col}, ${col}CC)`}}>{p.avatar}</span>
-        <div className="flex-1"><div className="font-bold text-[15px] text-ink">Edit persona · {p.doctor}</div>
+        <div className="flex-1"><div className="font-bold text-[15px] text-ink">Edit persona · {p.name}</div>
           <div className="text-[12px] text-ink-mute">Human oversight over the synthetic model. Changes are attributed and logged.</div></div>
         <button onClick={onClose} className="text-ink-mute hover:text-ink hover:bg-slate-100 rounded-lg p-1.5"><Icon.x size={18}/></button>
       </div>
