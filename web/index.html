@@ -1444,41 +1444,6 @@ function WelcomeFlow(){
   </div>;
 }
 
-// How the modules connect — one closed loop that keeps strengthening the Brand Brain.
-const MODULE_LOOP=[
-  {icon:"library", name:"Knowledge Hub",  note:"connects your knowledge"},
-  {icon:"users",   name:"HCP Simulation", note:"understands physicians"},
-  {icon:"ask",     name:"Decision Studio",note:"reasons over evidence"},
-  {icon:"brain",   name:"Brand Brain",    note:"preserves every decision", hero:true},
-  {icon:"pulse",   name:"Brand Pulse",    note:"watches the market"},
-  {icon:"stamp",   name:"MLR Governance", note:"routes for approval"},
-];
-function WelcomeModuleLoop(){
-  const [n,setN]=useState(-1);
-  useEffect(()=>{ const t=setInterval(()=>setN(v=>(v+1)%(MODULE_LOOP.length+2)),900); return ()=>clearInterval(t); },[]);
-  return <div className="mt-8 rounded-2xl bg-white/[.05] border border-white/10 backdrop-blur-sm p-5 sm:p-6 max-w-2xl mx-auto">
-    <div className="flex items-center gap-2 mb-4 justify-center">
-      <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"/><span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"/></span>
-      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300">One connected decision loop</span>
-    </div>
-    <div className="flex items-center justify-center gap-1.5 flex-wrap">
-      {MODULE_LOOP.map((m,i)=>{ const MIc=Icon[m.icon]; const on=n<0||i<=n;
-        return <React.Fragment key={m.name}>
-          <div title={m.note} className={cx("inline-flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 border transition-all duration-500",
-            m.hero?"bg-gradient-to-r from-fuchsia-500/20 to-indigo-500/20 border-indigo-400/40":on?"bg-white/10 border-white/10":"bg-white/[.03] border-white/5")}>
-            <span className={cx("w-5 h-5 rounded-md grid place-items-center shrink-0 transition-colors duration-500", m.hero?"text-fuchsia-200":on?"text-indigo-200":"text-slate-500")}><MIc size={12}/></span>
-            <span className={cx("text-[11.5px] font-semibold whitespace-nowrap transition-colors duration-500", m.hero?"text-white":on?"text-slate-200":"text-slate-500")}>{m.name}</span>
-          </div>
-          {i<MODULE_LOOP.length-1 && <span className={cx("shrink-0 transition-colors duration-500", i<n?"text-indigo-300":"text-slate-600")}><Icon.arrow size={12}/></span>}
-        </React.Fragment>;})}
-      <span className="inline-flex items-center gap-1 text-slate-500"><Icon.history size={12}/></span>
-      <span className="text-[11px] font-semibold text-emerald-300/90 whitespace-nowrap">strengthens the Brand Brain again</span>
-    </div>
-    <p className="mt-4 text-[12.5px] leading-relaxed text-slate-400 text-center max-w-xl mx-auto">
-      Knowledge connects, physician behaviour is simulated, and evidence is reasoned into decisions preserved in the Brand Brain, continuously watched by Brand Pulse and routed through MLR. Every step is timestamped in the Audit Trail.
-    </p>
-  </div>;
-}
 
 // The orchestration checklist, proves Brainlee coordinates many capabilities, not one chat reply.
 const WELCOME_STEPS = [
@@ -1523,8 +1488,8 @@ function WelcomeScreen({onEnter}) {
           Brainlee turns fragmented research, market data, physician feedback and clinical evidence into one trusted,
           evidence-backed memory, the decision layer above your existing enterprise ecosystem.
         </p>
-        {/* how the modules connect into one loop around the Brand Brain */}
-        <WelcomeModuleLoop/>
+        {/* commercial decision flow */}
+        <div className="mt-8 flex justify-center"><WelcomeFlow/></div>
         {/* enter */}
         <div className="mt-8 flex flex-col items-center gap-3">
           <button onClick={onEnter}
