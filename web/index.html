@@ -142,7 +142,7 @@
   .mk{background:var(--bg);color:var(--text);height:100%;overflow-y:auto;scroll-behavior:smooth;
       font-feature-settings:normal;letter-spacing:-0.01em}
   .mk ::selection{background:rgba(124,92,255,.32)}
-  .mk h1,.mk h2,.mk h3{letter-spacing:-0.02em;font-weight:600}
+  .mk h1,.mk h2,.mk h3{letter-spacing:-0.02em}
   .mk :focus-visible{outline:2px solid var(--accent-soft);outline-offset:3px;border-radius:6px}
   .mk-glass{background:rgba(255,255,255,.03);backdrop-filter:blur(12px);border:1px solid var(--border)}
 
@@ -4080,7 +4080,7 @@ function MkBtn({children, onClick, variant="primary", type="button", disabled, c
 function MkHead({eyebrow, title, sub, center=true}) {
   return <div className={cx("max-w-2xl", center&&"mx-auto text-center")}>
     {eyebrow && <Reveal><div className="font-mono text-[11px] uppercase tracking-[.18em] text-txt-dim">{eyebrow}</div></Reveal>}
-    <h2 className="text-[27px] sm:text-[34px] leading-[1.15] text-txt mt-3"><WordReveal text={title}/></h2>
+    <h2 className="text-[27px] sm:text-[34px] leading-[1.15] font-semibold text-txt mt-3"><WordReveal text={title}/></h2>
     {sub && <Reveal delay={120}><p className="text-[15.5px] leading-[1.6] text-txt-muted mt-4">{sub}</p></Reveal>}
   </div>;
 }
@@ -4333,8 +4333,7 @@ function ProductVideo() {
   const url = (typeof window!=="undefined" && window.__VIDEO_URL) || "";
   return <section id="tour" className="border-t border-white/[.06] py-20 sm:py-28">
     <div className="max-w-4xl mx-auto px-5 sm:px-8">
-      <MkHead eyebrow="Product tour" title="See Brainlee in action"
-        sub="A short walkthrough of how Brainlee turns your existing knowledge into decisions you can trace back to their source."/>
+      <MkHead eyebrow="Product tour" title="See Brainlee in action"/>
       <Reveal delay={120} className="mt-10">
         <div className="relative rounded-2xl overflow-hidden border border-white/[.09] bg-raised shadow-[0_28px_90px_rgba(0,0,0,.5)]"
           style={{aspectRatio:"16 / 9"}}>
@@ -4389,28 +4388,46 @@ function TrustSection() {
 }
 
 /* ---- SECTION 5 · why it compounds --------------------------------------------- */
+// A continuously-running loop (not static boxes): each node lights up in turn, the arrows
+// between them light up as the sequence passes, and the return arc flows continuously —
+// the same "on/dim" choreography as the hero's WelcomeFlow, applied to five nodes.
+function CompoundLoop({running, reduced}) {
+  // Mirrors WelcomeFlow's proven build-up choreography: start with nothing lit (n=0, i<n is
+  // false for all), progressively light nodes as n grows, hold everything lit for one frame
+  // at n===length, then reset to 0 and repeat. Under reduced motion the loop never starts, so
+  // it renders the complete, fully-lit state directly — a static, fully composed fallback
+  // rather than freezing on the "nothing lit yet" first frame.
+  const [n,setN]=useState(0);
+  useEffect(()=>{ if(!running) return; const t=setInterval(()=>setN(v=>(v+1)%(MK_CHAIN.length+1)),900); return ()=>clearInterval(t); },[running]);
+  return <div className="relative">
+    <div className="flex items-stretch justify-between gap-1 sm:gap-2 flex-wrap sm:flex-nowrap">
+      {MK_CHAIN.map((label,i)=>{ const on = reduced || i<n;
+        return <React.Fragment key={label}>
+          <div className={cx("flex-1 min-w-[104px] rounded-xl border px-2.5 py-3 text-center transition-all duration-500",
+            on?"border-accent/45 bg-accent/[.07]":"border-white/[.08] bg-surface")}>
+            <div className={cx("font-mono text-[10px] transition-colors duration-500", on?"text-accent-soft":"text-txt-dim")}>{String(i+1).padStart(2,"0")}</div>
+            <div className={cx("text-[12.5px] leading-tight mt-1 transition-colors duration-500", on?"text-txt":"text-txt-muted")}>{label}</div>
+          </div>
+          {i<MK_CHAIN.length-1 && <div className={cx("hidden sm:flex items-center shrink-0 transition-colors duration-500", reduced||i+1<n?"text-accent-soft":"text-txt-dim")}><Icon.arrow size={13}/></div>}
+        </React.Fragment>;})}
+    </div>
+    {/* the return arc makes the loop legible at a glance, and flows continuously */}
+    <svg viewBox="0 0 800 44" preserveAspectRatio="none" aria-hidden="true" className="w-full h-9 mt-1">
+      <path d="M780 2 C780 34, 560 40, 400 40 C240 40, 20 34, 20 2" fill="none"
+        stroke="#7C5CFF" strokeWidth="1.4" opacity=".5" strokeDasharray="4 7" className={running?"edgeflow":undefined}/>
+      <path d="M20 2 l5 7 M20 2 l-5 7" fill="none" stroke="#7C5CFF" strokeWidth="1" opacity=".5"/>
+    </svg>
+  </div>;
+}
 function CompoundsSection() {
-  return <section className="border-t border-white/[.06] py-20 sm:py-28">
+  const [wrapRef,onScreen]=usePausedOffscreen();
+  const reduced=prefersReducedMotion();
+  const running=onScreen && !reduced;
+  return <section ref={wrapRef} className="border-t border-white/[.06] py-20 sm:py-28">
     <div className="max-w-4xl mx-auto px-5 sm:px-8">
       <MkHead title="Your Brand Brain gets sharper with every decision"/>
-      <Reveal delay={140} className="mt-12">
-        <div className="relative">
-          <div className="flex items-stretch justify-between gap-1 sm:gap-2 flex-wrap sm:flex-nowrap">
-            {MK_CHAIN.map((n,i)=><React.Fragment key={n}>
-              <div className="flex-1 min-w-[104px] rounded-xl border border-white/[.08] bg-surface px-2.5 py-3 text-center">
-                <div className="font-mono text-[10px] text-txt-dim">{String(i+1).padStart(2,"0")}</div>
-                <div className="text-[12.5px] leading-tight text-txt mt-1">{n}</div>
-              </div>
-              {i<MK_CHAIN.length-1 && <div className="hidden sm:flex items-center text-txt-dim shrink-0"><Icon.arrow size={13}/></div>}
-            </React.Fragment>)}
-          </div>
-          {/* the return arc makes the loop legible at a glance */}
-          <svg viewBox="0 0 800 44" preserveAspectRatio="none" aria-hidden="true" className="w-full h-9 mt-1">
-            <path d="M780 2 C780 34, 560 40, 400 40 C240 40, 20 34, 20 2" fill="none"
-              stroke="#7C5CFF" strokeWidth="1" opacity=".38" strokeDasharray="4 6"/>
-            <path d="M20 2 l5 7 M20 2 l-5 7" fill="none" stroke="#7C5CFF" strokeWidth="1" opacity=".38"/>
-          </svg>
-        </div>
+      <Reveal delay={140} className={cx("mt-12", !running&&"is-paused")}>
+        <CompoundLoop running={running} reduced={reduced}/>
       </Reveal>
       <Reveal delay={220}>
         <p className="mt-6 text-[15.5px] leading-[1.6] text-txt-muted max-w-2xl">
@@ -4576,37 +4593,38 @@ function MarketingSite() {
     <main id="main">
       {/* ---- SECTION 1 · HERO ---- */}
       <section className="relative overflow-hidden">
+        <div aria-hidden="true" className="absolute inset-0 -z-10"><WelcomeConstellation/></div>
         <div aria-hidden="true" className="absolute inset-x-0 top-0 h-[620px] mk-glow -z-10"
           style={{background:"radial-gradient(760px 380px at 50% 4%, var(--accent-glow) 0%, transparent 68%)"}}/>
-        <div className="max-w-3xl mx-auto px-5 sm:px-8 pt-20 sm:pt-24 pb-6 text-center">
-          <Reveal><div className="font-mono text-[11px] uppercase tracking-[.18em] text-txt-dim">
-            For Life Sciences brand teams, CMOs &amp; medical affairs</div></Reveal>
+        <div className="max-w-3xl mx-auto px-5 sm:px-8 pt-20 sm:pt-24 pb-20 sm:pb-24 text-center">
+          <Reveal>
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[12px] font-semibold text-txt-muted">
+              <span className="text-ok"><Icon.shield size={14}/></span>The Decision Intelligence layer for Life Sciences,
+              <span className="text-[15px] font-extrabold tracking-tight text-accent-soft">THE BRAND BRAIN</span>
+            </div></Reveal>
           <Reveal delay={60}>
-            <h1 className="text-[34px] sm:text-[46px] leading-[1.12] text-txt mt-5">
-              Your brand's knowledge, finally in one place — <span className="text-accent-soft">with the source behind every answer.</span>
+            <h1 className="text-[34px] sm:text-[46px] leading-[1.12] font-extrabold tracking-[-.03em] text-txt mt-6">
+              You already have AI &amp; Data. What you need is <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-soft to-ok">better decisions.</span>
             </h1></Reveal>
           <Reveal delay={120}>
-            <p className="text-[16px] leading-[1.6] text-txt-muted mt-6 max-w-2xl mx-auto">
-              Brainlee turns scattered research, market data, physician feedback and clinical evidence into one
-              trusted memory your team can question — and verify. It sits above the systems you already run.</p></Reveal>
-          <Reveal delay={180}>
+            <p className="text-[15px] font-semibold text-txt-muted tracking-wide mt-4">For Life Sciences Brand Teams, CMOs &amp; Medical Affairs</p></Reveal>
+          <Reveal delay={160}>
+            <p className="text-[16px] leading-[1.6] text-txt-muted mt-4 max-w-2xl mx-auto">
+              Brainlee turns fragmented research, market data, physician feedback and clinical evidence into one
+              trusted, evidence-backed memory, the decision layer above your existing enterprise ecosystem.</p></Reveal>
+          <Reveal delay={200}>
             <div className="mt-7 flex items-center justify-center gap-2 flex-wrap">
               {MK_CHIPS.map(c=><MonoChip key={c}><Icon.check size={11} cls="text-ok"/>{c}</MonoChip>)}
             </div></Reveal>
-          <Reveal delay={240}>
+          <Reveal delay={260}>
+            <div className="mt-8 flex justify-center"><WelcomeFlow/></div></Reveal>
+          <Reveal delay={320}>
             <div className="mt-9 flex flex-col sm:flex-row items-center justify-center gap-4">
               <MkBtn onClick={()=>setModal(true)} className="w-full sm:w-auto">Request a demo</MkBtn>
               <button onClick={()=>scrollTo("tour")}
                 className="inline-flex items-center gap-1.5 text-[14.5px] text-txt-muted hover:text-txt transition-colors">
                 Watch the product tour <Icon.arrow size={15}/></button>
             </div></Reveal>
-          <Reveal delay={300}>
-            <p className="mt-8 text-[13.5px] leading-[1.6] text-txt-muted max-w-xl mx-auto">
-              From weeks of digging through decks, PDFs and research reports to a decision you can defend in minutes.</p></Reveal>
-        </div>
-        {/* the answer card does more selling than any other element on the page */}
-        <div className="max-w-2xl mx-auto px-5 sm:px-8 pb-20 sm:pb-24">
-          <Reveal delay={360}><AnswerCard/></Reveal>
         </div>
       </section>
 
@@ -4620,7 +4638,7 @@ function MarketingSite() {
         <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-[420px] mk-glow -z-10"
           style={{background:"radial-gradient(600px 300px at 50% 100%, var(--accent-glow) 0%, transparent 70%)"}}/>
         <div className="max-w-2xl mx-auto px-5 sm:px-8 text-center">
-          <h2 className="text-[28px] sm:text-[36px] leading-[1.15] text-txt"><WordReveal text="Ready to build your Brand Brain?"/></h2>
+          <h2 className="text-[28px] sm:text-[36px] leading-[1.15] font-semibold text-txt"><WordReveal text="Ready to build your Brand Brain?"/></h2>
           <Reveal delay={140}>
             <p className="text-[16px] leading-[1.6] text-txt-muted mt-5">We'll walk through Brainlee using your own commercial content.</p>
             <div className="mt-8"><MkBtn onClick={()=>setModal(true)}>Request a demo</MkBtn></div>
