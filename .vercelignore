@@ -1,5 +1,7 @@
-# BrandBrain deploys only the static frontend in web/ to Vercel.
+# The marketing site (this Vercel project) deploys only web/.
 # The FastAPI backend, docs, tests and tooling are not part of the static deploy.
+# The interactive prototype (prototype/) is a separate, independently-deployed
+# Vercel project — it must never ship as part of this one. See DEPLOY.md.
 src/
 tests/
 migrations/
@@ -14,3 +16,4 @@ Makefile
 setup-github.sh
 *.py
 .DS_Store
+prototype/

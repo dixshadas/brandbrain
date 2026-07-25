@@ -12,38 +12,40 @@ building. Everything needed to run the demo and continue development is here.
 ## What's in the box
 
 ```
-BrandBrain Demo.html      ← the interactive frontend prototype (open this first)
-web/                      ← the same demo, packaged to deploy to Vercel (index.html + vercel.json)
+web/                      ← the public marketing site — brainlee.tech (index.html + vercel.json)
+prototype/                ← the interactive frontend prototype — demo.brainlee.tech, private, noindex
 backend/                  ← FastAPI "modular monolith" scaffold (10 services) + the TDD
 docs/                     ← Product Architecture & MVP thesis (Word doc)
 backend/docs/TECHNICAL_DESIGN.md   ← the engineering design doc (read before touching backend)
 ```
 
+`web/` and `prototype/` are two independent, zero-build static apps deployed as two
+separate Vercel projects from this one repo — see [`DEPLOY.md`](./DEPLOY.md) for the
+full setup. Neither links to the other; the prototype's code does not ship inside the
+marketing site's bundle.
+
 ## Current status (be precise about this)
 
 | Piece | Status |
 |---|---|
-| **Frontend demo** (`BrandBrain Demo.html` / `web/`) | ✅ Complete, self-contained, runs on mock data. No backend required. This is the YC demo. |
+| **Marketing site** (`web/`) | ✅ Complete, self-contained, dark premium single-page site. |
+| **Interactive prototype** (`prototype/`) | ✅ Complete, self-contained, runs on mock data. No backend required. This is the YC demo — share only `demo.brainlee.tech`, never the marketing URL. |
 | **Backend** (`backend/`) | 🟡 Scaffold only. Import-clean, all contracts/interfaces/models defined, but service methods are **stubs** (`NotImplementedError`). It is *not* a running API yet. |
 | **Docs** | ✅ Product Architecture (docs/) + Technical Design (backend/docs/TECHNICAL_DESIGN.md) complete. |
 
-> The frontend does **not** call the backend. The demo is intentionally front-end-only on mock
-> data so it's bulletproof for a live demo. Wiring them together is future work.
+> Neither frontend calls the backend. Both are intentionally front-end-only on mock data
+> so they're bulletproof for a live demo. Wiring them together is future work.
 
 ---
 
-## Deploy the frontend to Vercel (2 minutes, no backend needed)
+## Deploy the frontend to Vercel (no backend needed)
 
-**Drag & drop (no CLI):**
-1. https://vercel.com/new
-2. Drag the `web/` folder onto the page.
-3. Framework preset **Other**, no build command, output dir `.` → **Deploy**.
-4. You get a public URL, e.g. `https://brandbrain-demo.vercel.app` — shareable with anyone, no login.
+See [`DEPLOY.md`](./DEPLOY.md) for the full two-project (marketing + prototype) setup,
+including domain and `noindex` configuration. Quick version for the prototype (the YC demo):
 
-**Or CLI:**
 ```bash
 npm i -g vercel
-cd web && vercel && vercel --prod
+cd prototype && vercel && vercel --prod
 ```
 
 The production URL works across accounts and machines — paste it into any chat or open it on the
