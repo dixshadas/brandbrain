@@ -1,0 +1,5 @@
+# This project's Root Directory is "prototype" (demo.brainlee.tech). A .vercelignore
+# scoped here overrides the repository-root one, which excludes prototype/ entirely
+# for the marketing site's deploy — without this file, that root-level exclusion also
+# strips this project's own content before the build ever runs. Nothing needs ignoring
+# inside prototype/ itself; this file exists to stop that outer rule from applying.
