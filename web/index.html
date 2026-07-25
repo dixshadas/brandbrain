@@ -24,7 +24,7 @@
      __VIDEO_URL     : product-tour video (mp4/webm). Blank = composed poster placeholder.
      The interactive product prototype is a separate, independently-deployed application
      (see /prototype). It is never part of this bundle and is not reachable from this site. */
-  window.__LEAD_ENDPOINT = "";
+  window.__LEAD_ENDPOINT = "https://script.google.com/macros/s/AKfycbwhUpOJvxJk9odVVirxhsw1l1Tc9_GoEkVnbIzKvhLVREPmXrV40DmcodFNqqgFituo/exec";
   window.__VIDEO_URL     = "";
 </script>
 <!-- Zero-build React marketing site: React 18 + Babel(TSX) + Tailwind. Opens in any browser. -->
@@ -285,6 +285,9 @@ const MK_TRUST = [
 
 const MK_ROLES = ["Brand Manager","Brand Director","Chief Marketing Officer","Medical Affairs","Commercial Excellence","Market Access","Other"];
 const FREE_EMAIL = ["gmail.com","yahoo.com","hotmail.com","outlook.com","aol.com","icloud.com","me.com","proton.me","protonmail.com","gmx.com","mail.com","yandex.com","live.com","msn.com","qq.com","163.com"];
+// Dev-only diagnostics: never surface internals (errors, stack traces) to real users.
+const IS_DEV = typeof window!=="undefined" && /^(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])$/.test(window.location.hostname);
+const EMPTY_LEAD_FORM = {first:"",last:"",company:"",email:"",jobTitle:"",phone:"",useCase:"",website:""};
 
 /* ---- motion primitives ------------------------------------------------------- */
 // Entry: fade + 12px rise, 500ms, staggered between siblings, on scroll into view.
@@ -639,9 +642,10 @@ function LeadField({label,k,type="text",req,ph,full,rows,value,error,onChange,in
 }
 
 function LeadModal({onClose}) {
-  const [f,setF]=useState({first:"",last:"",company:"",email:"",jobTitle:"",phone:"",useCase:"",website:""});
+  const [f,setF]=useState(EMPTY_LEAD_FORM);
   const [err,setErr]=useState({});
   const [state,setState]=useState("idle");     // idle | submitting | success | error
+  const [sentFirst,setSentFirst]=useState("");  // first name at time of success, kept after form resets
   const panel=useRef(null); const firstRef=useRef(null);
   const openedAt=useRef(Date.now()); const lastSubmit=useRef(0);
   const restoreTo=useRef(typeof document!=="undefined"?document.activeElement:null);
@@ -674,6 +678,12 @@ function LeadModal({onClose}) {
       e.email="Please use your work email so we can route this to the right team.";
     setErr(e); return Object.keys(e).length===0; };
 
+  const succeed=()=>{
+    // Reset the visible form back to blank, but keep the first name around so the
+    // success message can still say "Thanks, Alex" after the fields are cleared.
+    setSentFirst(f.first); setF(EMPTY_LEAD_FORM); setState("success");
+  };
+
   const submit=(ev)=>{ ev.preventDefault();
     // Validation always runs first, so a genuine (if fast) submission never gets silently
     // swallowed by the anti-spam checks below — those only gate submissions that already pass.
@@ -681,18 +691,31 @@ function LeadModal({onClose}) {
     const now=Date.now();
     // spam guards: honeypot filled, submitted implausibly fast, or double-fired.
     // Show success anyway so a bot gets no signal that it was rejected.
-    if(f.website || now-openedAt.current<1200 || now-lastSubmit.current<2500){ setState("success"); return; }
+    if(f.website || now-openedAt.current<1200 || now-lastSubmit.current<2500){ succeed(); return; }
     lastSubmit.current=now; setState("submitting");
     const {website, ...clean}=f;
+    // Payload keys must match the Apps Script doPost() handler's d.first / d.last / d.email /
+    // d.company / d.jobTitle / d.phone / d.useCase / d.submittedAt / d.source reads exactly.
     const payload={...clean, submittedAt:new Date().toISOString(), source:"brainlee-site"};
     try{ const all=JSON.parse(localStorage.getItem("brainlee_leads")||"[]");
       all.push(payload); localStorage.setItem("brainlee_leads",JSON.stringify(all)); }catch(_){}
     const endpoint=(typeof window!=="undefined" && window.__LEAD_ENDPOINT) || "";
-    if(!endpoint){ console.info("[Brainlee] lead captured (no endpoint configured):",payload);
-      setTimeout(()=>setState("success"),650); return; }
-    let done=false; const ok=()=>{ if(!done){ done=true; setState("success"); } };
+    if(!endpoint){ if(IS_DEV) console.info("[Brainlee] lead captured (no endpoint configured):",payload);
+      setTimeout(succeed,650); return; }
+    let done=false;
+    const ok=()=>{ if(!done){ done=true; succeed(); } };
+    const fail=(e)=>{ if(!done){ done=true; setState("error"); if(IS_DEV) console.error("[Brainlee] lead submission failed:",e); } };
+    // Apps Script Web Apps don't send CORS headers, so a normal `cors` fetch can never read the
+    // response even when the request lands successfully — hence `mode:"no-cors"` (an opaque
+    // response) and a plain-text Content-Type (an `application/json` header forces a CORS
+    // preflight that Apps Script doesn't answer). The body itself is still JSON; doPost() calls
+    // JSON.parse(e.postData.contents) regardless of the declared content type.
     fetch(endpoint,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)})
-      .then(ok).catch(()=>{ if(!done){ done=true; setState("error"); } });
+      .then(ok).catch(fail);
+    // With an opaque response we can't distinguish "succeeded" from "still pending", so treat a
+    // silent network as success after a short grace period; a real failure (offline, DNS, etc.)
+    // still reaches `fail` first and shows the retry state. The local copy above is the backstop
+    // either way.
     setTimeout(ok,2500);
   };
 
@@ -703,7 +726,7 @@ function LeadModal({onClose}) {
           <span className="w-12 h-12 rounded-full bg-ok/15 text-ok grid place-items-center mx-auto"><Icon.checkc size={26}/></span>
           <div id="lead-title" className="text-[18px] font-medium text-txt mt-4">Request received</div>
           <p className="text-[14px] leading-[1.6] text-txt-muted mt-2 max-w-sm mx-auto">
-            Thanks{f.first?", "+f.first:""}. We'll be in touch within one business day to arrange your demo.</p>
+            Thanks{sentFirst?", "+sentFirst:""}. We'll be in touch within one business day to arrange your demo.</p>
           <div className="mt-6"><MkBtn onClick={onClose}>Done</MkBtn></div>
         </div>
       : <form onSubmit={submit} noValidate>
