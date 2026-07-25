@@ -23,42 +23,44 @@ vercel --prod          # promote to the public production URL
 ## "Request a Demo" form → your CRM/sheet
 
 The site has one conversion event: the **Request a Demo** modal (validated, spam-guarded,
-keyboard-accessible). Out of the box it runs in demo mode: it validates, shows the
-success state, and keeps a local copy in `localStorage` (`brainlee_leads`). To POST
-submissions somewhere real, set `window.__LEAD_ENDPOINT` near the top of `index.html` to
-any endpoint that accepts a `POST` with a JSON body (first, last, company, email,
-jobTitle, phone, useCase, submittedAt, source).
+keyboard-accessible). `window.__LEAD_ENDPOINT` (top of `index.html`) is live and points at a
+**Google Apps Script Web App** bound to
+[this spreadsheet](https://docs.google.com/spreadsheets/u/1/d/1_WXGP4Ijn7XM96lTKQJyeFRuyzIrC6N5dAU0DD4wxHY/edit?gid=0#gid=0).
+Every real submission is POSTed there as JSON and appends a row; a copy is always kept in
+`localStorage` (`brainlee_leads`) as a backstop regardless of network outcome. If
+`__LEAD_ENDPOINT` is ever blanked out, the form falls back to demo mode: it still validates
+and shows success, just without sending anywhere.
 
-A free, no-server option is a **Google Apps Script Web App**. This repo's current lead
-Sheet is
-[this spreadsheet](https://docs.google.com/spreadsheets/u/1/d/1_WXGP4Ijn7XM96lTKQJyeFRuyzIrC6N5dAU0DD4wxHY/edit?gid=0#gid=0) —
-wire it up like this:
+The deployed `doPost(e)` handler is expected to look like this — the client payload's keys
+(`first`, `last`, `company`, `email`, `jobTitle`, `phone`, `useCase`, `submittedAt`, `source`)
+must match whatever fields it reads off `d`:
 
-1. Open that Sheet → **Extensions → Apps Script**, delete any boilerplate, and paste:
+```js
+function doPost(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Sheet1');
+  const d = JSON.parse(e.postData.contents);
+  sheet.appendRow([
+    new Date(), d.first, d.last, d.email, d.company, d.jobTitle, d.phone, d.useCase,
+    d.submittedAt, d.source,
+  ]);
+  return ContentService.createTextOutput(JSON.stringify({ok:true}))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+```
+Header row on `Sheet1` (or whichever tab the handler targets):
+`Timestamp | First | Last | Email | Company | Job title | Phone | Use case | Submitted At | Source`.
 
-   ```js
-   function doPost(e) {
-     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Sheet1');
-     const d = JSON.parse(e.postData.contents);
-     sheet.appendRow([
-       new Date(), d.first, d.last, d.email, d.company, d.jobTitle, d.phone, d.useCase,
-       d.submittedAt, d.source,
-     ]);
-     return ContentService.createTextOutput(JSON.stringify({ok:true}))
-       .setMimeType(ContentService.MimeType.JSON);
-   }
-   ```
-   Add a header row to `Sheet1` (or rename the target sheet/tab to match):
-   `Timestamp | First | Last | Email | Company | Job title | Phone | Use case | Submitted At | Source`.
+To redeploy the script after edits: **Deploy → Manage deployments → edit (pencil) → New
+version → Deploy**. Redeploying as a brand-new deployment instead of a new version changes
+the `/exec` URL, which would require updating `window.__LEAD_ENDPOINT` again.
 
-2. **Deploy → New deployment → Web app**, Execute as *Me*, Access *Anyone*. Copy the `/exec` URL.
-3. In `index.html`, set `window.__LEAD_ENDPOINT = "https://script.google.com/…/exec";` — this is
-   the one line I can't fill in for you, since it only exists after you complete step 2 in your
-   own Google account. Once you paste the real URL in, every new submission appends a row to that
-   Sheet (the local `localStorage` copy stays as a fallback either way).
-
-The form POSTs as `no-cors`, so the row is appended even though the browser can't read the
-response — the UI shows success optimistically and always keeps the local fallback copy.
+The form POSTs with `mode:"no-cors"` and a `text/plain` `Content-Type` — Apps Script Web
+Apps don't send CORS headers back, so a normal `cors` fetch could never read the response
+anyway, and an `application/json` header would trigger a CORS preflight Apps Script doesn't
+answer. The body is still JSON; `JSON.parse(e.postData.contents)` doesn't care what the
+declared content type was. Because the response is opaque, the UI treats a submission that's
+still in flight after ~2.5s as successful optimistically — a genuine network failure (offline,
+DNS, etc.) that surfaces before then still shows the retry state.
 
 ## Product tour video
 
