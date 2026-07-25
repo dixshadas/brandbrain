@@ -264,14 +264,13 @@ const MK_REGIONS = {
   governance:{ label:"Governance", body:"Checks the answer against your review standards before anyone sees it." },
 };
 
-// The eight modules the Decision Engine card assembles through, in order. Enterprise
+// The modules the Decision Engine card assembles through, in order. Enterprise
 // software framing (a checklist that completes), not a chat reply.
 const DECISION_MODULES = [
   { icon:"library", label:"Knowledge Hub" },
   { icon:"search",  label:"Evidence Engine" },
   { icon:"graph",   label:"Decision Studio" },
   { icon:"users",   label:"HCP Simulation" },
-  { icon:"bolt",    label:"Campaign Intelligence" },
   { icon:"stamp",   label:"MLR Governance" },
   { icon:"pulse",   label:"Brand Pulse" },
   { icon:"brain",   label:"Brand Brain" },
@@ -281,6 +280,7 @@ const MK_TRUST = [
   { icon:"quote",  title:"Evidence-backed",      body:"Every recommendation traces to the source document and page it came from." },
   { icon:"checkc", title:"Human approval",       body:"Nothing becomes institutional memory until a person signs off." },
   { icon:"lock",   title:"Enterprise deployment",body:"Designed to fit the environments and controls enterprise IT already requires." },
+  { icon:"shield", title:"Data Safety",          body:"Your brand data stays within your enterprise boundary. Brainlee never retains, shares, or trains models on your content." },
 ];
 
 const MK_ROLES = ["Brand Manager","Brand Director","Chief Marketing Officer","Medical Affairs","Commercial Excellence","Market Access","Other"];
@@ -336,11 +336,11 @@ function MkBtn({children, onClick, variant="primary", type="button", disabled, c
   const style = variant==="primary" ? {background:"linear-gradient(135deg,#7C5CFF,#6B4CF0)"} : undefined;
   return <button type={type} onClick={onClick} disabled={disabled} style={style} className={cx(base,look,className)} {...rest}>{children}</button>;
 }
-function MkHead({eyebrow, title, sub, center=true}) {
+function MkHead({eyebrow, title, sub, center=true, light=false}) {
   return <div className={cx("max-w-2xl", center&&"mx-auto text-center")}>
-    {eyebrow && <Reveal><div className="font-mono text-[11px] uppercase tracking-[.18em] text-txt-dim">{eyebrow}</div></Reveal>}
-    <h2 className="text-[27px] sm:text-[34px] leading-[1.15] font-semibold text-txt mt-3"><WordReveal text={title}/></h2>
-    {sub && <Reveal delay={120}><p className="text-[15.5px] leading-[1.6] text-txt-muted mt-4">{sub}</p></Reveal>}
+    {eyebrow && <Reveal><div className={cx("font-mono text-[11px] uppercase tracking-[.18em]", light?"text-slate-500":"text-txt-dim")}>{eyebrow}</div></Reveal>}
+    <h2 className={cx("text-[27px] sm:text-[34px] leading-[1.15] font-semibold mt-3", light?"text-ink":"text-txt")}><WordReveal text={title}/></h2>
+    {sub && <Reveal delay={120}><p className={cx("text-[15.5px] leading-[1.6] mt-4", light?"text-slate-600":"text-txt-muted")}>{sub}</p></Reveal>}
   </div>;
 }
 
@@ -537,9 +537,6 @@ function HowItWorks() {
         <BrainCore region={region} setRegion={setRegion} running={running}/>
         <DecisionEngineCard running={running}/>
       </div>
-      <p className="mt-10 text-[11.5px] leading-relaxed text-txt-dim text-center max-w-xl mx-auto">
-        Integrations in development. Connectors shown describe categories of content, not named products.
-      </p>
     </div>
   </section>;
 }
@@ -570,9 +567,9 @@ function ProductVideo() {
     if(req) req.call(el);
   };
 
-  return <section id="tour" ref={wrapRef} className="border-t border-white/[.06] py-20 sm:py-28">
+  return <section id="tour" ref={wrapRef} className="border-t border-white/[.06] py-20 sm:py-28 bg-white">
     <div className="max-w-4xl mx-auto px-5 sm:px-8">
-      <MkHead title="See Brainlee in Action"/>
+      <MkHead title="See Brainlee in Action" light/>
       <Reveal delay={120} className="mt-10">
         <div ref={frameRef} className="group relative rounded-2xl overflow-hidden border border-white/[.09] bg-raised shadow-[0_28px_90px_rgba(0,0,0,.5)]"
           style={{aspectRatio:"16 / 9"}}>
@@ -600,7 +597,6 @@ function ProductVideo() {
             </div>
           </>}
         </div>
-        {!url && <div className="mt-3 text-center font-mono text-[11px] text-txt-dim">Full walkthrough coming soon</div>}
       </Reveal>
     </div>
   </section>;
@@ -608,16 +604,16 @@ function ProductVideo() {
 
 /* ---- SECTION 4 · enterprise trust --------------------------------------------- */
 function TrustSection() {
-  return <section className="border-t border-white/[.06] py-20 sm:py-28">
+  return <section className="border-t border-white/[.06] py-20 sm:py-28 bg-white">
     <div className="max-w-5xl mx-auto px-5 sm:px-8">
-      <MkHead title="Built for enterprise trust"/>
-      <div className="mt-12 grid sm:grid-cols-3 gap-4">
+      <MkHead title="Built for enterprise trust" light/>
+      <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {MK_TRUST.map((t,i)=>{ const TIc=Icon[t.icon];
           return <Reveal key={t.title} delay={i*60}>
-            <div className="h-full rounded-xl border border-white/[.08] bg-surface p-5">
-              <TIc size={18} cls="text-accent-soft"/>
-              <div className="text-[15px] font-medium text-txt mt-3.5">{t.title}</div>
-              <p className="text-[13.5px] leading-[1.6] text-txt-muted mt-1.5">{t.body}</p>
+            <div className="h-full rounded-xl border border-line bg-white shadow-card p-5">
+              <TIc size={18} cls="text-accent"/>
+              <div className="text-[15px] font-medium text-ink mt-3.5">{t.title}</div>
+              <p className="text-[13.5px] leading-[1.6] text-ink-mute mt-1.5">{t.body}</p>
             </div></Reveal>;})}
       </div>
     </div>
@@ -786,12 +782,12 @@ function MarketingSite() {
           style={{background:"radial-gradient(760px 380px at 50% 4%, var(--accent-glow) 0%, transparent 68%)"}}/>
         <div className="max-w-3xl mx-auto px-5 sm:px-8 pt-20 sm:pt-24 pb-20 sm:pb-24 text-center">
           <Reveal>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[12px] font-semibold text-txt-muted">
-              <span className="text-ok"><Icon.shield size={14}/></span>The Decision Intelligence Layer for Life Sciences Commercial Teams
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-[14px] font-bold text-accent-soft">
+              <span className="text-ok"><Icon.shield size={16}/></span>The Decision Intelligence Layer for Life Sciences Commercial Teams
             </div></Reveal>
           <Reveal delay={60}>
             <h1 className="text-[34px] sm:text-[46px] leading-[1.12] font-extrabold tracking-[-.03em] text-txt mt-6">
-              You already have AI &amp; Data.<br className="hidden sm:block"/> What you need is <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-soft to-ok">better commercial decisions.</span>
+              You already have AI &amp; Scattered Data.<br className="hidden sm:block"/> What you need is <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-soft to-ok">better commercial decisions.</span>
             </h1></Reveal>
           <Reveal delay={140}>
             <p className="text-[16px] leading-[1.6] text-txt-muted mt-5 max-w-2xl mx-auto">
