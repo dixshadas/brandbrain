@@ -29,23 +29,33 @@ submissions somewhere real, set `window.__LEAD_ENDPOINT` near the top of `index.
 any endpoint that accepts a `POST` with a JSON body (first, last, company, email,
 jobTitle, phone, useCase, submittedAt, source).
 
-A free, no-server option is a **Google Apps Script Web App**:
+A free, no-server option is a **Google Apps Script Web App**. This repo's current lead
+Sheet is
+[this spreadsheet](https://docs.google.com/spreadsheets/u/1/d/1_WXGP4Ijn7XM96lTKQJyeFRuyzIrC6N5dAU0DD4wxHY/edit?gid=0#gid=0) —
+wire it up like this:
 
-1. Open the target Sheet → **Extensions → Apps Script**, paste:
+1. Open that Sheet → **Extensions → Apps Script**, delete any boilerplate, and paste:
 
    ```js
    function doPost(e) {
      const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Sheet1');
      const d = JSON.parse(e.postData.contents);
-     sheet.appendRow([new Date(), d.first, d.last, d.email, d.company, d.jobTitle, d.phone, d.useCase]);
+     sheet.appendRow([
+       new Date(), d.first, d.last, d.email, d.company, d.jobTitle, d.phone, d.useCase,
+       d.submittedAt, d.source,
+     ]);
      return ContentService.createTextOutput(JSON.stringify({ok:true}))
        .setMimeType(ContentService.MimeType.JSON);
    }
    ```
-   (Add a header row: `Timestamp | First | Last | Email | Company | Job title | Phone | Use case`.)
+   Add a header row to `Sheet1` (or rename the target sheet/tab to match):
+   `Timestamp | First | Last | Email | Company | Job title | Phone | Use case | Submitted At | Source`.
 
 2. **Deploy → New deployment → Web app**, Execute as *Me*, Access *Anyone*. Copy the `/exec` URL.
-3. In `index.html`, set `window.__LEAD_ENDPOINT = "https://script.google.com/…/exec";`
+3. In `index.html`, set `window.__LEAD_ENDPOINT = "https://script.google.com/…/exec";` — this is
+   the one line I can't fill in for you, since it only exists after you complete step 2 in your
+   own Google account. Once you paste the real URL in, every new submission appends a row to that
+   Sheet (the local `localStorage` copy stays as a fallback either way).
 
 The form POSTs as `no-cors`, so the row is appended even though the browser can't read the
 response — the UI shows success optimistically and always keeps the local fallback copy.

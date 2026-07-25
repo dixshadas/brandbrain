@@ -257,11 +257,12 @@ const MK_SOURCES = [
   { id:"ppt",  icon:"layers", label:"PowerPoints",       feeds:"Brand plans, decks and campaign materials" },
 ];
 
-// The three clusters the core reveals on hover. Labels are fixed by the copy rules.
+// The clusters the core reveals on hover. Labels are fixed by the copy rules.
 const MK_REGIONS = {
   evidence:  { label:"Evidence",   body:"Finds every relevant passage across your material, including the ones that disagree." },
   simulation:{ label:"Simulation", body:"Pressure-tests a position the way your physicians and customers actually would." },
   governance:{ label:"Governance", body:"Checks the answer against your review standards before anyone sees it." },
+  memory:    { label:"Central Memory", body:"Every decision, source and outcome persists in one place, so the next answer starts smarter than the last." },
 };
 
 // The modules the Decision Engine card assembles through, in order. Enterprise
@@ -278,8 +279,7 @@ const DECISION_MODULES = [
 
 const MK_TRUST = [
   { icon:"quote",  title:"Evidence-backed",      body:"Every recommendation traces to the source document and page it came from." },
-  { icon:"checkc", title:"Human approval",       body:"Nothing becomes institutional memory until a person signs off." },
-  { icon:"lock",   title:"Enterprise deployment",body:"Designed to fit the environments and controls enterprise IT already requires." },
+  { icon:"checkc", title:"Human approval",       body:"Nothing becomes institutional memory until an SME signs off." },
   { icon:"shield", title:"Data Safety",          body:"Your brand data stays within your enterprise boundary. Brainlee never retains, shares, or trains models on your content." },
 ];
 
@@ -418,8 +418,9 @@ const CORE_EDGES = [
 const CORE_POS = CORE_NODES.reduce((m,n)=>{ m[n.id]=n; return m; },{});
 
 function BrainCore({region, setRegion, running}) {
-  const dim=(c)=> region && region!==c;
-  const lit=(c)=> region===c;
+  const allLit=region==="memory";
+  const dim=(c)=> region && !allLit && region!==c;
+  const lit=(c)=> region===c || allLit;
   return <div className="relative w-full max-w-[420px] mx-auto">
     <div className="text-center font-mono text-[10.5px] uppercase tracking-[.16em] text-txt-dim mb-1">Semantic Knowledge Graph</div>
     {/* layered radial glow, breathing */}
@@ -607,7 +608,7 @@ function TrustSection() {
   return <section className="border-t border-white/[.06] py-20 sm:py-28 bg-white">
     <div className="max-w-5xl mx-auto px-5 sm:px-8">
       <MkHead title="Built for enterprise trust" light/>
-      <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="mt-12 grid sm:grid-cols-3 gap-4">
         {MK_TRUST.map((t,i)=>{ const TIc=Icon[t.icon];
           return <Reveal key={t.title} delay={i*60}>
             <div className="h-full rounded-xl border border-line bg-white shadow-card p-5">
@@ -622,6 +623,21 @@ function TrustSection() {
 
 /* ---- SECTION 6 · lead capture -------------------------------------------------- */
 // The only conversion event on the site: validated, spam-guarded, fully keyboard operable.
+function LeadField({label,k,type="text",req,ph,full,rows,value,error,onChange,inputRef}) {
+  return <div className={full?"sm:col-span-2":""}>
+    <label htmlFor={"lf-"+k} className="block font-mono text-[10.5px] uppercase tracking-[.14em] text-txt-dim mb-1.5">
+      {label}{req&&<span className="text-accent-soft"> *</span>}</label>
+    {rows
+      ? <textarea id={"lf-"+k} rows={rows} value={value} onChange={e=>onChange(e.target.value)} placeholder={ph}
+          className="w-full rounded-lg border border-white/10 bg-white/[.03] px-3 py-2.5 text-[14px] text-txt placeholder:text-txt-dim outline-none focus:border-accent/50 resize-none"/>
+      : <input id={"lf-"+k} ref={inputRef} type={type} value={value} onChange={e=>onChange(e.target.value)}
+          placeholder={ph} aria-required={!!req} aria-invalid={!!error} aria-describedby={error?"le-"+k:undefined}
+          className={cx("w-full rounded-lg border bg-white/[.03] px-3 py-2.5 text-[14px] text-txt placeholder:text-txt-dim outline-none",
+            error?"border-rose-400/60":"border-white/10 focus:border-accent/50")}/>}
+    {error && <div id={"le-"+k} className="text-[11.5px] text-rose-300 mt-1.5">{error}</div>}
+  </div>;
+}
+
 function LeadModal({onClose}) {
   const [f,setF]=useState({first:"",last:"",company:"",email:"",jobTitle:"",phone:"",useCase:"",website:""});
   const [err,setErr]=useState({});
@@ -680,20 +696,6 @@ function LeadModal({onClose}) {
     setTimeout(ok,2500);
   };
 
-  const F=({label,k,type="text",req,ph,full,rows})=>(
-    <div className={full?"sm:col-span-2":""}>
-      <label htmlFor={"lf-"+k} className="block font-mono text-[10.5px] uppercase tracking-[.14em] text-txt-dim mb-1.5">
-        {label}{req&&<span className="text-accent-soft"> *</span>}</label>
-      {rows
-        ? <textarea id={"lf-"+k} rows={rows} value={f[k]} onChange={e=>set(k,e.target.value)} placeholder={ph}
-            className="w-full rounded-lg border border-white/10 bg-white/[.03] px-3 py-2.5 text-[14px] text-txt placeholder:text-txt-dim outline-none focus:border-accent/50 resize-none"/>
-        : <input id={"lf-"+k} ref={k==="first"?firstRef:null} type={type} value={f[k]} onChange={e=>set(k,e.target.value)}
-            placeholder={ph} aria-required={!!req} aria-invalid={!!err[k]} aria-describedby={err[k]?"le-"+k:undefined}
-            className={cx("w-full rounded-lg border bg-white/[.03] px-3 py-2.5 text-[14px] text-txt placeholder:text-txt-dim outline-none",
-              err[k]?"border-rose-400/60":"border-white/10 focus:border-accent/50")}/>}
-      {err[k] && <div id={"le-"+k} className="text-[11.5px] text-rose-300 mt-1.5">{err[k]}</div>}
-    </div>);
-
   return <div className="fixed inset-0 z-[90] grid place-items-center px-4 py-8" role="dialog" aria-modal="true" aria-labelledby="lead-title">
     <div className="absolute inset-0 bg-black/70 backdrop-blur-[3px] animate-fadein" onClick={onClose}/>
     <div ref={panel} className="relative w-full max-w-lg max-h-full overflow-y-auto rounded-2xl border border-white/10 bg-surface shadow-[0_40px_120px_rgba(0,0,0,.7)] animate-fadeup">
@@ -714,10 +716,10 @@ function LeadModal({onClose}) {
               className="text-txt-dim hover:text-txt rounded-lg p-1.5 hover:bg-white/[.06]"><Icon.x size={18}/></button>
           </div>
           <div className="px-6 py-5 grid sm:grid-cols-2 gap-4">
-            <F label="First name" k="first" req ph="Alex"/>
-            <F label="Last name"  k="last"  req ph="Morgan"/>
-            <F label="Company"    k="company" req ph="Your company" full/>
-            <F label="Work email" k="email" type="email" req ph="you@company.com" full/>
+            <LeadField label="First name" k="first" req ph="Alex" value={f.first} error={err.first} onChange={v=>set("first",v)} inputRef={firstRef}/>
+            <LeadField label="Last name"  k="last"  req ph="Morgan" value={f.last} error={err.last} onChange={v=>set("last",v)}/>
+            <LeadField label="Company"    k="company" req ph="Your company" full value={f.company} error={err.company} onChange={v=>set("company",v)}/>
+            <LeadField label="Work email" k="email" type="email" req ph="you@company.com" full value={f.email} error={err.email} onChange={v=>set("email",v)}/>
             <div>
               <label htmlFor="lf-jobTitle" className="block font-mono text-[10.5px] uppercase tracking-[.14em] text-txt-dim mb-1.5">
                 Job title<span className="text-accent-soft"> *</span></label>
@@ -730,8 +732,8 @@ function LeadModal({onClose}) {
               </select>
               {err.jobTitle && <div className="text-[11.5px] text-rose-300 mt-1.5">{err.jobTitle}</div>}
             </div>
-            <F label="Phone" k="phone" type="tel" ph="Optional"/>
-            <F label="Use case" k="useCase" rows={2} ph="What should your Brand Brain answer first?" full/>
+            <LeadField label="Phone" k="phone" type="tel" ph="Optional" value={f.phone} error={err.phone} onChange={v=>set("phone",v)}/>
+            <LeadField label="Use case" k="useCase" rows={2} ph="What should your Brand Brain answer first?" full value={f.useCase} error={err.useCase} onChange={v=>set("useCase",v)}/>
             {/* honeypot — hidden from people, tempting to bots */}
             <div className="hidden" aria-hidden="true">
               <label htmlFor="lf-website">Website</label>
@@ -787,7 +789,7 @@ function MarketingSite() {
             </div></Reveal>
           <Reveal delay={60}>
             <h1 className="text-[34px] sm:text-[46px] leading-[1.12] font-extrabold tracking-[-.03em] text-txt mt-6">
-              You already have AI &amp; Scattered Data.<br className="hidden sm:block"/> What you need is <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-soft to-ok">better commercial decisions.</span>
+              You already have AI &amp; Scattered Data.<br className="hidden sm:block"/> What you need is <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-soft to-ok">better decisions.</span>
             </h1></Reveal>
           <Reveal delay={140}>
             <p className="text-[16px] leading-[1.6] text-txt-muted mt-5 max-w-2xl mx-auto">
