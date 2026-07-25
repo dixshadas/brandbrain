@@ -1,34 +1,35 @@
-# BrandBrain — demo (static frontend)
+# Brainlee — marketing site (`brainlee.tech`)
 
 A single self-contained page (`index.html`): React + Babel + Tailwind loaded from CDN.
-No build step, no backend needed — the demo runs entirely in the browser on mock data.
+No build step, no backend needed.
 
-## Deploy to Vercel (2 minutes)
+This is the **public marketing site only**. The interactive product prototype is a
+separate, independently-deployed app — see [`../prototype/`](../prototype) and
+[`../DEPLOY.md`](../DEPLOY.md) for the two-project (`brainlee.tech` +
+`demo.brainlee.tech`) setup. Nothing in this folder links to, references, or ships the
+prototype's code.
 
-**Option A — drag & drop (no CLI):**
-1. Go to https://vercel.com/new
-2. Drag this `brandbrain-web` folder onto the page (or "Deploy" → upload).
-3. Framework preset: **Other**. Build command: none. Output dir: `.` (root).
-4. Deploy → you get a public URL like `https://brandbrain-demo.vercel.app`.
+## Deploy to Vercel
 
-**Option B — Vercel CLI:**
+See [`../DEPLOY.md`](../DEPLOY.md) for the full two-project deployment guide. Quick version:
+
 ```bash
 npm i -g vercel        # if you don't have it
-cd brandbrain-web
+cd web
 vercel                 # first run: log in + link project (interactive)
 vercel --prod          # promote to the public production URL
 ```
 
-That production URL is shareable with anyone — paste it into another Claude chat, send it to
-design partners, or open it on the demo laptop. It needs no login and no server.
+## "Request a Demo" form → your CRM/sheet
 
-## Landing page — "Request a Demo" form → Google Sheet
+The site has one conversion event: the **Request a Demo** modal (validated, spam-guarded,
+keyboard-accessible). Out of the box it runs in demo mode: it validates, shows the
+success state, and keeps a local copy in `localStorage` (`brainlee_leads`). To POST
+submissions somewhere real, set `window.__LEAD_ENDPOINT` near the top of `index.html` to
+any endpoint that accepts a `POST` with a JSON body (first, last, company, email,
+jobTitle, phone, useCase, submittedAt, source).
 
-The landing page (the first screen) has a **Request a Demo** modal. Out of the box it runs in
-demo mode: it validates, shows the success state, and keeps a local copy in `localStorage`
-(`brainlee_demo_requests`). To persist submissions to the Google Sheet, wire a **Google Apps
-Script Web App** (free, no server) and paste its URL into `window.__DEMO_ENDPOINT` near the top
-of `index.html`:
+A free, no-server option is a **Google Apps Script Web App**:
 
 1. Open the target Sheet → **Extensions → Apps Script**, paste:
 
@@ -44,12 +45,18 @@ of `index.html`:
    (Add a header row: `Timestamp | First | Last | Email | Company | Job title | Phone | Use case`.)
 
 2. **Deploy → New deployment → Web app**, Execute as *Me*, Access *Anyone*. Copy the `/exec` URL.
-3. In `index.html`, set `window.__DEMO_ENDPOINT = "https://script.google.com/…/exec";`
+3. In `index.html`, set `window.__LEAD_ENDPOINT = "https://script.google.com/…/exec";`
 
 The form POSTs as `no-cors`, so the row is appended even though the browser can't read the
 response — the UI shows success optimistically and always keeps the local fallback copy.
 
+## Product tour video
+
+`window.__VIDEO_URL` (also near the top of `index.html`) gates the Section 2 player: blank
+shows a composed poster placeholder (never a broken player), set it to an `.mp4`/`.webm`
+URL to enable the real autoplay-on-scroll, pause-off-screen, fullscreen-capable player.
+
 ## Notes
 - Requires internet on first load (React/Tailwind/Babel come from CDN).
-- This is the frontend only. The backend (see ../brandbrain) is a stateful FastAPI service and
+- This is the frontend only. The backend (see `../src`) is a stateful FastAPI service and
   should be hosted on Render/Railway/Fly, not Vercel — and its service methods are still stubs.
