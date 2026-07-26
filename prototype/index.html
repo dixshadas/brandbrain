@@ -597,6 +597,15 @@ const READY_BAND = (v)=> v>=80?{label:"Ready",fg:"text-emerald-700",bg:"bg-emera
 const TEST_ASSETS = [
   { id:"t1", name:"Banner, Long-Term Tolerability (OAG)", code:"PP-YIC-GLB-0258", type:"HCP banner · safety-led",
     hero:"“YI Combo is generally well tolerated for long-term treatment in OAG”",
+    positioning:"Long-term tolerability",
+    // Synthesised from the per-persona notes below, the habit-driven cohort converts on five-year
+    // safety, the data-first cohort asks for an efficacy/guideline lead. Both are already stated in
+    // `note` on p3 and p1 respectively, this is the commercial read of them, not new evidence.
+    verdict:{
+      keep:"Keep long-term tolerability as the primary positioning. It is the belief-shift lever for the habit-driven cohort that holds a quarter of segment prescriptions, and no other message in the estate reaches them.",
+      strengthen:"Strengthen efficacy and IOP-control evidence for the analytical segments. The guideline-led proof that converts Prostaglandin-Sparing Advocates is absent here, which is what holds them at partial fit despite carrying the largest share of prescriptions.",
+      scope:"Do not localize or fund media against the Network-Controlled cohort on this creative, it is formulary-gated and a tolerability claim does not address the barrier.",
+    },
     scores:{
       p1:{ pct:71, band:"yellow", emotion:"Interested but wants proof", note:"Safety reassures, but an efficacy/guideline lead would convert this data-first adopter faster." },
       p2:{ pct:54, band:"red",    emotion:"Unmoved",                    note:"No formulary or health-economics angle, this prescriber needs a dossier, not a tolerability claim." },
@@ -606,6 +615,12 @@ const TEST_ASSETS = [
     } },
   { id:"t2", name:"Banner, First-Line PGA Guidelines", code:"PP-YIC-GLB-0125", type:"HCP banner · guideline-led",
     hero:"“Prostaglandins are first-line IOP-lowering agents (EGS · AAO · NICE · ICO)”",
+    positioning:"Guideline-led efficacy",
+    verdict:{
+      keep:"Keep guideline-led efficacy as the primary positioning. It converts the Advocates and clears the protocol case for network prescribers, together the majority of segment prescriptions.",
+      strengthen:"Add long-term safety and peer proof for the habit-driven cohort. Consensus statements alone leave Independent Habitualists cautious, they shift on five-year tolerability evidence.",
+      scope:"Deprioritise the Delayed Digitalist cohort on this creative, it is behaviourally inert to banners regardless of message.",
+    },
     scores:{
       p1:{ pct:94, band:"green",  emotion:"Convinced",                  note:"Guideline-led efficacy is precisely this advocate's decision trigger, a near-perfect fit." },
       p2:{ pct:79, band:"green",  emotion:"Reassured",                  note:"Guideline backing supports the protocol case, though a formulary hook would strengthen it further." },
@@ -1196,7 +1211,7 @@ function ContradictionCard({c}) {
   </div>;
 }
 
-function ReviewModal({onApprove, onReject, onClose}) {
+function ReviewModal({onApprove, onReject, onClose, campaignVerdict}) {
   return <div className="fixed inset-0 z-50 grid place-items-center px-4">
     <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px] animate-fadein" onClick={onClose}/>
     <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-pop animate-fadeup overflow-hidden">
@@ -1212,6 +1227,8 @@ function ReviewModal({onApprove, onReject, onClose}) {
             <span className="text-[13.5px] text-ink">Driver hierarchy is <b>unresolved</b>: stated once-daily convenience (58%, ATU) vs. belief in IOP control (decisive, qual).</span></div>
           <div className="p-3 flex gap-2 items-start"><span className="text-emerald-600 mt-0.5"><Icon.plus size={14}/></span>
             <span className="text-[13.5px] text-ink">Open question added: <b>formulary / IDN access research</b> recommended before the Network-Controlled strategy locks.</span></div>
+          {campaignVerdict && <div className="p-3 flex gap-2 items-start"><span className="text-emerald-600 mt-0.5"><Icon.plus size={14}/></span>
+            <span className="text-[13.5px] text-ink">Campaign decision recorded: <b>{campaignVerdict.code}</b> validated, “{campaignVerdict.positioning}” confirmed as primary positioning, <b>and the reasoning behind it</b>, so the next campaign starts from this decision rather than re-litigating it.</span></div>}
         </div>
         <div className="mt-4 text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-2">Automatic checks</div>
         <div className="space-y-1.5">
@@ -1921,11 +1938,16 @@ function AskResult({q, res, role, published, onApprove, app}) {
         intent keeps the compact strip, there is no fabricated second method to show. */}
     {hasDeepContradiction ? <div className="mt-4 animate-fadeup">
       <ContradictionCard c={SYNTHESIS.contradiction}/>
-      {app && <div className="mt-2.5 rounded-xl border border-indigo-200 bg-indigo-50/50 px-4 py-3 flex items-center gap-3">
-        <span className="w-8 h-8 rounded-lg bg-white border border-indigo-200 text-indigo-600 grid place-items-center shrink-0"><Icon.users size={16}/></span>
-        <div className="flex-1"><div className="text-[13px] font-bold text-ink">Don't pick a side, test it.</div>
-          <div className="text-[12px] text-ink-mute leading-snug">Run a live HCP banner past all five synthetic cohorts and see where your two priority cohorts pull apart.</div></div>
-        <Button size="sm" onClick={()=>app.goSimulateAsset()} iconRight={<Icon.arrow size={14}/>}>Validate with HCP Simulation</Button>
+      {app && <div className="mt-2.5 rounded-xl border border-indigo-200 bg-indigo-50/50 px-4 py-3.5 flex items-start gap-3">
+        <span className="w-9 h-9 rounded-lg bg-white border border-indigo-200 text-indigo-600 grid place-items-center shrink-0 mt-0.5"><Icon.eye size={17}/></span>
+        <div className="flex-1">
+          <div className="text-[13px] font-bold text-ink">This decides which positioning leads the next campaign.</div>
+          <div className="text-[12.5px] text-ink-mute leading-snug mt-0.5">
+            The global campaign <b className="text-ink-soft">PP-YIC-GLB-0258, Long-Term Tolerability</b> is already built.
+            Before it goes to localization, media spend, MLR and global launch, validate whether it reinforces the positioning this evidence actually supports.
+          </div>
+          <div className="mt-2.5"><Button size="sm" onClick={()=>app.goValidateCampaign("t1")} iconRight={<Icon.arrow size={14}/>}>Validate campaign against physician segments</Button></div>
+        </div>
       </div>}
     </div>
     : data.contradiction && <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50/50 px-4 py-3 flex items-start gap-2.5 animate-fadeup">
@@ -3020,16 +3042,114 @@ const BAND={ green:{fg:"text-emerald-700",bg:"bg-emerald-50",bar:"bg-emerald-500
              yellow:{fg:"text-amber-700",bg:"bg-amber-50",bar:"bg-amber-500",ring:"border-amber-200",dot:"bg-amber-500",label:"Needs improvement"},
              red:{fg:"text-rose-600",bg:"bg-rose-50",bar:"bg-rose-500",ring:"border-rose-200",dot:"bg-rose-500",label:"Misaligned"} };
 
-// Upload an approved asset → see how each synthetic persona reacts (heat-map + % relevance).
-function AssetTestPanel({onClose}) {
-  const [phase,setPhase]=useState("pick");  // pick | analyzing | result
-  const [asset,setAsset]=useState(null);
-  const [astep,setAstep]=useState(0);
-  const [tab,setTab]=useState("reactions"); // reactions | matrix | consensus | recs
-  const ASTEPS=["Reading the asset, claims, tone, visual hierarchy","Scoring 14 commercial dimensions per persona","Modelling each persona's emotional & rational response","Detecting agreement and disagreement across the cohort","Generating prioritized recommendations"];
+// Each cohort's share of segment prescriptions, parsed off the persona record so the commercial
+// weighting always tracks the segmentation data rather than a second hard-coded copy of it.
+const trxShare = (p)=> parseInt(String(p.pctTrx).match(/\d+/)||[0],10);
 
-  const run=(a)=>{ setAsset(a); setPhase("analyzing"); setAstep(0); setTab("reactions");
-    let i=0; const t=setInterval(()=>{ i++; setAstep(i); if(i>=ASTEPS.length){ clearInterval(t); setTimeout(()=>setPhase("result"),450);} },680); };
+// The executive synthesis. Five persona cards are a research output; a brand team needs one
+// commercial read. Everything here is computed from the simulation scores weighted by each
+// cohort's share of prescriptions, so "underperforms" means "underperforms where the scripts
+// actually are", not "scored low on a flat average".
+function CommercialRecommendation({asset, onGovern}) {
+  const rows = PERSONAS.map(p=>({p, s:asset.scores[p.id], trx:trxShare(p)}));
+  const band = (b)=> rows.filter(r=>r.s.band===b).sort((a,b2)=>b2.trx-a.trx);
+  const strong=band("green"), partial=band("yellow"), weak=band("red");
+  const trxOf=(list)=> list.reduce((n,r)=>n+r.trx,0);
+  // Predicted resonance weighted by commercial exposure, not a flat mean across cohorts.
+  const weighted = Math.round(rows.reduce((n,r)=>n+r.s.pct*r.trx,0)/100);
+  const B=READY_BAND(weighted);
+  const v=asset.verdict||{};
+
+  const Group=({title, tone, list, empty})=> <div>
+    <div className={cx("text-[10px] font-bold uppercase tracking-wider mb-1.5", tone)}>{title}
+      {list.length>0 && <span className="ml-1.5 normal-case tracking-normal text-ink-faint font-semibold">{trxOf(list)}% of segment TRx</span>}</div>
+    {list.length===0 ? <div className="text-[12.5px] text-ink-faint italic">{empty}</div>
+      : <div className="space-y-1.5">{list.map(r=><div key={r.p.id} className="flex items-baseline gap-2 text-[13px]">
+          <span className={cx("w-1.5 h-1.5 rounded-full shrink-0 translate-y-[-1px]", BAND[r.s.band].dot)}/>
+          <span className="font-semibold text-ink">{r.p.name}</span>
+          <span className="text-ink-mute">{r.s.pct}%</span>
+          <span className="text-ink-faint text-[12px] ml-auto shrink-0">{r.trx}% TRx</span>
+        </div>)}</div>}
+  </div>;
+
+  return <div className="animate-fadein">
+    {/* headline read */}
+    <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50/70 via-white to-emerald-50/30 p-5 shadow-card">
+      <div className="flex items-center gap-2 mb-2.5">
+        <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-700 flex items-center gap-1.5"><Icon.bolt size={13}/>Commercial recommendation</span>
+        <span className="ml-auto flex items-center gap-2"><ReadinessDial value={weighted} size={30}/>
+          <span className="text-[11px] font-bold"><span className={B.fg}>{weighted}% predicted resonance</span></span></span>
+      </div>
+      <p className="text-[15px] leading-relaxed font-medium text-ink">
+        <b>{asset.positioning}</b> reaches {trxOf(strong)}% of segment prescriptions strongly and a further {trxOf(partial)}% partially.
+        It does not currently answer the barrier for the remaining {trxOf(weak)}%.
+      </p>
+      <div className="mt-2 text-[11.5px] text-ink-mute">Weighted by each cohort's share of segment TRx, not a flat average across personas.</div>
+    </div>
+
+    {/* who it lands with */}
+    <div className="mt-4 grid sm:grid-cols-3 gap-4 rounded-2xl border border-line bg-white p-5">
+      <Group title="Performs strongly among" tone="text-emerald-700" list={strong} empty="No cohort reaches a strong fit."/>
+      <Group title="Partial fit" tone="text-amber-700" list={partial} empty="None."/>
+      <Group title="Underperforms among" tone="text-rose-600" list={weak} empty="None."/>
+    </div>
+
+    {/* the decision */}
+    <div className="mt-4 rounded-2xl border-2 border-slate-200 bg-white p-5">
+      <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-3">Recommendation</div>
+      <div className="space-y-3">
+        {[["check","text-emerald-600",v.keep],["bolt","text-indigo-600",v.strengthen],["gap","text-ink-faint",v.scope]].filter(x=>x[2]).map(([ic,tone,txt],i)=>{
+          const RIc=Icon[ic]; return <div key={i} className="flex gap-2.5">
+            <span className={cx("mt-0.5 shrink-0", tone)}><RIc size={15}/></span>
+            <p className="text-[13.5px] leading-relaxed text-ink-soft">{txt}</p></div>;})}
+      </div>
+    </div>
+
+    {/* what it stands on */}
+    <div className="mt-4 rounded-2xl border border-line bg-slate-50/60 p-4">
+      <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-2">Supporting evidence</div>
+      <div className="grid sm:grid-cols-2 gap-x-6 gap-y-1.5">
+        {[["Market research","Ophthal Market Sizing, IQVIA"],["Physician interviews","Qualitative, n=25"],
+          ["Synthetic HCP simulation","5 cohorts · 14 dimensions"],["Historical brand memory","Brand Brain v11"]].map(([k,sub],i)=>
+          <div key={i} className="flex items-center gap-2 text-[12.5px]">
+            <span className="text-emerald-600 shrink-0"><Icon.checkc size={14}/></span>
+            <span className="font-semibold text-ink">{k}</span><span className="text-ink-faint">· {sub}</span></div>)}
+      </div>
+    </div>
+
+    {/* hand off to governance, the same asset that is already sitting in the MLR queue */}
+    <div className="mt-4 rounded-2xl bg-ink text-white shadow-pop px-5 py-3.5 flex items-center gap-4">
+      <span className="w-9 h-9 rounded-xl bg-white/10 grid place-items-center shrink-0"><Icon.stamp size={19}/></span>
+      <div className="flex-1"><div className="font-bold text-[14px]">Positioning validated. Route {asset.code} to MLR.</div>
+        <div className="text-[12px] text-white/60">Medical, legal and regulatory review before localization and media investment.</div></div>
+      <Button variant="soft" size="sm" onClick={onGovern} iconRight={<Icon.arrow size={15}/>}>Send to MLR Governance</Button>
+    </div>
+  </div>;
+}
+
+// Validate whether an existing campaign reinforces the right commercial positioning, judged on
+// predicted prescribing behaviour per cohort, not on creative execution.
+function AssetTestPanel({onClose, autoAsset, onGovern}) {
+  // Behavioural, not aesthetic: the simulation predicts prescribing response to the positioning,
+  // it does not critique the creative.
+  const ASTEPS=["Reading the campaign's claims and commercial positioning","Scoring 14 commercial dimensions per physician segment","Predicting prescribing response per segment","Weighting each segment by its share of prescriptions","Synthesising one commercial recommendation"];
+
+  // Arriving from the Decision Studio contradiction, the campaign under question is already known.
+  // Seed the state from it so the very first paint is already validating, rather than flashing the
+  // picker for a frame, that flicker is what would make the two screens feel like separate tools.
+  const preset = autoAsset ? (TEST_ASSETS.find(x=>x.id===autoAsset||x.code===autoAsset)||null) : null;
+  const [phase,setPhase]=useState(preset?"analyzing":"pick");  // pick | analyzing | result
+  const [asset,setAsset]=useState(preset);
+  const [astep,setAstep]=useState(0);
+  const [tab,setTab]=useState("recommendation"); // recommendation | reactions | matrix | consensus | recs
+  const timer=useRef(null);
+
+  const tick=useCallback(()=>{ setAstep(0); clearInterval(timer.current);
+    let i=0; timer.current=setInterval(()=>{ i++; setAstep(i);
+      if(i>=ASTEPS.length){ clearInterval(timer.current); setTimeout(()=>setPhase("result"),450); } },680); },[]);
+  const run=useCallback((a)=>{ setAsset(a); setPhase("analyzing"); setTab("recommendation"); tick(); },[tick]);
+
+  useEffect(()=>{ if(preset) tick(); return ()=>clearInterval(timer.current); },[]);
 
   const order = asset ? [...PERSONAS].sort((a,b)=>asset.scores[b.id].pct-asset.scores[a.id].pct) : PERSONAS;
   const best = order[0], worst = order[order.length-1];
@@ -3040,8 +3160,8 @@ function AssetTestPanel({onClose}) {
       <div className="px-6 pt-5 pb-4 border-b border-line flex items-start gap-3 sticky top-0 bg-white z-10">
         <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-fuchsia-600 to-indigo-600 text-white grid place-items-center shrink-0"><Icon.eye size={19}/></span>
         <div className="flex-1">
-          <div className="font-bold text-[16px] text-ink">Test an asset, commercial simulation</div>
-          <div className="text-[12.5px] text-ink-mute mt-0.5">Upload a banner, emailer, visual aid or campaign asset, each synthetic HCP evaluates it across 14 commercial dimensions before it goes live.</div>
+          <div className="font-bold text-[16px] text-ink">Campaign validation, before you invest</div>
+          <div className="text-[12.5px] text-ink-mute mt-0.5">Does this campaign reinforce the right commercial positioning? Each physician segment predicts a prescribing response, weighted by its share of segment TRx, before localization, media spend, MLR and global launch.</div>
         </div>
         <button onClick={onClose} className="text-ink-mute hover:text-ink hover:bg-slate-100 rounded-lg p-1.5"><Icon.x size={18}/></button>
       </div>
@@ -3052,7 +3172,7 @@ function AssetTestPanel({onClose}) {
           <div className="font-bold text-[14.5px] text-ink mt-1">Drop an asset to test</div>
           <div className="text-[12.5px] text-ink-mute">Banner · emailer · image · video · concept copy, PNG, JPG, MP4, PDF, HTML</div>
         </div>
-        <div className="mt-5 text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-2">Or test a sample from your Veeva library</div>
+        <div className="mt-5 text-[10px] font-bold uppercase tracking-wider text-ink-faint mb-2">Or validate a live campaign from your Veeva library</div>
         <div className="space-y-2.5">
           {TEST_ASSETS.map(a=><button key={a.id} onClick={()=>run(a)}
             className="w-full flex items-center gap-3 rounded-xl border border-line bg-white p-3.5 hover:border-indigo-200 hover:bg-indigo-50/40 transition text-left">
@@ -3084,16 +3204,18 @@ function AssetTestPanel({onClose}) {
           <div className="w-16 h-11 rounded-lg bg-gradient-to-br from-emerald-50 to-indigo-50 border border-line grid place-items-center text-[8px] font-bold text-ink-faint text-center leading-tight shrink-0">ONCE DAILY<br/>YI COMBO</div>
           <div className="min-w-0 flex-1"><div className="font-semibold text-[13.5px] text-ink">{asset.name}</div>
             <div className="text-[11.5px] text-ink-mute italic">{asset.hero}</div></div>
-          <div className="text-right shrink-0"><div className="text-[9px] font-bold uppercase tracking-wide text-ink-faint">Cohort mean</div>
-            <div className="text-[18px] font-extrabold text-ink">{Math.round(order.reduce((n,p)=>n+asset.scores[p.id].pct,0)/order.length)}%</div></div>
+          <div className="text-right shrink-0"><div className="text-[9px] font-bold uppercase tracking-wide text-ink-faint">Positioning</div>
+            <div className="text-[13px] font-extrabold text-ink">{asset.positioning}</div></div>
         </div>
 
-        {/* tabs */}
+        {/* tabs, the commercial read leads; the per-persona detail sits behind it as the evidence */}
         <div className="flex items-center gap-1 mb-4 bg-slate-100/70 border border-line rounded-xl p-1">
-          {[["reactions","Persona reactions","users"],["matrix","Dimension matrix","grid"],["consensus","Consensus","split"],["recs","Recommendations","bolt"]].map(([id,label,ic])=>{ const TIc=Icon[ic]; const on=tab===id;
+          {[["recommendation","Recommendation","bolt"],["reactions","By segment","users"],["matrix","Dimension matrix","grid"],["consensus","Consensus","split"],["recs","Fix list","list"]].map(([id,label,ic])=>{ const TIc=Icon[ic]; const on=tab===id;
             return <button key={id} onClick={()=>setTab(id)} className={cx("flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[11.5px] font-semibold transition", on?"bg-white text-ink shadow-card":"text-ink-mute hover:text-ink-soft")}>
               <TIc size={13}/>{label}</button>;})}
         </div>
+
+        {tab==="recommendation" && <CommercialRecommendation asset={asset} onGovern={()=>{ onClose(); onGovern && onGovern(asset); }}/>}
 
         {tab==="reactions" && <div className="animate-fadein">
           <div className="grid grid-cols-2 gap-3 mb-4">
@@ -3265,8 +3387,11 @@ function PersonasScreen({app}) {
   const save=(id,f)=>{ setEdits(s=>({...s,[id]:f})); setEditId(null);
     app && app.toast("Persona recalibrated · change logged to the audit trail");
     app && app.log && app.log("Recalibrated synthetic persona “"+PERSONAS.find(x=>x.id===id).name+"”, MBTI/assumptions updated", [], null, "Verified", "indigo"); };
-  // Arriving from the Decision Studio contradiction opens the asset simulation immediately.
-  useEffect(()=>{ if(app && app.autoAssetTest){ setTest(true); app.clearAutoAssetTest(); } },[app && app.autoAssetTest]);
+  // Arriving from the Decision Studio contradiction opens campaign validation immediately, already
+  // pointed at the campaign in question.
+  const [autoAsset,setAutoAsset]=useState(null);
+  useEffect(()=>{ if(app && app.autoAssetTest){ setAutoAsset(app.autoAssetTest); setTest(true); app.clearAutoAssetTest(); } },[app && app.autoAssetTest]);
+  const closeTest=()=>{ setTest(false); setAutoAsset(null); };
   return <div className="max-w-5xl mx-auto pb-24">
     <ScreenHeader title="HCP Simulation" sub="Five synthetic ophthalmologists, one per segmentation cohort. Simulate how each decides, and test messaging and assets against them."
       right={<div className="flex items-center gap-2">
@@ -3287,8 +3412,8 @@ function PersonasScreen({app}) {
       className="w-full mb-5 rounded-2xl border border-indigo-200 bg-gradient-to-r from-indigo-50/70 to-fuchsia-50/50 hover:border-indigo-300 hover:shadow-card transition p-4 flex items-center gap-4 text-left group">
       <span className="w-11 h-11 rounded-xl bg-gradient-to-br from-fuchsia-600 to-indigo-600 text-white grid place-items-center shrink-0 group-hover:scale-105 transition"><Icon.eye size={21}/></span>
       <div className="flex-1">
-        <div className="font-bold text-[15px] text-ink">Test an asset before you spend on it</div>
-        <div className="text-[12.5px] text-ink-mute leading-snug mt-0.5">Every synthetic cohort scores your banner, emailer or visual aid across 14 commercial dimensions, and tells you which audience it loses.</div>
+        <div className="font-bold text-[15px] text-ink">Validate a campaign before you invest in it</div>
+        <div className="text-[12.5px] text-ink-mute leading-snug mt-0.5">Every physician segment predicts a prescribing response to the campaign's positioning, weighted by its share of segment TRx, and Brainlee returns one commercial recommendation.</div>
       </div>
       <span className="text-indigo-600 group-hover:translate-x-0.5 transition shrink-0"><Icon.arrow size={18}/></span>
     </button>
@@ -3297,7 +3422,7 @@ function PersonasScreen({app}) {
     </div> : <PersonaCompare list={list} onOpen={setOpen}/>}
     {p && <PersonaPanel p={p} onClose={()=>setOpen(null)} onEdit={(id)=>{setOpen(null);setEditId(id);}}/>}
     {ep && <PersonaEditModal p={ep} onSave={save} onClose={()=>setEditId(null)}/>}
-    {test && <AssetTestPanel onClose={()=>setTest(false)}/>}
+    {test && <AssetTestPanel onClose={closeTest} autoAsset={autoAsset} onGovern={app && app.goGovernCampaign}/>}
   </div>;
 }
 
@@ -3686,7 +3811,8 @@ function App() {
   const [brainTab,setBrainTab]=useState("graph");
   const [askRole,setAskRole]=useState("marketing"); // marketing | medcoe
   const [source,setSource]=useState(null);       // citation id or null
-  const [autoAssetTest,setAutoAssetTest]=useState(false); // cross-module jump: Studio → HCP Simulation
+  const [autoAssetTest,setAutoAssetTest]=useState(null);  // campaign id to validate on arrival, Studio → HCP Simulation
+  const [campaignVerdict,setCampaignVerdict]=useState(null); // the validated campaign, carried into MLR + Brand Brain
   const [audit,setAudit]=useState([]);
   const [toastMsg,setToastMsg]=useState(null);
   const toastTimer=useRef(null);
@@ -3705,19 +3831,31 @@ function App() {
     setAudit(a=>[{ ts:"Just now", user:user||BRAND.owner, role:role||BRAND.role, action, evidence:evidence||[], conf, status, tone },...a]); },[]);
 
   const toWelcome=useCallback(()=>{ setHistState({stack:["pulse"], i:0}); setStage("welcome"); },[]);
-  // One-click jump from the Decision Studio contradiction straight into the asset simulation that
-  // settles it, so the demo never has to navigate manually mid-argument.
-  const goSimulateAsset=useCallback(()=>{ setAutoAssetTest(true); go("personas"); },[go]);
+  // One-click jump from the Decision Studio contradiction straight into validating the campaign that
+  // the contradiction puts in doubt, carrying the campaign id so the simulation opens already running
+  // on it. The two screens read as one decision rather than a jump into a separate tool.
+  const goValidateCampaign=useCallback((assetId)=>{ setAutoAssetTest(assetId); go("personas"); },[go]);
+  // Validation complete → route the same campaign into governance, and remember the reasoning.
+  const goGovernCampaign=useCallback((asset)=>{
+    setCampaignVerdict({code:asset.code, name:asset.name, positioning:asset.positioning});
+    log("Validated campaign "+asset.code+" against 5 physician segments, positioning “"+asset.positioning+"” confirmed as primary, efficacy evidence flagged for analytical segments",
+        ["c3","c4"], "moderate", "Verified", "indigo");
+    toast("Campaign validated · routed to MLR Governance");
+    go("mlr");
+  },[go, log, toast]);
   const app={ nav, go, back, forward, canBack:histState.i>0, canForward:histState.i<histState.stack.length-1, toWelcome,
               uploaded, setUploaded, synthDone, setSynthDone, published,
               mlrApproved, setMlrApproved, brainTab, setBrainTab, askRole, setAskRole, audit, log,
-              goSimulateAsset, autoAssetTest, clearAutoAssetTest:()=>setAutoAssetTest(false),
+              goValidateCampaign, goGovernCampaign, autoAssetTest, clearAutoAssetTest:()=>setAutoAssetTest(null),
+              campaignVerdict,
               openReview:()=>setReviewOpen(true), toast };
   const srcApi={ open:(id)=>setSource(id), close:()=>setSource(null) };
 
   const approve=()=>{ setPublished(true); setReviewOpen(false);
     toast("Published to the Brand Brain · logged as "+BRAND.owner);
-    log("Approved & published “Switching Drivers, What We Know” v12, 2 findings added, driver contradiction preserved, graph +2 nodes", ["c1","c4","c5"], "high", "Published", "emerald");
+    log("Approved & published “Switching Drivers, What We Know” v12, 2 findings added, driver contradiction preserved, graph +2 nodes"
+        +(campaignVerdict?", campaign "+campaignVerdict.code+" and the reasoning behind its positioning stored as institutional memory":""),
+        ["c1","c4","c5"], "high", "Published", "emerald");
     setBrainTab("graph"); go("brand"); };
   const reject=()=>{ setReviewOpen(false); toast("Draft rejected, kept for audit, never deleted");
     log("Rejected today's synthesis draft, retained in the audit archive", [], null, "Rejected", "rose"); };
@@ -3736,7 +3874,7 @@ function App() {
       </main>
     </div>
     {source && <SourcePanel cite={CITATIONS[source]} onClose={srcApi.close}/>}
-    {reviewOpen && <ReviewModal onApprove={approve} onReject={reject} onClose={()=>setReviewOpen(false)}/>}
+    {reviewOpen && <ReviewModal onApprove={approve} onReject={reject} onClose={()=>setReviewOpen(false)} campaignVerdict={campaignVerdict}/>}
     <Toast message={toastMsg}/>
   </SourceCtx.Provider>;
 }
