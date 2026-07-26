@@ -1924,7 +1924,7 @@ function AskResult({q, res, role, published, onApprove, app}) {
       {app && <div className="mt-2.5 rounded-xl border border-indigo-200 bg-indigo-50/50 px-4 py-3 flex items-center gap-3">
         <span className="w-8 h-8 rounded-lg bg-white border border-indigo-200 text-indigo-600 grid place-items-center shrink-0"><Icon.users size={16}/></span>
         <div className="flex-1"><div className="text-[13px] font-bold text-ink">Don't pick a side, test it.</div>
-          <div className="text-[12px] text-ink-mute leading-snug">Run the convenience-led asset past all five synthetic cohorts and see which side the evidence lands on.</div></div>
+          <div className="text-[12px] text-ink-mute leading-snug">Run a live HCP banner past all five synthetic cohorts and see where your two priority cohorts pull apart.</div></div>
         <Button size="sm" onClick={()=>app.goSimulateAsset()} iconRight={<Icon.arrow size={14}/>}>Validate with HCP Simulation</Button>
       </div>}
     </div>
