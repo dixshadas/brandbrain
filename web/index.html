@@ -21,11 +21,9 @@
   /* ---- Runtime configuration (no build step; each is a one-line swap) -------------------
      __LEAD_ENDPOINT : POST target for "Request a demo". Blank = log to console, still show
                        success, and keep a local copy, so the build never looks broken.
-     __VIDEO_URL     : product-tour video (mp4/webm). Blank = composed poster placeholder.
      The interactive product prototype is a separate, independently-deployed application
      (see /prototype). It is never part of this bundle and is not reachable from this site. */
   window.__LEAD_ENDPOINT = "https://script.google.com/macros/s/AKfycbx5kAF_JOQAFKZNFnO3Uu-Q0w_ESS0VqD_SmwnRL_qSleEhCG0hcXBsS_LUGADby10j/exec";
-  window.__VIDEO_URL     = "";
 </script>
 <!-- Zero-build React marketing site: React 18 + Babel(TSX) + Tailwind. Opens in any browser. -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
@@ -327,10 +325,6 @@ function prefersReducedMotion(){
 }
 
 /* ---- small primitives -------------------------------------------------------- */
-function MonoChip({children, tone="muted", className=""}) {
-  return <span className={cx("inline-flex items-center gap-1.5 font-mono text-[11px] tracking-tight rounded-md border px-2 py-1",
-    tone==="accent"?"border-accent/40 text-accent-soft bg-accent/10":"border-white/10 text-txt-muted", className)}>{children}</span>;
-}
 function MkBtn({children, onClick, variant="primary", type="button", disabled, className="", ...rest}) {
   const base="inline-flex items-center justify-center gap-2 rounded-xl font-medium text-[14.5px] px-5 py-3 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
   const look = variant==="primary"
@@ -339,11 +333,12 @@ function MkBtn({children, onClick, variant="primary", type="button", disabled, c
   const style = variant==="primary" ? {background:"linear-gradient(135deg,#7C5CFF,#6B4CF0)"} : undefined;
   return <button type={type} onClick={onClick} disabled={disabled} style={style} className={cx(base,look,className)} {...rest}>{children}</button>;
 }
-function MkHead({eyebrow, title, sub, center=true, light=false}) {
+
+function MkHead({eyebrow, title, sub, center=true}) {
   return <div className={cx("max-w-2xl", center&&"mx-auto text-center")}>
-    {eyebrow && <Reveal><div className={cx("font-mono text-[11px] uppercase tracking-[.18em]", light?"text-slate-500":"text-txt-dim")}>{eyebrow}</div></Reveal>}
-    <h2 className={cx("text-[27px] sm:text-[34px] leading-[1.15] font-semibold mt-3", light?"text-ink":"text-txt")}><WordReveal text={title}/></h2>
-    {sub && <Reveal delay={120}><p className={cx("text-[15.5px] leading-[1.6] mt-4", light?"text-slate-600":"text-txt-muted")}>{sub}</p></Reveal>}
+    {eyebrow && <Reveal><div className="font-mono text-[11px] uppercase tracking-[.18em] text-txt-dim">{eyebrow}</div></Reveal>}
+    <h2 className="text-[27px] sm:text-[34px] leading-[1.15] font-semibold mt-3 text-txt"><WordReveal text={title}/></h2>
+    {sub && <Reveal delay={120}><p className="text-[15.5px] leading-[1.6] mt-4 text-txt-muted">{sub}</p></Reveal>}
   </div>;
 }
 
@@ -545,79 +540,17 @@ function HowItWorks() {
   </section>;
 }
 
-/* ---- SECTION 2 · product video ------------------------------------------------ */
-// Ships as a composed poster until VITE-equivalent config supplies a URL. Never a broken player.
-// Embedded natively (no YouTube chrome). Lazy-loads the source only near the viewport,
-// autoplays muted the moment it's in view, pauses the instant it leaves, and offers a
-// native fullscreen expand. Falls back to a composed poster — never a broken player —
-// until window.__VIDEO_URL is set; swapping the real file in is then a one-line change.
-function ProductVideo() {
-  const url = (typeof window!=="undefined" && window.__VIDEO_URL) || "";
-  const [wrapRef, onScreen] = usePausedOffscreen();
-  const [loaded, setLoaded] = useState(false);
-  const videoRef = useRef(null);
-  const frameRef = useRef(null);
-
-  useEffect(()=>{ if(onScreen && !loaded) setLoaded(true); },[onScreen, loaded]);
-  useEffect(()=>{
-    const v = videoRef.current;
-    if(!v) return;
-    if(onScreen) v.play().catch(()=>{}); else v.pause();
-  },[onScreen, loaded]);
-
-  const goFullscreen = ()=>{
-    const el = frameRef.current; if(!el) return;
-    const req = el.requestFullscreen || el.webkitRequestFullscreen;
-    if(req) req.call(el);
-  };
-
-  return <section id="tour" ref={wrapRef} className="border-t border-white/[.06] py-20 sm:py-28 bg-white">
-    <div className="max-w-4xl mx-auto px-5 sm:px-8">
-      <MkHead title="See Brainlee in Action" light/>
-      <Reveal delay={120} className="mt-10">
-        <div ref={frameRef} className="group relative rounded-2xl overflow-hidden border border-white/[.09] bg-raised shadow-[0_28px_90px_rgba(0,0,0,.5)]"
-          style={{aspectRatio:"16 / 9"}}>
-          {url ? <>
-            {loaded && <video ref={videoRef} muted loop playsInline preload="none"
-              aria-label="Brainlee product tour" className="absolute inset-0 w-full h-full object-cover" src={url}/>}
-            <button onClick={goFullscreen} aria-label="Expand to fullscreen"
-              className="absolute bottom-3 right-3 w-9 h-9 rounded-lg mk-glass grid place-items-center text-txt opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity">
-              <Icon.expand size={15}/>
-            </button>
-          </> : <>
-            {/* composed poster, so the frame looks designed rather than missing */}
-            <div aria-hidden="true" className="absolute inset-0"
-              style={{background:"radial-gradient(700px 320px at 50% 0%, rgba(124,92,255,.16) 0%, transparent 65%), linear-gradient(180deg,#161D2F,#0B0F1A)"}}/>
-            <div aria-hidden="true" className="absolute top-0 inset-x-0 h-9 border-b border-white/[.06] flex items-center gap-1.5 px-4">
-              <span className="w-2 h-2 rounded-full bg-white/15"/><span className="w-2 h-2 rounded-full bg-white/15"/><span className="w-2 h-2 rounded-full bg-white/15"/>
-              <span className="ml-3 font-mono text-[10.5px] text-txt-dim">brainlee — product tour</span>
-            </div>
-            <div className="absolute inset-0 grid place-items-center">
-              <button disabled aria-disabled="true" aria-label="Product tour video coming soon"
-                className="w-16 h-16 rounded-full grid place-items-center opacity-50 cursor-default"
-                style={{background:"linear-gradient(135deg,#7C5CFF,#6B4CF0)"}}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" className="translate-x-0.5"><path d="M6 4l14 8-14 8z"/></svg>
-              </button>
-            </div>
-          </>}
-        </div>
-      </Reveal>
-    </div>
-  </section>;
-}
-
-/* ---- SECTION 4 · enterprise trust --------------------------------------------- */
 function TrustSection() {
-  return <section className="border-t border-white/[.06] py-20 sm:py-28 bg-white">
+  return <section className="border-t border-white/[.06] py-20 sm:py-28">
     <div className="max-w-5xl mx-auto px-5 sm:px-8">
-      <MkHead title="Built for enterprise trust" light/>
+      <MkHead title="Built for enterprise trust"/>
       <div className="mt-12 grid sm:grid-cols-3 gap-4">
         {MK_TRUST.map((t,i)=>{ const TIc=Icon[t.icon];
           return <Reveal key={t.title} delay={i*60}>
-            <div className="h-full rounded-xl border border-line bg-white shadow-card p-5">
+            <div className="h-full rounded-xl border border-white/[.08] bg-white/[.03] p-5">
               <TIc size={18} cls="text-accent"/>
-              <div className="text-[15px] font-medium text-ink mt-3.5">{t.title}</div>
-              <p className="text-[13.5px] leading-[1.6] text-ink-mute mt-1.5">{t.body}</p>
+              <div className="text-[15px] font-medium text-txt mt-3.5">{t.title}</div>
+              <p className="text-[13.5px] leading-[1.6] text-txt-muted mt-1.5">{t.body}</p>
             </div></Reveal>;})}
       </div>
     </div>
@@ -792,7 +725,6 @@ function MarketingSite() {
           <span className="text-[16px] font-medium tracking-[-.02em] text-txt">Brainlee</span>
         </div>
         <nav className="ml-auto hidden sm:flex items-center gap-1 mr-2">
-          <button onClick={()=>scrollTo("tour")} className="px-3.5 py-2 rounded-lg text-[13.5px] font-medium text-txt-muted hover:text-txt transition-colors">Product</button>
           <button onClick={()=>scrollTo("how")} className="px-3.5 py-2 rounded-lg text-[13.5px] font-medium text-txt-muted hover:text-txt transition-colors">How it works</button>
         </nav>
         <MkBtn onClick={()=>setModal(true)} className="!px-4 !py-2 !text-[13.5px]">Request a Demo</MkBtn>
@@ -823,14 +755,13 @@ function MarketingSite() {
           <Reveal delay={300}>
             <div className="mt-9 flex flex-col sm:flex-row items-center justify-center gap-4">
               <MkBtn onClick={()=>setModal(true)} className="w-full sm:w-auto">Request a Demo</MkBtn>
-              <button onClick={()=>scrollTo("tour")}
+              <button onClick={()=>scrollTo("how")}
                 className="inline-flex items-center gap-1.5 text-[14.5px] text-txt-muted hover:text-txt transition-colors">
-                Watch Product Tour <Icon.arrow size={15}/></button>
+                How it works <Icon.arrow size={15}/></button>
             </div></Reveal>
         </div>
       </section>
 
-      <ProductVideo/>
       <HowItWorks/>
       <TrustSection/>
 

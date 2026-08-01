@@ -1946,7 +1946,7 @@ function AskResult({q, res, role, published, onApprove, app}) {
             The global campaign <b className="text-ink-soft">PP-YIC-GLB-0258, Long-Term Tolerability</b> is already built.
             Before it goes to localization, media spend, MLR and global launch, validate whether it reinforces the positioning this evidence actually supports.
           </div>
-          <div className="mt-2.5"><Button size="sm" onClick={()=>app.goValidateCampaign("t1")} iconRight={<Icon.arrow size={14}/>}>Validate campaign against physician segments</Button></div>
+          <div className="mt-2.5"><Button size="sm" onClick={()=>app.goValidateCampaign()} iconRight={<Icon.arrow size={14}/>}>Validate campaign against physician segments</Button></div>
         </div>
       </div>}
     </div>
@@ -3129,17 +3129,13 @@ function CommercialRecommendation({asset, onGovern}) {
 
 // Validate whether an existing campaign reinforces the right commercial positioning, judged on
 // predicted prescribing behaviour per cohort, not on creative execution.
-function AssetTestPanel({onClose, autoAsset, onGovern}) {
+function AssetTestPanel({onClose, onGovern}) {
   // Behavioural, not aesthetic: the simulation predicts prescribing response to the positioning,
   // it does not critique the creative.
   const ASTEPS=["Reading the campaign's claims and commercial positioning","Scoring 14 commercial dimensions per physician segment","Predicting prescribing response per segment","Weighting each segment by its share of prescriptions","Synthesising one commercial recommendation"];
 
-  // Arriving from the Decision Studio contradiction, the campaign under question is already known.
-  // Seed the state from it so the very first paint is already validating, rather than flashing the
-  // picker for a frame, that flicker is what would make the two screens feel like separate tools.
-  const preset = autoAsset ? (TEST_ASSETS.find(x=>x.id===autoAsset||x.code===autoAsset)||null) : null;
-  const [phase,setPhase]=useState(preset?"analyzing":"pick");  // pick | analyzing | result
-  const [asset,setAsset]=useState(preset);
+  const [phase,setPhase]=useState("pick");  // pick | analyzing | result
+  const [asset,setAsset]=useState(null);
   const [astep,setAstep]=useState(0);
   const [tab,setTab]=useState("recommendation"); // recommendation | reactions | matrix | consensus | recs
   const timer=useRef(null);
@@ -3149,7 +3145,7 @@ function AssetTestPanel({onClose, autoAsset, onGovern}) {
       if(i>=ASTEPS.length){ clearInterval(timer.current); setTimeout(()=>setPhase("result"),450); } },680); },[]);
   const run=useCallback((a)=>{ setAsset(a); setPhase("analyzing"); setTab("recommendation"); tick(); },[tick]);
 
-  useEffect(()=>{ if(preset) tick(); return ()=>clearInterval(timer.current); },[]);
+  useEffect(()=>()=>clearInterval(timer.current),[]);
 
   const order = asset ? [...PERSONAS].sort((a,b)=>asset.scores[b.id].pct-asset.scores[a.id].pct) : PERSONAS;
   const best = order[0], worst = order[order.length-1];
@@ -3387,11 +3383,8 @@ function PersonasScreen({app}) {
   const save=(id,f)=>{ setEdits(s=>({...s,[id]:f})); setEditId(null);
     app && app.toast("Persona recalibrated · change logged to the audit trail");
     app && app.log && app.log("Recalibrated synthetic persona “"+PERSONAS.find(x=>x.id===id).name+"”, MBTI/assumptions updated", [], null, "Verified", "indigo"); };
-  // Arriving from the Decision Studio contradiction opens campaign validation immediately, already
-  // pointed at the campaign in question.
-  const [autoAsset,setAutoAsset]=useState(null);
-  useEffect(()=>{ if(app && app.autoAssetTest){ setAutoAsset(app.autoAssetTest); setTest(true); app.clearAutoAssetTest(); } },[app && app.autoAssetTest]);
-  const closeTest=()=>{ setTest(false); setAutoAsset(null); };
+  // Arriving from the Decision Studio contradiction opens campaign validation straight away.
+  useEffect(()=>{ if(app && app.autoAssetTest){ setTest(true); app.clearAutoAssetTest(); } },[app && app.autoAssetTest]);
   return <div className="max-w-5xl mx-auto pb-24">
     <ScreenHeader title="HCP Simulation" sub="Five synthetic ophthalmologists, one per segmentation cohort. Simulate how each decides, and test messaging and assets against them."
       right={<div className="flex items-center gap-2">
@@ -3422,7 +3415,7 @@ function PersonasScreen({app}) {
     </div> : <PersonaCompare list={list} onOpen={setOpen}/>}
     {p && <PersonaPanel p={p} onClose={()=>setOpen(null)} onEdit={(id)=>{setOpen(null);setEditId(id);}}/>}
     {ep && <PersonaEditModal p={ep} onSave={save} onClose={()=>setEditId(null)}/>}
-    {test && <AssetTestPanel onClose={closeTest} autoAsset={autoAsset} onGovern={app && app.goGovernCampaign}/>}
+    {test && <AssetTestPanel onClose={()=>setTest(false)} onGovern={app && app.goGovernCampaign}/>}
   </div>;
 }
 
@@ -3831,10 +3824,10 @@ function App() {
     setAudit(a=>[{ ts:"Just now", user:user||BRAND.owner, role:role||BRAND.role, action, evidence:evidence||[], conf, status, tone },...a]); },[]);
 
   const toWelcome=useCallback(()=>{ setHistState({stack:["pulse"], i:0}); setStage("welcome"); },[]);
-  // One-click jump from the Decision Studio contradiction straight into validating the campaign that
-  // the contradiction puts in doubt, carrying the campaign id so the simulation opens already running
-  // on it. The two screens read as one decision rather than a jump into a separate tool.
-  const goValidateCampaign=useCallback((assetId)=>{ setAutoAssetTest(assetId); go("personas"); },[go]);
+  // One-click jump from the Decision Studio contradiction into campaign validation. It opens the
+  // same picker the HCP Simulation screen uses, so the campaign under question is chosen explicitly
+  // out of the Veeva library rather than assumed.
+  const goValidateCampaign=useCallback(()=>{ setAutoAssetTest(true); go("personas"); },[go]);
   // Validation complete → route the same campaign into governance, and remember the reasoning.
   const goGovernCampaign=useCallback((asset)=>{
     setCampaignVerdict({code:asset.code, name:asset.name, positioning:asset.positioning});

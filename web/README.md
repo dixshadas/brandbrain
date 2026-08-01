@@ -62,11 +62,13 @@ declared content type was. Because the response is opaque, the UI treats a submi
 still in flight after ~2.5s as successful optimistically — a genuine network failure (offline,
 DNS, etc.) that surfaces before then still shows the retry state.
 
-## Product tour video
+## Page structure
 
-`window.__VIDEO_URL` (also near the top of `index.html`) gates the Section 2 player: blank
-shows a composed poster placeholder (never a broken player), set it to an `.mp4`/`.webm`
-URL to enable the real autoplay-on-scroll, pause-off-screen, fullscreen-capable player.
+Hero → How Brainlee works → Built for enterprise trust → Final CTA. All sections share the
+dark theme; there is no light-background section. The "See Brainlee in Action" product-video
+section was removed deliberately: the public site does not show the product running. The
+interactive product experience lives only on the private prototype
+(see [`../prototype/`](../prototype)).
 
 ## Notes
 - Requires internet on first load (React/Tailwind/Babel come from CDN).
